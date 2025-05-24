@@ -1,8 +1,15 @@
 {
-  "name": "timetracker",
-  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
   "scripts": {
-    "start:frontend": "cd apps/frontend && npm start",
-    "start:backend": "cd apps/backend && npm run start"
+    "start:frontend": "npm --workspace=apps/frontend run dev",
+    "start:backend": "npm --workspace=apps/backend run start:local",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
   }
 }
