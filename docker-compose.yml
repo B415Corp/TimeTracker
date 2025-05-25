@@ -53,8 +53,15 @@ services:
     volumes:
       - frontend-dist:/app/frontend-dist:ro
     environment:
-      - NODE_ENV=prod
-      # другие переменные окружения
+      - NODE_ENV=production
+      - DB_PORT=5432
+      - DB_HOST=postgres
+      - DB_USER=yourusername
+      - DB_PASSWORD=GvXWmzMLP03HNmrp
+      - DB_NAME=nestdb_prod
+      - JWT_SECRET=PROD_SECRET_KEY
+      - JWT_EXPIRES_IN=1d
+      - DB_SYNCHRONIZE=true
     networks:
       - app-network
 
