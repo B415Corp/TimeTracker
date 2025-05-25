@@ -38,7 +38,7 @@ WORKDIR /app/backend
 COPY --from=backend-builder /app/backend/node_modules ./node_modules
 COPY --from=backend-builder /app/backend/package*.json ./
 COPY --from=backend-builder /app/backend/dist ./dist
-COPY --from=frontend-builder /app/frontend/dist ./dist/public
+COPY --from=frontend-builder /app/frontend/dist ./public
 
 # Фиксируем архитектуру модулей
 RUN npm rebuild bcrypt --update-binary

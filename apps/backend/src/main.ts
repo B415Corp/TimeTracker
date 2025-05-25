@@ -50,6 +50,7 @@ async function bootstrap() {
     if (
       req.method === 'GET' &&
       !req.path.startsWith('/api') &&
+      !req.path.startsWith('/v') &&
       !req.path.includes('.') &&
       !req.path.startsWith('/socket.io') && // Если используете socket.io
       req.accepts('html')
