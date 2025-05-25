@@ -1,0 +1,1 @@
+Монорепозиторий frontend и backend.
