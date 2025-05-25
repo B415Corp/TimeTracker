@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5433"
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U yourusername"]
       interval: 10s
@@ -37,6 +37,9 @@ services:
     command: ["npm", "run", "build"]
     volumes:
       - frontend-dist:/app/dist
+    environment:
+      - VITE_API_URL=http://localhost:3000/v1
+      - BASE_URL=/
     networks:
       - app-network
 
@@ -51,9 +54,12 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - frontend-dist:/app/frontend-dist:ro
+      - frontend-dist:/app/backend/dist/public:ro
     environment:
+      - CLIENT_ROUTER_MODE=history
       - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
       - DB_PORT=5432
       - DB_HOST=postgres
       - DB_USER=yourusername
