@@ -1,17 +1,15 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:14
     container_name: postgres
     environment:
-      - POSTGRES_USER=yourusername
-      - POSTGRES_PASSWORD=GvXWmzMLP03HNmrp
-      - POSTGRES_DB=nestdb_prod
+      POSTGRES_USER: yourusername
+      POSTGRES_PASSWORD: GvXWmzMLP03HNmrp
+      POSTGRES_DB: nestdb_prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5432:5433"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U yourusername"]
       interval: 10s
@@ -31,32 +29,38 @@ services:
     networks:
       - app-network
 
+  frontend-builder:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: frontend-builder
+    command: ["npm", "run", "build"]
+    volumes:
+      - frontend-dist:/app/dist
+    networks:
+      - app-network
+
   backend:
     build:
-      context: ./apps/backend/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
     container_name: backend
-    environment:
-      - NODE_ENV=production
-      - DB_PORT=5432
-      - DB_HOST=postgres
-      - DB_USER=yourusername
-      - DB_PASSWORD=GvXWmzMLP03HNmrp
-      - DB_NAME=nestdb_prod
-      - JWT_SECRET=PROD_SECRET_KEY
-      - JWT_EXPIRES_IN=1d
-      - DB_SYNCHRONIZE=true
+    depends_on:
+      - postgres
+      - frontend-builder
     ports:
       - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: npm run start:prod
+    volumes:
+      - frontend-dist:/app/frontend-dist:ro
+    environment:
+      - NODE_ENV=prod
+      # другие переменные окружения
     networks:
       - app-network
 
 volumes:
   postgres_data:
+  frontend-dist:
 
 networks:
   app-network:

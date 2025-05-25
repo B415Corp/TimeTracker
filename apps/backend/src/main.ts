@@ -24,6 +24,8 @@ async function bootstrap() {
   logger.log(`NODE_ENV from process.env: ${process.env.NODE_ENV}`);
   logger.log(`NODE_ENV from ConfigService: ${configService.get('NODE_ENV')}`);
 
+  console.log('process.env.NODE_ENV',process.env.NODE_ENV, process.env)
+
   const environment =
     process.env.NODE_ENV || configService.get('NODE_ENV') || 'development';
   logger.log(`Final environment: ${environment}`);
@@ -92,7 +94,7 @@ async function bootstrap() {
     res.json(document);
   });
 
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port, 'localhost');
 
   const host = process.env.HOST || 'localhost';
   logger.log(`Server is running on http://${host}:${port}`);

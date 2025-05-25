@@ -1,31 +1,38 @@
-# Этап сборки
-FROM node:20-alpine AS builder
+# Этап сборки frontend
+FROM node:20-alpine AS frontend-builder
 
-WORKDIR /app
+WORKDIR /app/frontend
 
-# Копируем package.json и package-lock.json
-COPY package*.json ./
+COPY apps/frontend/package*.json ./
+RUN npm install --legacy-peer-deps
 
-# Устанавливаем зависимости
-RUN npm install
-
-# Копируем весь исходный код
-COPY . .
-
-# Собираем проект
+COPY apps/frontend ./
 RUN npm run build
 
-# Финальный этап
+# Этап сборки backend
+FROM node:20-alpine AS backend-builder
+
+WORKDIR /app/backend
+
+COPY apps/backend/package*.json ./
+RUN npm install --legacy-peer-deps
+
+COPY apps/backend ./
+RUN npm run build
+
+# Финальный образ
 FROM node:20-alpine
 
-WORKDIR /app
+WORKDIR /app/backend
 
-# Копируем из builder только необходимые файлы
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
+# Копируем backend
+COPY --from=backend-builder /app/backend/dist ./dist
+COPY --from=backend-builder /app/backend/node_modules ./node_modules
+COPY --from=backend-builder /app/backend/package*.json ./
+
+# Копируем собранный frontend из frontend-builder
+COPY --from=frontend-builder /app/frontend/dist ./dist/public
 
 EXPOSE 3000
 
-# Запускаем production-сервер
 CMD ["npm", "run", "start:prod"]
