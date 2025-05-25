@@ -2,7 +2,7 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev --prefer-offline --no-audit --legacy-peer-deps
+RUN npm install --omit=dev --prefer-offline --no-audit --legacy-peer-deps
 
 COPY . .
 RUN npm run build

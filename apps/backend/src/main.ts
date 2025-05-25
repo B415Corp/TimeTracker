@@ -6,6 +6,8 @@ import * as process from 'node:process';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import * as express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,6 +30,9 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Отдача статики фронтенда
+  app.use(express.static(join(__dirname, '..', 'public')));
 
   // Включаем версионирование API через URI
   app.enableVersioning({
