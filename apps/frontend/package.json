@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "vite --mode dev",
     "prod": "vite --mode prod",
-    "build": "tsc -b && vite build --mode prod",
+    "build": "vite build --mode prod",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"
