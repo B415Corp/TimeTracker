@@ -43,7 +43,7 @@ export class UsersController {
   @ApiResponse({ status: 200 })
   @Get('/ci-cd')
   async testCiCD() {
-    return { message: 'ci-cd' };
+    return { message: 'ci-cd v2' };
   }
 
   @Version('1')
