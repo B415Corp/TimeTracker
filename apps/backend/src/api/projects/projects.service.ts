@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as moment from 'moment';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Brackets } from 'typeorm';
 import { Project } from '../../entities/project.entity';
@@ -314,20 +315,40 @@ export class ProjectsService {
       .skip(offset);
 
     if (searchTerm) {
-      query.andWhere(
-        new Brackets((qb) => {
-          qb.where('project.name ILIKE :searchTerm', {
-            searchTerm: `%${searchTerm}%`,
+      // Проверяем, является ли searchTerm датой в формате DD.MM.YYYY
+      const date = moment(searchTerm, 'DD.MM.YYYY', true);
+      if (date.isValid()) {
+        // Формируем границы для поиска по дате (начало и конец дня)
+        const startOfDay = date.startOf('day').toDate();
+        const endOfDay = date.endOf('day').toDate();
+        query.andWhere(
+          new Brackets((qb) => {
+            qb.where('project.created_at BETWEEN :startOfDay AND :endOfDay', {
+              startOfDay,
+              endOfDay,
+            }).orWhere('project.updated_at BETWEEN :startOfDay AND :endOfDay', {
+              startOfDay,
+              endOfDay,
+            });
           })
-            .orWhere('client.name ILIKE :searchTerm', {
+        );
+      } else {
+        // Если не дата, то обычный поиск по тексту
+        query.andWhere(
+          new Brackets((qb) => {
+            qb.where('project.name ILIKE :searchTerm', {
               searchTerm: `%${searchTerm}%`,
             })
-            .orWhere('user.email ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
-            });
-          // Добавьте другие поля для поиска здесь, если нужно
-        })
-      );
+              .orWhere('client.name ILIKE :searchTerm', {
+                searchTerm: `%${searchTerm}%`,
+              })
+              .orWhere('user.email ILIKE :searchTerm', {
+                searchTerm: `%${searchTerm}%`,
+              });
+            // Можно добавить другие поля для поиска здесь
+          })
+        );
+      }
     }
 
     return query.getMany();
