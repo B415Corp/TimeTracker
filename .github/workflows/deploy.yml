@@ -1,4 +1,4 @@
-name: TT
+name: Docker Deploy
 
 on:
   push:
@@ -8,16 +8,12 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      # Шаг 1: Получение кода
-      - name: Update code
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # Шаг 2: Остановка старых контейнеров и запуск новых
       - name: Update and restart containers
         run: |
           cd /home/deploy/projects/TimeTracker
           git pull origin main
-          docker compose down --remove-orphans  # Остановка и удаление контейнеров
-          docker compose up -d  # Запуск контейнеров без пересборки
+          docker compose down --remove-orphans
+          docker compose up -d
