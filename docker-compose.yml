@@ -38,7 +38,7 @@ services:
     volumes:
       - frontend-dist:/app/dist
     environment:
-      - VITE_API_URL=http://localhost:3000/v1
+      - VITE_API_URL=http://25.5.161.101:3000/v1
       - BASE_URL=/
     networks:
       - app-network
