@@ -9,8 +9,10 @@ jobs:
     runs-on: self-hosted
     steps:
       # Шаг 1: Получение кода
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Update code
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
 
       # Шаг 2: Остановка старых контейнеров и запуск новых
       - name: Update and restart containers
