@@ -9,10 +9,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+type sizes = "xxs" | "xs" | "small" | "large";
 interface Props {
   name: string;
   planId: SUBSCRIPTION;
-  size?: "xs" | "small" | "large";
+  size?: sizes;
   metaText?: string;
 }
 
@@ -22,7 +23,7 @@ export default function UserAvatar({
   size = "small",
   metaText = "",
 }: Props) {
-  function setSize(size: "xs" | "small" | "large") {
+  function setSize(size: sizes) {
     switch (size) {
       case "xs":
         return "size-6";
@@ -30,6 +31,8 @@ export default function UserAvatar({
         return "size-8";
       case "large":
         return "size-16";
+      case "xxs":
+        return "size-4";
       default:
         return "size-8";
     }

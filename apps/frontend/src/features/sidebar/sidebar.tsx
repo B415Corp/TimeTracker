@@ -1,6 +1,6 @@
 import { CONTACTS_VIEW, ROUTES } from "@/app/router/routes.enum";
 import { NavUser } from "@/components/nav-user";
-import { Collapsible } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   SidebarHeader,
   SidebarContent,
@@ -8,14 +8,31 @@ import {
   SidebarFooter,
   SidebarMenu,
   Sidebar,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import SearchWidget from "@/widgets/search.widget";
-import { Home, FileText, Clock, FolderGit2, ContactRound } from "lucide-react";
+import {
+  Home,
+  Clock,
+  FolderGit2,
+  ContactRound,
+  List,
+  ReceiptText,
+  NotebookPen,
+  FolderCode,
+} from "lucide-react";
 import { Link } from "react-router";
 import SidebarItemFeature from "./sidebar-item";
 import { useGetProjectsSharedInvationsQuery } from "@/shared/api/projects-shared.service";
 import { Badge } from "@/components/ui/badge";
+import { useGetFriendshipMeQuery } from "@/shared/api/friendship.service";
+import UserAvatar from "@/components/user-avatar";
+import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { useSearcV2Query } from "@/shared/api/search.service";
 
 export default function SidebarFeature() {
   const { data: user } = useGetUserQuery();
@@ -23,6 +40,9 @@ export default function SidebarFeature() {
     undefined,
     { pollingInterval: 10000 }
   );
+  const { data: friends } = useGetFriendshipMeQuery();
+  const { data: searchData } = useSearcV2Query({ searchLocation: "projects" });
+  const projects = searchData?.projects;
 
   return (
     <Sidebar className="h-full">
@@ -58,44 +78,96 @@ export default function SidebarFeature() {
                 </Link>
               </SidebarItemFeature>
 
-              <SidebarItemFeature
-                tooltip={"Проекты"}
-                pathname={`/${ROUTES.PROJECTS}`}
-                className="w-full"
-              >
-                <Link to={`/${ROUTES.PROJECTS}`}>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
                   <FolderGit2 className="h-4 w-4" />
-                  <div className="w-full flex items-center justify-between gap-2">
-                    <span>Проекты</span>
-                    {projectInvitations && projectInvitations?.length > 0 && (
-                      <Badge
-                        variant={"default"}
-                        className="flex h-4 w-4 items-center justify-center rounded-full text-xs"
-                      >
-                        {projectInvitations.length}
-                      </Badge>
-                    )}
-                  </div>
-                </Link>
-              </SidebarItemFeature>
+                  <span>Проекты</span>
+                </SidebarMenuButton>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuButton>
+                        <Link
+                          className="flex items-center gap-2 w-full"
+                          to={`/${ROUTES.PROJECTS}`}
+                        >
+                          <List className="h-4 w-4" />
+                          <span>Все проекты</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuSubItem>
+                    {projects?.slice(0, 5)?.map((_el) => (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton>
+                          <Link
+                            to={`/${ROUTES.PROJECTS}/${_el.project_id}`}
+                            className="flex items-center gap-2"
+                          >
+                            <FolderCode className="h-4 w-4" />
+                            {_el.name}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
 
-              <SidebarItemFeature
-                tooltip={"Контакты"}
-                pathname={`/${ROUTES.CONTACTS}`}
-              >
-                <Link to={`/${ROUTES.CONTACTS}/${CONTACTS_VIEW.CLIENTS}`}>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
                   <ContactRound className="h-4 w-4" />
                   <span>Контакты</span>
-                </Link>
-              </SidebarItemFeature>
+                </SidebarMenuButton>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuButton>
+                        <Link
+                          className="flex items-center gap-2"
+                          to={`/${ROUTES.CONTACTS}/${CONTACTS_VIEW.CLIENTS}`}
+                        >
+                          <List className="h-4 w-4" />
+                          <span>Все контакты</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuSubItem>
+                    {friends?.slice(0, 5)?.map((friend) => (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton>
+                          <Link
+                            to={`/${ROUTES.USER}/${friend?.friend?.user_id}`}
+                            className="flex items-center gap-2"
+                          >
+                            <UserAvatar
+                              name={friend?.friend?.name || ""}
+                              planId={SUBSCRIPTION.FREE}
+                              size={"xxs"}
+                            />
+                            {friend.friend.name}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
 
               <SidebarItemFeature
                 tooltip={"Заметки"}
                 pathname={`/${ROUTES.NOTES}`}
               >
                 <Link to={`/${ROUTES.NOTES}`}>
-                  <FileText className="h-4 w-4" />
+                  <NotebookPen className="h-4 w-4" />
                   <span>Заметки</span>
+                </Link>
+              </SidebarItemFeature>
+              <SidebarItemFeature
+                tooltip={"Счета"}
+                pathname={`/${ROUTES.NOTES}`}
+              >
+                <Link to={`/${ROUTES.NOTES}`}>
+                  <ReceiptText className="h-4 w-4" />
+                  <span>Счета</span>
                 </Link>
               </SidebarItemFeature>
             </SidebarMenu>
