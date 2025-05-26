@@ -11,7 +11,7 @@ import {
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
 import { Task } from "@/shared/interfaces/task.interface";
 import { motion } from "framer-motion";
-import { CalendarDays, PanelTop } from "lucide-react";
+import { CalendarDays, PanelTop, Text } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TaskSharedUsers from "../shared-users/task-shared-users";
 import { useRef } from "react";
@@ -96,7 +96,7 @@ export default function KanbanTask({
         layout
         layoutId={`kanban-task-${task.task_id}`}
         transition={{
-          duration: 0,
+          duration: 0.1,
         }}
         draggable
         initial={{ opacity: 0 }}
@@ -129,7 +129,11 @@ export default function KanbanTask({
           <CardContent className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center justify-between w-full space-x-1">
-                <TimeLogsTimer.Root task_id={task.task_id} variant="icon" showTime  />
+                <TimeLogsTimer.Root
+                  task_id={task.task_id}
+                  variant="icon"
+                  showTime
+                />
                 <Button
                   onClickCapture={() => {
                     navigate(`/${ROUTES.TASKS}/${task.task_id}`);
@@ -143,10 +147,13 @@ export default function KanbanTask({
                 </Button>
               </div>
             </div>
-              <CardTitle className="text-base font-semibold truncate break-words text-wrap">
-                {task.name}
-              </CardTitle>
-            <CardDescription className="py-2 line-clamp-2 text-sm text-muted-foreground">
+            <CardTitle className="text-base font-semibold truncate break-words text-wrap">
+              {task.name}
+            </CardTitle>
+            <CardDescription className="py-2 line-clamp-2 text-sm text-muted-foreground space-y-2">
+              <div className="flex items-start gap-2 text-xs text-muted-foreground max-h-32 overflow-y-auto">
+                <span>{task.description}</span>
+              </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <CalendarDays className="w-4 h-4" />
                 <span>{new Date(task.created_at).toLocaleDateString()}</span>
