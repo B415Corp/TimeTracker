@@ -7,14 +7,15 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
-    permissions:
-      contents: read  # Добавляем минимальные permissions
-    
     steps:
+      # Шаг 1: Получение кода
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Docker
+      # Шаг 2: Остановка старых контейнеров и запуск новых
+      - name: Update and restart containers
         run: |
-          docker compose down
-          docker compose up -d
+          cd /home/deploy/projects/TimeTracker
+          git pull origin main
+          docker compose down --remove-orphans  # Остановка и удаление контейнеров
+          docker compose up -d  # Запуск контейнеров без пересборки
