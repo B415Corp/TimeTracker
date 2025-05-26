@@ -178,7 +178,7 @@ const HomePage: React.FC = () => {
             <h2 className="text-xl">Последние проекты</h2>
             <Button>Создать</Button>
           </div>
-          <div className="w-full">
+          <div className="w-full flex flex-wrap gap-4">
             {projectsData?.projects?.length === 0 && (
               <AdvantageCarousel items={PROJECT_ADVANTAGES} />
             )}
@@ -197,7 +197,7 @@ const HomePage: React.FC = () => {
                   <Button
                     onClick={() =>
                       navigate(
-                        `/${ROUTES.PROJECTS}/${TASKS_VIEW.TABLE}/${el?.project_id}`
+                        `/${ROUTES.PROJECTS}/${el?.project_id}`
                       )
                     }
                   >

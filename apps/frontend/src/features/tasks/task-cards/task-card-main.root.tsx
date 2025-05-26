@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
-import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
 
 // Определяем тип значения контекста
 interface context {
@@ -56,7 +55,6 @@ function Header() {
   return (
     <CardHeader>
       <div className="flex items-center gap-2">
-        <TimeLogsTimer.Root task_id={task_id} variant="icon" />
         <CardTitle>{name}</CardTitle>
       </div>
     </CardHeader>
