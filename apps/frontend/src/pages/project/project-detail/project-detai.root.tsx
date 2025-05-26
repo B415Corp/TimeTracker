@@ -396,11 +396,18 @@ function HeaderBottom() {
             {info?.myRate}
           </p>
         </div>
-        <Separator orientation="vertical" className="min-h-4 border-1" />
-        <div className="flex flex-row gap-1 items-center">
-          <User2Icon className="size-3.5" />
-          <p className="text-sm text-muted-foreground">{info?.client?.name}</p>
-        </div>
+        {info?.client && (
+          <>
+            <Separator orientation="vertical" className="min-h-4 border-1" />
+            <div className="flex flex-row gap-1 items-center">
+              <User2Icon className="size-3.5" />
+              <p className="text-sm text-muted-foreground">
+                {info?.client?.name}
+              </p>
+            </div>
+          </>
+        )}
+
         <Separator orientation="vertical" className="min-h-4 border-1" />
         <div className="flex flex-row gap-1 items-center">
           <Timer className="size-3.5" />
