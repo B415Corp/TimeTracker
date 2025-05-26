@@ -1,4 +1,4 @@
-name: TT Deployment
+name: TT
 
 on:
   push:
