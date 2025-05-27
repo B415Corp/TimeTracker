@@ -51,13 +51,13 @@ jobs:
           git pull origin main
           
           # Create backup
-          docker compose stop backend frontend-builder
+          docker-compose stop backend frontend-builder
           docker tag timetracker_backend:latest timetracker_backend:backup-$(date +%Y%m%d%H%M%S)
           
           # Try new deployment
-          if ! docker compose up -d --build; then
+          if ! docker-compose up -d --build; then
             echo "Deployment failed, rolling back..."
-            docker compose stop backend frontend-builder
-            docker compose up -d
+            docker-compose stop backend frontend-builder
+            docker-compose up -d
             exit 1
           fi
