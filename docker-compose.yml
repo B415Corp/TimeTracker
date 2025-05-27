@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:14
@@ -50,6 +48,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/backend/Dockerfile
+    image: timetracker_backend:latest
     container_name: backend
     depends_on:
       postgres:
@@ -68,7 +67,7 @@ services:
       - DB_PORT=5432
       - DB_HOST=postgres
       - DB_USER=yourusername
-      - DB_PASSWORD=GvXWmzMLP03HNmrp
+      - DB_PASSWORD= GvXWmzMLP03HNmrp
       - DB_NAME=nestdb_prod
       - JWT_SECRET=PROD_SECRET_KEY
       - JWT_EXPIRES_IN=1d
