@@ -31,7 +31,7 @@ RUN apt-get update && \
 COPY --from=backend-builder /app/backend/node_modules ./node_modules
 COPY --from=backend-builder /app/backend/package*.json ./
 COPY --from=backend-builder /app/backend/dist ./dist
-COPY --from=frontend-builder /app/frontend/dist ./public
+COPY --from=builder /app/dist ./public
 
 # Rebuild native modules
 RUN npm rebuild bcrypt --update-binary
