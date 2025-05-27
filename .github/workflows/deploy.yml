@@ -5,7 +5,41 @@ on:
     branches: [main]
 
 jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Verify frontend build
+        run: |
+          docker build \
+            -f ./apps/frontend/Dockerfile \
+            --target frontend-builder \
+            -t timetracker-frontend-verify \
+            ./apps/frontend
+
+      - name: Verify backend build
+        run: |
+          docker build \
+            -f ./apps/backend/Dockerfile \
+            --target backend-builder \
+            -t timetracker-backend-verify \
+            ./apps/backend
+
   deploy:
+    needs: verify-build
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -15,5 +49,15 @@ jobs:
         run: |
           cd /home/deploy/projects/TimeTracker
           git pull origin main
-          docker-compose down
-          docker-compose up -d --build
+          
+          # Create backup
+          docker compose stop backend frontend-builder
+          docker tag timetracker_backend:latest timetracker_backend:backup-$(date +%Y%m%d%H%M%S)
+          
+          # Try new deployment
+          if ! docker compose up -d --build; then
+            echo "Deployment failed, rolling back..."
+            docker compose stop backend frontend-builder
+            docker compose up -d
+            exit 1
+          fi

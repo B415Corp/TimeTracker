@@ -1,47 +1,42 @@
-# Этап сборки frontend
-FROM node:20-alpine AS frontend-builder
-
-WORKDIR /app/frontend
-
-COPY apps/frontend/package*.json ./
-RUN npm install --legacy-peer-deps
-
-COPY apps/frontend ./
-RUN npm run build
-
-# Этап сборки backend
+# Build stage
 FROM node:20-bookworm-slim AS backend-builder
 
 WORKDIR /app/backend
 
-# Установка зависимостей для компиляции
+# Install build dependencies
 RUN apt-get update && \
     apt-get install -y \
     build-essential \
     python3 \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Установка зависимостей
-COPY apps/backend/package*.json ./
+COPY package*.json ./
 RUN npm install --force --legacy-peer-deps
 
-# Копирование исходного кода и сборка
-COPY apps/backend ./
+COPY . .
 RUN npm run build
 
-# Финальный образ
+# Production stage
 FROM node:20-bookworm-slim
 
 WORKDIR /app/backend
 
-# Копируем только необходимые файлы
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=backend-builder /app/backend/node_modules ./node_modules
 COPY --from=backend-builder /app/backend/package*.json ./
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=frontend-builder /app/frontend/dist ./public
 
-# Фиксируем архитектуру модулей
+# Rebuild native modules
 RUN npm rebuild bcrypt --update-binary
 
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
 CMD ["npm", "run", "start:prod"]
