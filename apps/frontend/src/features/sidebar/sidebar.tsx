@@ -27,8 +27,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import SidebarItemFeature from "./sidebar-item";
-import { useGetProjectsSharedInvationsQuery } from "@/shared/api/projects-shared.service";
-import { Badge } from "@/components/ui/badge";
 import { useGetFriendshipMeQuery } from "@/shared/api/friendship.service";
 import UserAvatar from "@/components/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
@@ -36,10 +34,6 @@ import { useSearcV2Query } from "@/shared/api/search.service";
 
 export default function SidebarFeature() {
   const { data: user } = useGetUserQuery();
-  const { data: projectInvitations } = useGetProjectsSharedInvationsQuery(
-    undefined,
-    { pollingInterval: 10000 }
-  );
   const { data: friends } = useGetFriendshipMeQuery();
   const { data: searchData } = useSearcV2Query({ searchLocation: "projects" });
   const projects = searchData?.projects;
@@ -163,9 +157,9 @@ export default function SidebarFeature() {
               </SidebarItemFeature>
               <SidebarItemFeature
                 tooltip={"Счета"}
-                pathname={`/${ROUTES.NOTES}`}
+                pathname={`/${ROUTES.BILLING}`}
               >
-                <Link to={`/${ROUTES.NOTES}`}>
+                <Link to={`/${ROUTES.BILLING}`}>
                   <ReceiptText className="h-4 w-4" />
                   <span>Счета</span>
                 </Link>
