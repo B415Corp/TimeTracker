@@ -1,17 +1,17 @@
 FROM node:20-alpine AS builder
 
 # Устанавливаем зависимости для сборки
-RUN apk add --no-cache git python3 make g++
+RUN apk add --no-cache --update git python3 make g++ && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
 # Копируем зависимости
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Копируем исходный код и собираем
 COPY . .
-RUN npm run build
+RUN npm run build && ls -la dist
 
 # Финальный образ (можно использовать node или простой веб-сервер)
 FROM node:20-alpine
