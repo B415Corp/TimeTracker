@@ -1,4 +1,4 @@
-name: TimeTracker CI/CD
+name: TT
 
 on:
   push:
@@ -11,50 +11,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Verify frontend build
+      - name: Verify Frontend Build
         run: |
-          docker build \
-            -f ./apps/frontend/Dockerfile \
-            --target frontend-builder \
-            -t timetracker-frontend-verify \
-            ./apps/frontend
+          cd apps/frontend
+          docker build -t frontend-verify .
 
-      - name: Verify backend build
+      - name: Verify Backend Build
         run: |
-          docker build \
-            -f ./apps/backend/Dockerfile \
-            --target backend-builder \
-            -t timetracker-backend-verify \
-            ./apps/backend
+          cd apps/backend
+          docker build -t backend-verify .
 
   deploy:
-    needs: verify-build
+    needs: verify-build  # Будет выполняться ТОЛЬКО если verify-build успешен
     runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Update and deploy
+      - name: Safe Deploy
         run: |
           cd /home/deploy/projects/TimeTracker
           git pull origin main
           
-          # Build new images first
-          docker-compose build || exit 1
+          # Создаем backup текущей версии
+          docker tag timetracker_backend:latest timetracker_backend:backup-$(date +%Y%m%d%H%M%S) || true
           
-          # Stop and remove old containers
-          docker-compose down || true
-          
-          # Start new containers
-          docker-compose up -d
+          # Пытаемся развернуть новую версию
+          if ! docker-compose up -d --build; then
+            echo "❌ Deployment failed! Rolling back..."
+            docker-compose down
+            docker-compose up -d
+            exit 1
+          fi
