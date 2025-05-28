@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:14
@@ -27,56 +29,6 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
-    networks:
-      - app-network
-
-  frontend-builder:
-    build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile
-    container_name: frontend-builder
-    command: ["npm", "run", "build"]
-    volumes:
-      - frontend-dist:/app/dist
-    environment:
-      - VITE_API_URL=http://25.5.161.101:3000/v1
-      - BASE_URL=/
-    networks:
-      - app-network
-
-  backend:
-    build:
-      context: .
-      dockerfile: ./apps/backend/Dockerfile
-    image: timetracker_backend:latest
-    container_name: backend
-    depends_on:
-      postgres:
-        condition: service_healthy
-      frontend-builder:
-        condition: service_completed_successfully
-    ports:
-      - "3000:3000"
-    volumes:
-      - frontend-dist:/app/backend/dist/public:ro
-    environment:
-      - CLIENT_ROUTER_MODE=history
-      - NODE_ENV=production
-      - PORT=3000
-      - HOST=0.0.0.0
-      - DB_PORT=5432
-      - DB_HOST=postgres
-      - DB_USER=yourusername
-      - DB_PASSWORD= GvXWmzMLP03HNmrp
-      - DB_NAME=nestdb_prod
-      - JWT_SECRET=PROD_SECRET_KEY
-      - JWT_EXPIRES_IN=1d
-      - DB_SYNCHRONIZE=true
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks:
       - app-network
 
