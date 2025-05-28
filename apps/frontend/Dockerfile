@@ -1,6 +1,9 @@
 # Build stage
 FROM node:20-alpine as build
 
+# Argument for API URL
+ARG VITE_API_URL=/api
+
 WORKDIR /app
 
 # Copy package files
@@ -15,8 +18,8 @@ COPY apps/frontend ./apps/frontend
 
 WORKDIR /app/apps/frontend
 
-# Build the application
-RUN npm run build
+# Build the application with environment variable
+RUN VITE_API_URL=$VITE_API_URL npm run build
 
 # Production stage
 FROM nginx:alpine
