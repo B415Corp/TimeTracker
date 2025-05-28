@@ -13,13 +13,11 @@ jobs:
 
       - name: Verify Frontend Build
         run: |
-          cd apps/frontend
-          docker build -t frontend-verify .
+          docker build -f apps/frontend/Dockerfile -t frontend-verify .
 
       - name: Verify Backend Build
         run: |
-          cd apps/backend
-          docker build -t backend-verify .
+          docker build -f apps/backend/Dockerfile -t backend-verify .
 
   deploy:
     needs: verify-build  # Будет выполняться ТОЛЬКО если verify-build успешен
