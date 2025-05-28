@@ -35,32 +35,6 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Отдача статики фронтенда
-  app.use(
-    express.static(join(__dirname, '..', 'public'), {
-      maxAge: '1y',
-      setHeaders: (res, path) => {
-        if (express.static.mime.lookup(path) === 'text/html') {
-          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        }
-      },
-    })
-  );
-  app.use((req, res, next) => {
-    if (
-      req.method === 'GET' &&
-      !req.path.startsWith('/api') &&
-      !req.path.startsWith('/v') &&
-      !req.path.includes('.') &&
-      !req.path.startsWith('/socket.io') && // Если используете socket.io
-      req.accepts('html')
-    ) {
-      res.sendFile(join(__dirname, '..', 'public', 'index.html'));
-    } else {
-      next();
-    }
-  });
-
   // Включаем версионирование API через URI
   app.enableVersioning({
     type: VersioningType.URI,
@@ -69,6 +43,11 @@ async function bootstrap() {
 
   app.enableCors({
     origin: '*',
+  });
+
+  // Устанавливаем глобальный префикс для API
+  app.setGlobalPrefix('api', {
+    exclude: ['/health']
   });
 
   logger.log(`Environment Info: ${process.env.NODE_ENV}`);
@@ -113,7 +92,7 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 3000;
-  const host = process.env.HOST || 'localhost';
+  const host = process.env.HOST || '0.0.0.0';
 
   // Добавление маршрута для возврата JSON схемы
   app.use('/api-json', (req, res) => {
