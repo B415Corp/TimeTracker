@@ -58,12 +58,7 @@ function CreateTaskForm({
 
   async function onSubmit(values: CreateTaskFormValues) {
     try {
-      const task = await createTask(values).unwrap();
-      await createNote({
-        text_content: values.note_content,
-        task_id: task.task_id,
-        parent_note_id: null,
-      }).unwrap();
+      await createTask(values).unwrap();
       form.reset();
       onSuccess();
       onClose();
@@ -90,7 +85,6 @@ function CreateTaskForm({
         />
 
         <div className="border rounded-lg p-4 bg-muted/40">
-          <div className="font-semibold mb-2">Основная заметка задачи</div>
           <FormField
             control={form.control}
             name="note_content"
