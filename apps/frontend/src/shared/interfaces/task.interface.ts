@@ -54,7 +54,6 @@ const TaskProjectSchema = z.object({
 export const TaskSchema = z.object({
   task_id: z.string(),
   name: z.string(),
-  description: z.string(),
   is_paid: z.boolean(),
   order: z.number(),
   payment_type: PAYMENTSchema,

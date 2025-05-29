@@ -278,7 +278,7 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
   }
 
   // Определяем главную заметку (без parent_note_id)
-  const mainNote = notes?.find((n) => !n.parent_note_id) || null;
+  const mainNote = notes?.find((n) => n.parent_note_id === null) || null;
   // Вложенные заметки (childNotes главной)
   const childNotes = mainNote?.childNotes || [];
 

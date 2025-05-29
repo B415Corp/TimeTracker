@@ -62,6 +62,7 @@ function CreateTaskForm({
       await createNote({
         text_content: values.note_content,
         task_id: task.task_id,
+        parent_note_id: null,
       }).unwrap();
       form.reset();
       onSuccess();
