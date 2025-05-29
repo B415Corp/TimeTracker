@@ -3,6 +3,9 @@ version: "3.8"
 # Продакшен конфигурация
 services:
   postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
     restart: unless-stopped
     # Убираем порт для безопасности
     ports: []
@@ -16,12 +19,18 @@ services:
       - postgres_backups:/backups
 
   adminer:
+    extends:
+      file: docker-compose.yml
+      service: adminer
     # В продакшене можно отключить или ограничить доступ
     profiles:
       - admin
     restart: unless-stopped
 
   backend:
+    extends:
+      file: docker-compose.yml
+      service: backend
     restart: unless-stopped
     environment:
       - NODE_ENV=production
@@ -43,8 +52,13 @@ services:
           memory: 256M
 
   frontend:
+    extends:
+      file: docker-compose.yml
+      service: frontend
     restart: unless-stopped
     build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
       args:
         VITE_API_URL: /api/v1
     # Убираем порты, доступ только через nginx
@@ -62,7 +76,7 @@ services:
     container_name: timetracker_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8000:80"
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
@@ -75,4 +89,8 @@ services:
 
 volumes:
   postgres_data:
-  postgres_backups: 
+  postgres_backups:
+
+networks:
+  app-network:
+    driver: bridge 

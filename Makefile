@@ -76,12 +76,19 @@ dev-local: dev-db ## Запустить базу данных + локальны
 
 prod: ## Запустить в продакшн режиме
 	@echo "$(GREEN)🚀 Запуск в продакшн режиме...$(NC)"
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod up -d
 
 prod-build: ## Собрать и запустить в продакшн режиме
 	@echo "$(GREEN)🔨 Сборка и запуск в продакшн режиме...$(NC)"
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod up -d --build
 
 prod-down: ## Остановить продакшн сервисы
 	@echo "$(YELLOW)🛑 Остановка продакшн сервисов...$(NC)"
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml down 
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod down
+
+prod-logs: ## Показать логи продакшн сервисов
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod logs -f
+
+prod-status: ## Показать статус продакшн контейнеров
+	@echo "$(GREEN)📊 Статус продакшн контейнеров:$(NC)"
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod ps 
