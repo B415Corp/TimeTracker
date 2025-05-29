@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: yourusername
       POSTGRES_PASSWORD: GvXWmzMLP03HNmrp
-      POSTGRES_DB: nestdb_prod
+      POSTGRES_DB: nestdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -45,7 +45,7 @@ services:
       - DB_HOST=postgres
       - DB_USER=yourusername
       - DB_PASSWORD=GvXWmzMLP03HNmrp
-      - DB_NAME=nestdb_prod
+      - DB_NAME=nestdb
       - JWT_SECRET=PROD_SECRET_KEY
       - JWT_EXPIRES_IN=1d
       - DB_SYNCHRONIZE=true

@@ -58,4 +58,18 @@ shell-frontend: ## Подключиться к контейнеру фронте
 	docker-compose exec frontend sh
 
 shell-db: ## Подключиться к базе данных
-	docker-compose exec postgres psql -U yourusername -d nestdb_prod 
+	docker-compose exec postgres psql -U yourusername -d nestdb
+
+dev-db: ## Запустить только базу данных для разработки
+	@echo "$(GREEN)🗄️ Запуск базы данных для разработки...$(NC)"
+	docker-compose -f docker-compose.dev.yml up -d
+
+dev-db-down: ## Остановить базу данных для разработки
+	@echo "$(YELLOW)🛑 Остановка базы данных для разработки...$(NC)"
+	docker-compose -f docker-compose.dev.yml down
+
+dev-local: dev-db ## Запустить базу данных + локальный backend и frontend
+	@echo "$(GREEN)🚀 Запуск локальной разработки...$(NC)"
+	@echo "$(GREEN)📝 Для запуска backend и frontend выполните: npm run start$(NC)"
+	@echo "$(GREEN)🗄️ База данных: localhost:5432$(NC)"
+	@echo "$(GREEN)🔧 Adminer: http://localhost:8080$(NC)" 

@@ -77,7 +77,7 @@ docker-compose down
 
 - **Host**: localhost (или postgres внутри Docker)
 - **Port**: 5432
-- **Database**: nestdb_prod
+- **Database**: nestdb
 - **Username**: yourusername
 - **Password**: GvXWmzMLP03HNmrp
 
@@ -177,7 +177,7 @@ docker-compose exec backend sh
 docker-compose exec frontend sh
 
 # База данных
-docker-compose exec postgres psql -U yourusername -d nestdb_prod
+docker-compose exec postgres psql -U yourusername -d nestdb
 ```
 
 ### Очистка при проблемах
