@@ -60,7 +60,7 @@ services:
       context: .
       dockerfile: apps/frontend/Dockerfile
       args:
-        VITE_API_URL: /v1
+        VITE_API_URL: /api/v1
     container_name: timetracker_frontend
     ports:
       - "80:80"

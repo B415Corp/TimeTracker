@@ -72,4 +72,16 @@ dev-local: dev-db ## Запустить базу данных + локальны
 	@echo "$(GREEN)🚀 Запуск локальной разработки...$(NC)"
 	@echo "$(GREEN)📝 Для запуска backend и frontend выполните: npm run start$(NC)"
 	@echo "$(GREEN)🗄️ База данных: localhost:5432$(NC)"
-	@echo "$(GREEN)🔧 Adminer: http://localhost:8080$(NC)" 
+	@echo "$(GREEN)🔧 Adminer: http://localhost:8080$(NC)"
+
+prod: ## Запустить в продакшн режиме
+	@echo "$(GREEN)🚀 Запуск в продакшн режиме...$(NC)"
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+prod-build: ## Собрать и запустить в продакшн режиме
+	@echo "$(GREEN)🔨 Сборка и запуск в продакшн режиме...$(NC)"
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+prod-down: ## Остановить продакшн сервисы
+	@echo "$(YELLOW)🛑 Остановка продакшн сервисов...$(NC)"
+	docker-compose -f docker-compose.yml -f docker-compose.prod.yml down 
