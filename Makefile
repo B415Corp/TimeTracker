@@ -48,7 +48,7 @@ clean: ## Полная очистка (контейнеры, образы, volum
 dev: build up ## Сборка и запуск для разработки
 	@echo "$(GREEN)✅ Проект запущен!$(NC)"
 	@echo "$(GREEN)🌐 Frontend: http://localhost$(NC)"
-	@echo "$(GREEN)🔧 Backend API: http://localhost:3000/api$(NC)"
+	@echo "$(GREEN)🔧 Backend API: http://localhost:3000/v1$(NC)"
 	@echo "$(GREEN)🗄️ Adminer: http://localhost:8080$(NC)"
 
 shell-backend: ## Подключиться к контейнеру бэкенда

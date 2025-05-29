@@ -25,6 +25,7 @@ alwaysApply: false
         - shadcn
         - react-hook-form
         - react router
+    - хостится на '/' в nginx
     
 - Backend '/apps/backend/'
     - собираетсяи хостится в отдельном контейнере backend
@@ -34,6 +35,7 @@ alwaysApply: false
         - npm - 10.2.5
         - Nest 10 
         - typeORM
-    - хостит api на '/api'
-    - хостит frontend на '/' как SPA
+    - swagger документация - '/docs'
+    - эндпоинты - '/api'
+    - эндпоинты начинаются с версии '/v1' или '/v2'
     

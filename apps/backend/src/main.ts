@@ -47,7 +47,7 @@ async function bootstrap() {
 
   // Устанавливаем глобальный префикс для API
   app.setGlobalPrefix('api', {
-    exclude: ['/health']
+    exclude: ['/health', '/docs', '/docs-json']
   });
 
   logger.log(`Environment Info: ${process.env.NODE_ENV}`);
@@ -62,7 +62,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api', app, document, {
+  SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
       filter: true,
@@ -95,7 +95,7 @@ async function bootstrap() {
   const host = process.env.HOST || '0.0.0.0';
 
   // Добавление маршрута для возврата JSON схемы
-  app.use('/api-json', (req, res) => {
+  app.use('/docs-json', (req, res) => {
     res.json(document);
   });
 

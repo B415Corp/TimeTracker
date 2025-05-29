@@ -1,6 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Version } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('app')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -15,6 +17,18 @@ export class AppController {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
+    };
+  }
+
+  @Version('1')
+  @ApiOperation({ summary: 'Test endpoint for API structure verification' })
+  @ApiResponse({ status: 200, description: 'Returns test message with version' })
+  @Get('testGet')
+  testGet(): { message: string; version: string; path: string } {
+    return {
+      message: 'Test endpoint is working!',
+      version: 'v1',
+      path: '/api/v1/testGet'
     };
   }
 }
