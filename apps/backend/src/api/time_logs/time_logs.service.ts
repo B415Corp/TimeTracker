@@ -190,25 +190,29 @@ export class TimeLogsService {
       // );
     }
 
-    // Получаем сумму всех duration
+    // Получаем сумму всех завершенных duration (без текущей активной сессии)
     const commonDuration = await this.timeLogRepository
       .createQueryBuilder('time_log')
       .select('SUM(time_log.duration)', 'sum')
       .where('time_log.task_id = :task_id', { task_id })
+      .andWhere('time_log.status = :status', { status: 'completed' })
       .getRawOne();
 
     let totalDuration: number = Number(commonDuration?.sum ?? 0);
+    let accumulatedDuration: number = totalDuration; // Накопленное время без текущей сессии
 
-    // Если последний лог в процессе, добавляем разницу со start_time
+    // Если последний лог в процессе, добавляем разницу со start_time к общему времени
     if (latestLog.status === 'in-progress' && latestLog.start_time) {
       const now: Date = new Date(); // Текущая дата и время
       const startTime: Date = new Date(latestLog.start_time); // Парсим строку в объект Date
       const diffInMs = now.getTime() - startTime.getTime();
 
-      totalDuration += diffInMs;
+      totalDuration += diffInMs; // Общее время включая текущую сессию
+      // accumulatedDuration остается без изменений - время только завершенных сессий
     }
 
     latestLog.common_duration = totalDuration;
+    latestLog.accumulated_duration = accumulatedDuration;
 
     return latestLog;
   }

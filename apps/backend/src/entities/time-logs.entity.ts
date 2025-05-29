@@ -66,4 +66,11 @@ export class TimeLog {
     required: false,
   })
   common_duration?: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Сумма завершенных duration без текущей активной сессии',
+    required: false,
+  })
+  accumulated_duration?: number;
 }

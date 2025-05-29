@@ -26,7 +26,10 @@ function TimerComponent({ task_id, fallbackTime = 0 }: Props) {
   let milliseconds = accumulated;
 
   if (status === TimerStatus.PROGRESS && startTime) {
-    milliseconds = accumulated + (Date.now() - startTime);
+    // Используем более точное вычисление времени
+    const currentTime = Date.now();
+    const sessionTime = Math.max(0, currentTime - startTime);
+    milliseconds = accumulated + sessionTime;
   } else if (
     status === TimerStatus.IDLE &&
     accumulated === 0 &&

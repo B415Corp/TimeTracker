@@ -136,7 +136,10 @@ function TimeUI({ fallbackTime = 0 }: { fallbackTime?: number }) {
   let milliseconds: number = accumulated;
 
   if (status === TimerStatus.PROGRESS && startTime) {
-    milliseconds = accumulated + (Date.now() - startTime);
+    // Используем более точное вычисление времени
+    const currentTime = Date.now();
+    const sessionTime = Math.max(0, currentTime - startTime);
+    milliseconds = accumulated + sessionTime;
   } else if (
     status === TimerStatus.IDLE &&
     accumulated === 0 &&
@@ -195,7 +198,10 @@ function TimerFeature() {
     function updateTitle() {
       let milliseconds: number = accumulated;
       if (status === TimerStatus.PROGRESS && startTime) {
-        milliseconds = accumulated + (Date.now() - startTime);
+        // Используем более точное вычисление времени
+        const currentTime = Date.now();
+        const sessionTime = Math.max(0, currentTime - startTime);
+        milliseconds = accumulated + sessionTime;
       }
       const timerData = formatMilliseconds(milliseconds);
       if (context?.latestLog?.status === TIMELOGSTATUS.PROGRESS) {
@@ -224,15 +230,21 @@ function TimerFeature() {
       // Если latestLog не задан, то отключаем таймер
       return;
     }
+    
     if (context?.latestLog.status === TIMELOGSTATUS.PROGRESS) {
       // Если latestLog есть и статус его задан как выполняется, то запускаем таймер
+      const serverStartTime = context?.latestLog.start_time 
+        ? new Date(context?.latestLog.start_time).getTime() 
+        : Date.now();
+      
+      // Используем accumulated_duration - время без текущей сессии
+      const accumulatedTime = Number(context?.latestLog.accumulated_duration) || 0;
+      
       dispatch(
         startTimer({
           task_id,
-          startTime: context?.latestLog.start_time
-            ? new Date(context?.latestLog.start_time).getTime()
-            : Date.now(),
-          accumulated: Number(context?.latestLog.common_duration),
+          startTime: serverStartTime,
+          accumulated: accumulatedTime,
         })
       );
     } else {
@@ -240,7 +252,7 @@ function TimerFeature() {
       dispatch(
         stopTimer({
           task_id,
-          accumulated: Number(context?.latestLog.common_duration),
+          accumulated: Number(context?.latestLog.common_duration) || 0,
         })
       );
     }

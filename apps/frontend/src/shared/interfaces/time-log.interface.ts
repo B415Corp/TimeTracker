@@ -16,6 +16,7 @@ export const TimeLogSchema = z.union([
     status: TIMELOGSTATUSSchema,
     duration: z.union([z.number(), z.string()]),
     common_duration: z.union([z.number(), z.string()]).optional().nullable(),
+    accumulated_duration: z.union([z.number(), z.string()]).optional().nullable(),
     created_at: z.string(),
     updated_at: z.string(),
   }),

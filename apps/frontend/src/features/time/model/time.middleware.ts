@@ -1,8 +1,8 @@
 import { Middleware } from "@reduxjs/toolkit";
 import { tick } from "./time.slice";
 
-// Интервал обновления таймера (100 мс для плавности)
-const TICK_INTERVAL = 100;
+// Интервал обновления таймера (1000 мс для оптимальной точности)
+const TICK_INTERVAL = 1000;
 
 let intervalId: NodeJS.Timeout | null = null;
 
