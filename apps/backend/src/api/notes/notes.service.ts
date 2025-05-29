@@ -46,7 +46,6 @@ export class NotesService {
       relations: ['parentNote', 'childNotes', 'task'],
       select: {
         notes_id: true,
-        name: true,
         text_content: true,
         parent_note_id: true,
         task_id: true,
@@ -55,11 +54,9 @@ export class NotesService {
         updated_at: true,
         parentNote: {
           notes_id: true,
-          name: true,
         },
         task: {
           task_id: true,
-          name: true,
         }
       },
     });
@@ -73,7 +70,6 @@ export class NotesService {
       relations: ['parentNote', 'childNotes', 'task'],
       select: {
         notes_id: true,
-        name: true,
         text_content: true,
         parent_note_id: true,
         task_id: true,
@@ -82,16 +78,13 @@ export class NotesService {
         updated_at: true,
         parentNote: {
           notes_id: true,
-          name: true,
         },
         childNotes: {
           notes_id: true,
-          name: true,
           nesting_level: true,
         },
         task: {
           task_id: true,
-          name: true,
         }
       },
     });

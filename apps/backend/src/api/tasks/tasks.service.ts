@@ -131,11 +131,6 @@ export class TasksService {
       savedTask.taskStatus = taskStatus;
     }
 
-    // Создаем заметку из описания задачи, если оно есть
-    if (dto.description && dto.description.trim() !== '') {
-      await this.createTaskDescriptionNote(savedTask.task_id, user_id, dto.description);
-    }
-
     // Возвращаем задачу
     return savedTask;
   }
@@ -154,7 +149,6 @@ export class TasksService {
       select: {
         task_id: true,
         name: true,
-        description: true,
         is_paid: true,
         payment_type: true,
         order: true,
@@ -301,12 +295,6 @@ export class TasksService {
     }
 
     const updatedTask = await this.taskRepository.save(task);
-
-    // Синхронизируем описание с заметкой при обновлении задачи
-    if (dto.description !== undefined) {
-      await this.updateTaskDescriptionNote(task.task_id, task.user_id, dto.description);
-    }
-
     return updatedTask;
   }
 
@@ -383,7 +371,6 @@ export class TasksService {
       select: {
         task_id: true,
         name: true,
-        description: true,
         is_paid: true,
         order: true,
         payment_type: true,
@@ -464,38 +451,5 @@ export class TasksService {
     }
 
     return this.notesService.findByTask(task_id, user_id);
-  }
-
-  /**
-   * Создать заметку для задачи при создании задачи с описанием
-   */
-  async createTaskDescriptionNote(task_id: string, user_id: string, description: string): Promise<Notes | null> {
-    if (!description || description.trim() === '') {
-      return null;
-    }
-
-    return this.notesService.create({
-      name: 'Task Description',
-      text_content: description,
-      task_id: task_id,
-    }, user_id);
-  }
-
-  /**
-   * Обновить описание задачи через заметку
-   */
-  async updateTaskDescriptionNote(task_id: string, user_id: string, description: string): Promise<Notes | null> {
-    const taskNotes = await this.notesService.findByTask(task_id, user_id);
-    const descriptionNote = taskNotes.find(note => note.name === 'Task Description');
-
-    if (descriptionNote) {
-      return this.notesService.update(descriptionNote.notes_id, {
-        text_content: description,
-      });
-    } else if (description && description.trim() !== '') {
-      return this.createTaskDescriptionNote(task_id, user_id, description);
-    }
-
-    return null;
   }
 }
