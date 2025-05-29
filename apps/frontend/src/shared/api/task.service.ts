@@ -14,11 +14,12 @@ import {
 } from "../interfaces/task.interface";
 import {validateWithSchema} from "@/lib/validator";
 import { z } from "zod";
+import { Notes, NotesSchema } from "../interfaces/notes.interface";
 
 export const taskService = createApi({
   reducerPath: "task-service",
   baseQuery: baseQueryWithErrorHandling,
-  tagTypes: ["task", "task-status-column", "task-status"],
+  tagTypes: ["task", "task-status-column", "task-status", "task-notes"],
   endpoints: (builder) => ({
     getTaskStatusColumn: builder.query<TaskStatusColumn[], string>({
       query: (projectId) => ({
@@ -63,6 +64,21 @@ export const taskService = createApi({
         );
       },
       providesTags: ["task"],
+    }),
+
+    getTaskNotes: builder.query<Notes[], string>({
+      query: (taskId) => ({
+        url: `tasks/${taskId}/notes`,
+        method: "GET",
+      }),
+      transformResponse: (response: { data: Notes[] }) => {
+        return validateWithSchema<Notes[]>(
+          z.array(NotesSchema),
+          response.data,
+          "getTaskNotes"
+        );
+      },
+      providesTags: ["task-notes"],
     }),
 
     updateTaskStatus: builder.mutation<
@@ -199,6 +215,7 @@ export const taskService = createApi({
 export const {
   useGetTasksByProjectQuery,
   useGetTaskByIdQuery,
+  useGetTaskNotesQuery,
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,

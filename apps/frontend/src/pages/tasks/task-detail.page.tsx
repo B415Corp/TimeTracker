@@ -10,6 +10,8 @@ import {
   MoreVerticalIcon,
   PencilIcon,
   TrashIcon,
+  FileText,
+  Clock,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatDate } from "@/lib/dateUtils";
@@ -35,6 +37,8 @@ import TaskSharedUsers from "@/features/tasks/shared-users/task-shared-users";
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
 import { LogsTable } from "../../features/time-logs/logs-table";
 import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TaskNotes from "@/features/tasks/task-notes/task-notes.component";
 
 export default function TaskDetailPage() {
   const navigate = useNavigate();
@@ -57,6 +61,7 @@ export default function TaskDetailPage() {
 
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<"logs" | "notes">("logs");
 
   return (
     <>
@@ -202,8 +207,27 @@ export default function TaskDetailPage() {
         </div>
 
         <div className="flex overflow-hidden p-4 w-full h-full gap-4">
-          <div className="w-full ">
-            {timeLogs && <LogsTable logs={timeLogs} />}
+          <div className="w-full">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "logs" | "notes")}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="logs" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Логи времени
+                </TabsTrigger>
+                <TabsTrigger value="notes" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Заметки
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="logs" className="mt-4">
+                {timeLogs && <LogsTable logs={timeLogs} />}
+              </TabsContent>
+              
+              <TabsContent value="notes" className="mt-4">
+                {id && <TaskNotes taskId={id} />}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
