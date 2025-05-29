@@ -12,6 +12,7 @@ import { TaskMember } from '../../entities/task-shared.entity';
 import { GuardsModule } from '../../guards/guards.module';
 import { TaskStatusModule } from '../task-status/task-status.module';
 import { TaskStatusColumnModule } from '../task-status-column/task-status-column.module';
+import { NotesModule } from '../notes/notes.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TaskStatusColumnModule } from '../task-status-column/task-status-column
     ProjectSharedModule,
     TaskStatusModule,
     TaskStatusColumnModule,
+    NotesModule,
     GuardsModule,
   ],
   providers: [TasksService],

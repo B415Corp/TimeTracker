@@ -16,6 +16,8 @@ import { TaskStatusService } from '../task-status/task-status.service';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
 import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { UpdateTaskOrderDTO } from './dto/update-task-order.dto';
+import { Notes } from '../../entities/notes.entity';
+import { NotesService } from '../notes/notes.service';
 
 @Injectable()
 export class TasksService {
@@ -33,7 +35,8 @@ export class TasksService {
     @InjectRepository(TaskMember)
     private taskMemberRepository: Repository<TaskMember>,
     private taskStatusService: TaskStatusService,
-    private taskStatusColumnService: TaskStatusColumnService
+    private taskStatusColumnService: TaskStatusColumnService,
+    private notesService: NotesService
   ) {}
 
   async create(
@@ -126,6 +129,11 @@ export class TasksService {
         task_status_column_id: taskStatusColumtItem[0].id,
       });
       savedTask.taskStatus = taskStatus;
+    }
+
+    // Создаем заметку из описания задачи, если оно есть
+    if (dto.description && dto.description.trim() !== '') {
+      await this.createTaskDescriptionNote(savedTask.task_id, user_id, dto.description);
     }
 
     // Возвращаем задачу
@@ -292,7 +300,14 @@ export class TasksService {
       throw new NotFoundException(ErrorMessages.UNAUTHORIZED);
     }
 
-    return this.taskRepository.save(task);
+    const updatedTask = await this.taskRepository.save(task);
+
+    // Синхронизируем описание с заметкой при обновлении задачи
+    if (dto.description !== undefined) {
+      await this.updateTaskDescriptionNote(task.task_id, task.user_id, dto.description);
+    }
+
+    return updatedTask;
   }
 
   async remove(task_id: string): Promise<void> {
@@ -426,5 +441,61 @@ export class TasksService {
     await Promise.all(updates);
 
     return { success: true };
+  }
+
+  /**
+   * Получить заметки, связанные с задачей
+   */
+  async getTaskNotes(task_id: string, user_id: string): Promise<Notes[]> {
+    // Проверяем, что задача существует и пользователь имеет к ней доступ
+    const task = await this.taskRepository.findOne({
+      where: { task_id },
+      relations: ['taskMembers'],
+    });
+
+    if (!task) {
+      throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(task_id));
+    }
+
+    // Проверяем, что пользователь является участником задачи
+    const isTaskMember = task.taskMembers.some(member => member.user_id === user_id);
+    if (!isTaskMember) {
+      throw new NotFoundException('You are not a member of this task');
+    }
+
+    return this.notesService.findByTask(task_id, user_id);
+  }
+
+  /**
+   * Создать заметку для задачи при создании задачи с описанием
+   */
+  async createTaskDescriptionNote(task_id: string, user_id: string, description: string): Promise<Notes | null> {
+    if (!description || description.trim() === '') {
+      return null;
+    }
+
+    return this.notesService.create({
+      name: 'Task Description',
+      text_content: description,
+      task_id: task_id,
+    }, user_id);
+  }
+
+  /**
+   * Обновить описание задачи через заметку
+   */
+  async updateTaskDescriptionNote(task_id: string, user_id: string, description: string): Promise<Notes | null> {
+    const taskNotes = await this.notesService.findByTask(task_id, user_id);
+    const descriptionNote = taskNotes.find(note => note.name === 'Task Description');
+
+    if (descriptionNote) {
+      return this.notesService.update(descriptionNote.notes_id, {
+        text_content: description,
+      });
+    } else if (description && description.trim() !== '') {
+      return this.createTaskDescriptionNote(task_id, user_id, description);
+    }
+
+    return null;
   }
 }

@@ -16,6 +16,7 @@ import { TimeLog } from './time-logs.entity';
 import { Subscription } from './subscription.entity';
 import { Friendship } from './friend.entity';
 import { Notification } from './notification.entity';
+import { Notes } from './notes.entity';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
@@ -108,4 +109,10 @@ export class User {
     onDelete: 'CASCADE',
   })
   notifications: Notification[];
+
+  @OneToMany(() => Notes, (note) => note.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  notes: Notes[];
 }

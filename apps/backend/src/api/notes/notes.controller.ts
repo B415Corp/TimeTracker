@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { Notes } from '../../entities/notes.entity.js';
@@ -18,6 +19,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+  ApiParam,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PaginatedResponseDto } from 'src/common/pagination/paginated-response.dto';
@@ -60,6 +62,32 @@ export class NotesController {
     @PaginationParams() paginationQuery: PaginationQueryDto
   ) {
     return this.notesService.findAll(user.user_id, paginationQuery);
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: [Notes] })
+  @ApiOperation({ summary: 'Get notes linked to a specific task' })
+  @ApiParam({ name: 'taskId', description: 'Task ID' })
+  @UseGuards(JwtAuthGuard)
+  @Get('/task/:taskId')
+  async findByTask(
+    @Param('taskId') taskId: string,
+    @GetUser() user: User
+  ): Promise<Notes[]> {
+    return this.notesService.findByTask(taskId, user.user_id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: Notes })
+  @ApiOperation({ summary: 'Get note hierarchy (note with all children)' })
+  @ApiParam({ name: 'id', description: 'Note ID' })
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/hierarchy')
+  async findNoteHierarchy(
+    @Param('id') id: string,
+    @GetUser() user: User
+  ): Promise<Notes> {
+    return this.notesService.findNoteHierarchy(id, user.user_id);
   }
 
   @ApiBearerAuth()

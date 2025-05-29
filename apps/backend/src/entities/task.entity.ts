@@ -19,6 +19,7 @@ import { TimeLog } from './time-logs.entity';
 import { Currency } from './currency.entity';
 import { TaskMember } from './task-shared.entity';
 import { TaskStatus } from './task-status.entity';
+import { Notes } from './notes.entity';
 
 @Entity()
 export class Task {
@@ -125,4 +126,13 @@ export class Task {
   })
   @JoinColumn({ name: 'task_status_id' })
   taskStatus: TaskStatus;
+
+  @ApiProperty({
+    type: () => [Notes],
+    description: 'Notes associated with the task',
+  })
+  @OneToMany(() => Notes, (note) => note.task, {
+    cascade: true,
+  })
+  notes: Notes[];
 }

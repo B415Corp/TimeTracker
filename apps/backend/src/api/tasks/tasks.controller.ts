@@ -32,6 +32,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
 import { UpdateTaskOrderDTO } from './dto/update-task-order.dto';
+import { Notes } from '../../entities/notes.entity';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -164,6 +165,23 @@ export class TasksController {
     @Body() updateTaskDto: UpdateTaskDto
   ) {
     return this.tasksService.update(id, updateTaskDto);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get notes for a specific task' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved task notes.',
+    type: [Notes],
+  })
+  @ApiParam({ name: 'task_id', required: true, description: 'Task ID' })
+  @UseGuards(JwtAuthGuard)
+  @Get(':task_id/notes')
+  async getTaskNotes(
+    @Param('task_id') taskId: string,
+    @GetUser() user: User
+  ): Promise<Notes[]> {
+    return this.tasksService.getTaskNotes(taskId, user.user_id);
   }
 
   @ApiBearerAuth()
