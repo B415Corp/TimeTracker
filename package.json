@@ -7,7 +7,11 @@
   "scripts": {
     "start:frontend": "npm --workspace=apps/frontend run dev",
     "start:backend": "npm --workspace=apps/backend run start:dev",
-    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "db:start": "docker-compose -f docker-compose.yml up -d postgres",
+    "db:stop": "docker-compose -f docker-compose.yml stop postgres",
+    "db:logs": "docker-compose -f docker-compose.yml logs -f postgres",
+    "dev:setup": "npm run db:start && echo 'Ожидание готовности БД...' && timeout /t 10 && npm run start"
   },
   "devDependencies": {
     "concurrently": "^7.0.0"
