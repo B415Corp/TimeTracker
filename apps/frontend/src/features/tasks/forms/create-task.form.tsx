@@ -15,10 +15,6 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { useCreateTaskMutation } from "@/shared/api/task.service";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateNotesMutation } from "@/shared/api/notes.service";
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText } from "lucide-react";
 
 // Схема валидации формы
 const createTaskSchema = z.object({
@@ -28,9 +24,9 @@ const createTaskSchema = z.object({
   is_paid: z.boolean().default(false),
   order: z.number().int().min(0, "Порядок должен быть неотрицательным"),
   tag_ids: z.array(z.string()).default([]),
-  // Поля для заметки
-  note_name: z.string().optional(),
-  note_content: z.string().optional(),
+  // Основная заметка
+  note_name: z.string().min(1, "Название заметки обязательно"),
+  note_content: z.string().min(1, "Содержание заметки обязательно"),
 });
 
 type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
@@ -48,8 +44,7 @@ function CreateTaskForm({
 }: CreateTaskFormProps) {
   const [createTask, { isLoading: isCreatingTask }] = useCreateTaskMutation();
   const [createNote, { isLoading: isCreatingNote }] = useCreateNotesMutation();
-  const [activeTab, setActiveTab] = useState<"basic" | "notes">("basic");
-  
+
   const form = useForm<CreateTaskFormValues>({
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
@@ -70,16 +65,12 @@ function CreateTaskForm({
     try {
       // Создаем задачу
       const task = await createTask(values).unwrap();
-      
-      // Если есть заметка, создаем её и связываем с задачей
-      if (values.note_name && values.note_content) {
-        await createNote({
-          name: values.note_name,
-          text_content: values.note_content,
-          task_id: task.task_id,
-        }).unwrap();
-      }
-      
+      // Всегда создаём основную заметку
+      await createNote({
+        name: values.note_name,
+        text_content: values.note_content,
+        task_id: task.task_id,
+      }).unwrap();
       form.reset();
       onSuccess();
       onClose();
@@ -91,93 +82,71 @@ function CreateTaskForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "basic" | "notes")}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="basic">Основная информация</TabsTrigger>
-            <TabsTrigger value="notes">Заметки</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="basic" className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Название задачи</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Разработка функционала" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Название задачи</FormLabel>
+              <FormControl>
+                <Input placeholder="Разработка функционала" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Описание</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="max-h-32"
-                      placeholder="Детальное описание задачи..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TabsContent>
-          
-          <TabsContent value="notes" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Дополнительная заметка
-                </CardTitle>
-                <CardDescription>
-                  Создайте заметку, которая будет связана с этой задачей
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="note_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Название заметки</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Техническое задание" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Описание (опционально)</FormLabel>
+              <FormControl>
+                <Textarea
+                  className="max-h-32"
+                  placeholder="Детальное описание задачи..."
+                  {...field}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-                <FormField
-                  control={form.control}
-                  name="note_content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Содержание заметки</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          className="min-h-32"
-                          placeholder="Детальная информация, требования, ссылки..."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <div className="border rounded-lg p-4 bg-muted/40">
+          <div className="font-semibold mb-2">Основная заметка задачи</div>
+          <FormField
+            control={form.control}
+            name="note_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Название заметки</FormLabel>
+                <FormControl>
+                  <Input placeholder="Техническое задание" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="note_content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Содержание заметки</FormLabel>
+                <FormControl>
+                  <Textarea
+                    className="min-h-32"
+                    placeholder="Детальная информация, требования, ссылки..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>

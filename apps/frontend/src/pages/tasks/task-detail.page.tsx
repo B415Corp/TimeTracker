@@ -61,7 +61,6 @@ export default function TaskDetailPage() {
 
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<"logs" | "notes">("logs");
 
   return (
     <>
@@ -137,7 +136,6 @@ export default function TaskDetailPage() {
                         variant="icon"
                         showTime={true}
                       />
-
                       <Separator
                         orientation="vertical"
                         className="border-1 min-h-5"
@@ -164,7 +162,6 @@ export default function TaskDetailPage() {
                               <PencilIcon className="mr-2 size-4" />
                               <span>Редактировать</span>
                             </DropdownMenuItem>
-
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive"
@@ -187,12 +184,10 @@ export default function TaskDetailPage() {
                       </p>
                     </div>
                     <Separator orientation="vertical" className="border-1" />
-
                     <div className="flex items-center gap-2">
                       <CalendarDays className="w-4 h-4" />
                       <p>{formatDate(task?.created_at || "")}</p>
                     </div>
-
                     <Separator orientation="vertical" className="border-1 " />
                     <TaskSharedUsers
                       taskMembers={task?.taskMembers || []}
@@ -205,30 +200,11 @@ export default function TaskDetailPage() {
             </div>
           </div>
         </div>
-
-        <div className="flex overflow-hidden p-4 w-full h-full gap-4">
-          <div className="w-full">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "logs" | "notes")}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="logs" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Логи времени
-                </TabsTrigger>
-                <TabsTrigger value="notes" className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Заметки
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="logs" className="mt-4">
-                {timeLogs && <LogsTable logs={timeLogs} />}
-              </TabsContent>
-              
-              <TabsContent value="notes" className="mt-4">
-                {id && <TaskNotes taskId={id} />}
-              </TabsContent>
-            </Tabs>
-          </div>
+        <div className="w-full p-4">
+          {id && <TaskNotes taskId={id} />}
+        </div>
+        <div className="w-full p-4">
+          {timeLogs && <LogsTable logs={timeLogs} />}
         </div>
       </div>
     </>

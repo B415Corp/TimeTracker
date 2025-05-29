@@ -97,12 +97,12 @@ function NoteDialog({ isOpen, onClose, taskId, editingNote, parentNote }: NoteDi
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {isEditMode ? "Редактировать заметку" : "Новая заметка"}
+            {isEditMode ? "Редактировать заметку" : parentNote ? "Новая вложенная заметка" : "Новая заметка"}
           </DialogTitle>
           {parentNote && (
-            <DialogDescription>
+            <CardDescription>
               Дочерняя заметка для: {parentNote.name}
-            </DialogDescription>
+            </CardDescription>
           )}
         </DialogHeader>
         
@@ -160,10 +160,10 @@ interface NoteCardProps {
   onEdit: (note: Notes) => void;
   onDelete: (noteId: string) => void;
   onAddChild: (note: Notes) => void;
-  taskId: string;
+  isMain?: boolean;
 }
 
-function NoteCard({ note, onEdit, onDelete, onAddChild, taskId }: NoteCardProps) {
+function NoteCard({ note, onEdit, onDelete, onAddChild, isMain }: NoteCardProps) {
   const [deleteNote] = useDeleteNotesMutation();
   
   const handleDelete = async () => {
@@ -178,7 +178,7 @@ function NoteCard({ note, onEdit, onDelete, onAddChild, taskId }: NoteCardProps)
   };
 
   return (
-    <Card className={`${note.nesting_level > 0 ? `ml-${Math.min(note.nesting_level * 4, 16)}` : ''}`}>
+    <Card className={isMain ? "border-2 border-primary" : note.nesting_level > 0 ? `ml-${Math.min(note.nesting_level * 4, 16)}` : ''}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -191,20 +191,17 @@ function NoteCard({ note, onEdit, onDelete, onAddChild, taskId }: NoteCardProps)
                   Уровень {note.nesting_level}
                 </Badge>
               )}
+              {isMain && (
+                <Badge variant="primary" className="text-xs ml-2">Главная</Badge>
+              )}
             </CardTitle>
             <CardDescription className="flex items-center gap-4 mt-1">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 {formatDate(note.created_at)}
               </span>
-              {note.parentNote && (
-                <span className="text-xs">
-                  Дочерняя от: {note.parentNote.name}
-                </span>
-              )}
             </CardDescription>
           </div>
-          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -216,34 +213,34 @@ function NoteCard({ note, onEdit, onDelete, onAddChild, taskId }: NoteCardProps)
                 <Edit className="w-4 h-4 mr-2" />
                 Редактировать
               </DropdownMenuItem>
-              {note.nesting_level < 5 && (
+              {isMain && (
                 <DropdownMenuItem onClick={() => onAddChild(note)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Добавить дочернюю
+                  Добавить вложенную
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem 
-                onClick={handleDelete}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Удалить
-              </DropdownMenuItem>
+              {!isMain && (
+                <DropdownMenuItem 
+                  onClick={handleDelete}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Удалить
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </CardHeader>
-      
       <CardContent>
         <div className="prose prose-sm max-w-none">
           <p className="whitespace-pre-wrap text-sm text-muted-foreground">
             {note.text_content}
           </p>
         </div>
-        
         {note.childNotes && note.childNotes.length > 0 && (
           <div className="mt-3 text-xs text-muted-foreground">
-            Дочерних заметок: {note.childNotes.length}
+            Вложенных заметок: {note.childNotes.length}
           </div>
         )}
       </CardContent>
@@ -256,12 +253,6 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Notes | null>(null);
   const [parentNote, setParentNote] = useState<Notes | null>(null);
-
-  const handleCreateNote = () => {
-    setEditingNote(null);
-    setParentNote(null);
-    setDialogOpen(true);
-  };
 
   const handleEditNote = (note: Notes) => {
     setEditingNote(note);
@@ -285,20 +276,12 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
     setParentNote(null);
   };
 
-  // Сортируем заметки по уровню вложенности и дате создания
-  const sortedNotes = notes ? [...notes].sort((a, b) => {
-    if (a.nesting_level !== b.nesting_level) {
-      return a.nesting_level - b.nesting_level;
-    }
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-  }) : [];
-
   if (isLoading) {
     return (
       <Card>
         <CardContent className="p-6">
           <div className="text-center text-muted-foreground">
-            Загрузка заметок...
+            Загрузка заметки...
           </div>
         </CardContent>
       </Card>
@@ -310,49 +293,53 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
       <Card>
         <CardContent className="p-6">
           <div className="text-center text-destructive">
-            Ошибка при загрузке заметок
+            Ошибка при загрузке заметки
           </div>
         </CardContent>
       </Card>
     );
   }
 
+  // Определяем главную заметку (без parent_note_id)
+  const mainNote = notes?.find((n) => !n.parent_note_id) || null;
+  // Вложенные заметки (childNotes главной)
+  const childNotes = mainNote?.childNotes || [];
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <FileText className="w-5 h-5" />
-          Заметки ({sortedNotes.length})
-        </h3>
-        <Button onClick={handleCreateNote} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Добавить заметку
-        </Button>
-      </div>
-
-      <div className="space-y-3">
-        {sortedNotes.length === 0 ? (
-          <Card>
-            <CardContent className="p-6 text-center text-muted-foreground">
-              <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Заметок пока нет</p>
-              <p className="text-sm">Создайте первую заметку для этой задачи</p>
-            </CardContent>
-          </Card>
-        ) : (
-          sortedNotes.map((note) => (
-            <NoteCard
-              key={note.notes_id}
-              note={note}
-              onEdit={handleEditNote}
-              onDelete={handleDeleteNote}
-              onAddChild={handleAddChildNote}
-              taskId={taskId}
-            />
-          ))
-        )}
-      </div>
-
+    <div className="space-y-6">
+      {mainNote ? (
+        <div>
+          <NoteCard
+            note={mainNote}
+            onEdit={handleEditNote}
+            onDelete={handleDeleteNote}
+            onAddChild={handleAddChildNote}
+            isMain
+          />
+          <div className="mt-6 space-y-3">
+            {childNotes.length > 0 ? (
+              childNotes.map((note) => (
+                <NoteCard
+                  key={note.notes_id}
+                  note={note}
+                  onEdit={handleEditNote}
+                  onDelete={handleDeleteNote}
+                  onAddChild={() => {}}
+                />
+              ))
+            ) : (
+              <div className="text-muted-foreground text-sm mt-2 ml-4">Вложенных заметок нет</div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="p-6 text-center text-muted-foreground">
+            <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p>Заметка не найдена</p>
+          </CardContent>
+        </Card>
+      )}
       <NoteDialog
         isOpen={dialogOpen}
         onClose={closeDialog}
