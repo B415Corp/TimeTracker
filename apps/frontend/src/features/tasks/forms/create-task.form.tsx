@@ -58,7 +58,8 @@ function CreateTaskForm({
 
   async function onSubmit(values: CreateTaskFormValues) {
     try {
-      await createTask(values).unwrap();
+      const { note_content, ...taskValues } = values; // Извлекаем note_content
+      await createTask({ ...taskValues, description: note_content }).unwrap(); // Добавляем description
       form.reset();
       onSuccess();
       onClose();
