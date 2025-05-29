@@ -1,4 +1,4 @@
-import { Controller, Get, Version } from '@nestjs/common';
+import { Controller, Get, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -12,6 +12,7 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Version(VERSION_NEUTRAL)
   @Get('health')
   getHealth(): { status: string; timestamp: string } {
     return {

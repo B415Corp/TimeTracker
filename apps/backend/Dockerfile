@@ -51,7 +51,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
+    CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
 
 # Start the application with dumb-init
 ENTRYPOINT ["dumb-init", "--"]
