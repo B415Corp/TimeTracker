@@ -46,21 +46,27 @@ export default function TaskItem({
   // Синхронизация состояния таймера в redux при изменении latestLog
   useEffect(() => {
     if (!latestLog) return;
+    
     if (latestLog.status === TIMELOGSTATUS.PROGRESS) {
+      const serverStartTime = latestLog.start_time
+        ? new Date(latestLog.start_time).getTime()
+        : Date.now();
+      
+      // Используем accumulated_duration - время без текущей сессии
+      const accumulatedTime = Number(latestLog.accumulated_duration) || 0;
+      
       dispatch(
         startTimer({
           task_id,
-          startTime: latestLog.start_time
-            ? new Date(latestLog.start_time).getTime()
-            : Date.now(),
-          accumulated: Number(latestLog.common_duration),
+          startTime: serverStartTime,
+          accumulated: accumulatedTime,
         })
       );
     } else {
       dispatch(
         stopTimer({
           task_id,
-          accumulated: Number(latestLog.common_duration),
+          accumulated: Number(latestLog.common_duration) || 0,
         })
       );
     }
