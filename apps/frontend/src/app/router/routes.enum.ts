@@ -7,7 +7,7 @@ export enum ROUTES {
   CLIENTS = "clients",
   CONTACTS = "contacts",
   BILLING = "billing",
-  NOTES = "notes",
+  // NOTES = "notes",
   TASKS = "tasks",
   USER = "users",
   SETTINGS = "settings",

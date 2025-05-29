@@ -9,8 +9,6 @@ import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import {
   HomePage,
   LoginPage,
-  NotesDetailPage,
-  NotesPage,
   PlansPage,
   ProjectDetailPage,
   ProjectsPage,
@@ -137,20 +135,7 @@ const router = createBrowserRouter(
             </PrivateRoute>
           ),
         },
-        {
-          path: ROUTES.NOTES + "/:id",
-          element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
-              <NotesDetailPage />
-            </PrivateRoute>
-          ),
-        },
+
         {
           path: ROUTES.USER + "/:id",
           element: (
@@ -176,20 +161,6 @@ const router = createBrowserRouter(
               ]}
             >
               <SettingsPage />
-            </PrivateRoute>
-          ),
-        },
-        {
-          path: ROUTES.NOTES,
-          element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
-              <NotesPage />
             </PrivateRoute>
           ),
         },
