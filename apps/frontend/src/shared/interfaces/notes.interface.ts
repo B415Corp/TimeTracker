@@ -3,7 +3,6 @@ import { z } from "zod";
 // NotesSchema
 export const NotesSchema = z.object({
   notes_id: z.string(),
-  name: z.string(),
   text_content: z.string(),
   parent_note_id: z.string().nullable().optional(),
   task_id: z.string().nullable().optional(),
@@ -12,22 +11,18 @@ export const NotesSchema = z.object({
   updated_at: z.string(),
   parentNote: z.object({
     notes_id: z.string(),
-    name: z.string(),
   }).nullable().optional(),
   childNotes: z.array(z.object({
     notes_id: z.string(),
-    name: z.string(),
     nesting_level: z.number(),
   })).optional(),
   task: z.object({
     task_id: z.string(),
-    name: z.string(),
   }).nullable().optional(),
 });
 
 // CreateNotesDTOSchema
 export const CreateNotesDTOSchema = z.object({
-  name: z.string(),
   text_content: z.string(),
   parent_note_id: z.string().optional(),
   task_id: z.string().optional(),
@@ -36,7 +31,6 @@ export const CreateNotesDTOSchema = z.object({
 
 // EditNotesDTOSchema
 export const EditNotesDTOSchema = z.object({
-  name: z.string().optional(),
   text_content: z.string().optional(),
   parent_note_id: z.string().optional(),
   task_id: z.string().optional(),

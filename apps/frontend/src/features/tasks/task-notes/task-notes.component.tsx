@@ -37,7 +37,6 @@ import {
 } from "@/components/ui/form";
 
 const noteFormSchema = z.object({
-  name: z.string().min(1, "Название обязательно"),
   text_content: z.string().min(1, "Содержание обязательно"),
   parent_note_id: z.string().optional(),
 });
@@ -66,7 +65,6 @@ function NoteDialog({ isOpen, onClose, taskId, editingNote, parentNote }: NoteDi
   const form = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
     defaultValues: {
-      name: editingNote?.name || "",
       text_content: editingNote?.text_content || "",
       parent_note_id: parentNote?.notes_id || editingNote?.parent_note_id || undefined,
     },
@@ -101,7 +99,7 @@ function NoteDialog({ isOpen, onClose, taskId, editingNote, parentNote }: NoteDi
           </DialogTitle>
           {parentNote && (
             <CardDescription>
-              Дочерняя заметка для: {parentNote.name}
+              Дочерняя заметка
             </CardDescription>
           )}
         </DialogHeader>
@@ -110,24 +108,10 @@ function NoteDialog({ isOpen, onClose, taskId, editingNote, parentNote }: NoteDi
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Название заметки</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Введите название..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="text_content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Содержание</FormLabel>
+                  <FormLabel>Содержание заметки</FormLabel>
                   <FormControl>
                     <Textarea
                       className="min-h-32"
@@ -184,13 +168,6 @@ function NoteCard({ note, onEdit, onDelete, onAddChild, isMain }: NoteCardProps)
           <div className="flex-1">
             <CardTitle className="text-lg flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              {note.name}
-              {note.nesting_level > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  <Hash className="w-3 h-3 mr-1" />
-                  Уровень {note.nesting_level}
-                </Badge>
-              )}
               {isMain && (
                 <Badge variant="primary" className="text-xs ml-2">Главная</Badge>
               )}

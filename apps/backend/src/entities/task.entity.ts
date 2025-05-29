@@ -45,10 +45,6 @@ export class Task {
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
   user_id: string;
 
-  @ApiProperty({ type: String, description: 'Description of the task' })
-  @Column('text', { default: '' })
-  description: string;
-
   @ApiProperty({ type: Number, description: 'Task order' })
   @Column({ nullable: true })
   order: number;

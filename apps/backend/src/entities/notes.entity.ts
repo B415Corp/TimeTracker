@@ -23,10 +23,6 @@ export class Notes {
   @PrimaryGeneratedColumn('uuid')
   notes_id: string;
 
-  @ApiProperty({ type: String, description: 'Name of the note' })
-  @Column()
-  name: string;
-
   @ApiProperty({
     type: String,
     description: 'User ID associated with the note',

@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { popularCurrencies } from 'src/common/constants';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateTaskDto {
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  description: string;
+  @ApiProperty({ example: 'Task name', description: 'Task name', required: false })
+  @IsOptional()
+  @IsString()
+  name?: string;
 
   @ApiProperty()
   is_paid: boolean;

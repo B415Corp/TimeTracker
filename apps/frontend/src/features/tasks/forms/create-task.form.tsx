@@ -20,12 +20,9 @@ import { useCreateNotesMutation } from "@/shared/api/notes.service";
 const createTaskSchema = z.object({
   name: z.string().min(1, "Название задачи обязательно"),
   project_id: z.string().min(1, "Проект обязателен"),
-  description: z.string().optional(),
   is_paid: z.boolean().default(false),
   order: z.number().int().min(0, "Порядок должен быть неотрицательным"),
   tag_ids: z.array(z.string()).default([]),
-  // Основная заметка
-  note_name: z.string().min(1, "Название заметки обязательно"),
   note_content: z.string().min(1, "Содержание заметки обязательно"),
 });
 
@@ -50,11 +47,9 @@ function CreateTaskForm({
     defaultValues: {
       name: "",
       project_id: projectId,
-      description: "",
       is_paid: false,
       order: 0,
       tag_ids: [],
-      note_name: "",
       note_content: "",
     },
   });
@@ -63,11 +58,8 @@ function CreateTaskForm({
 
   async function onSubmit(values: CreateTaskFormValues) {
     try {
-      // Создаем задачу
       const task = await createTask(values).unwrap();
-      // Всегда создаём основную заметку
       await createNote({
-        name: values.note_name,
         text_content: values.note_content,
         task_id: task.task_id,
       }).unwrap();
@@ -96,39 +88,8 @@ function CreateTaskForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Описание (опционально)</FormLabel>
-              <FormControl>
-                <Textarea
-                  className="max-h-32"
-                  placeholder="Детальное описание задачи..."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className="border rounded-lg p-4 bg-muted/40">
           <div className="font-semibold mb-2">Основная заметка задачи</div>
-          <FormField
-            control={form.control}
-            name="note_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Название заметки</FormLabel>
-                <FormControl>
-                  <Input placeholder="Техническое задание" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="note_content"

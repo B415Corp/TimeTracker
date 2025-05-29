@@ -1,17 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { popularCurrencies } from 'src/common/constants';
+import { IsString, IsNotEmpty, IsUUID } from 'class-validator';
 
 export class CreateTaskDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'Task name', description: 'Task name' })
+  @IsString()
+  @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    example: 'd086f135-a6a3-45c7-a07b-a2a364e38d90',
-  })
+  @ApiProperty({ example: 'project-uuid', description: 'Project ID' })
+  @IsUUID()
   project_id: string;
-
-  @ApiProperty()
-  description: string;
 
   @ApiProperty()
   is_paid: boolean;
