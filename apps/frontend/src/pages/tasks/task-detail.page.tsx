@@ -10,8 +10,6 @@ import {
   MoreVerticalIcon,
   PencilIcon,
   TrashIcon,
-  FileText,
-  Clock,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatDate } from "@/lib/dateUtils";
@@ -32,12 +30,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { useGetTimeLogLogsQuery } from "@/shared/api/time-log.service";
 import TaskSharedUsers from "@/features/tasks/shared-users/task-shared-users";
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
-import { LogsTable } from "../../features/time-logs/logs-table";
 import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TaskNotes from "@/features/tasks/task-notes/task-notes.component";
 
 export default function TaskDetailPage() {
@@ -45,10 +40,6 @@ export default function TaskDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [deleteTask] = useDeleteTaskMutation();
   const { data: task } = useGetTaskByIdQuery(id || "", { skip: !id });
-  const { data: timeLogs } = useGetTimeLogLogsQuery(
-    { task_id: id || "" },
-    { skip: !id }
-  );
   const { data: projectUsers } = useGetProjectSharedByIdQuery(
     {
       project_id: task?.project_id || "",
@@ -76,7 +67,6 @@ export default function TaskDetailPage() {
                 onClose={() => setEditDialogIsOpen(false)}
                 defaults={{
                   name: task.name,
-                  description: task.description,
                   is_paid: task.is_paid,
                   payment_type: task.payment_type,
                   rate: String(task.rate),
@@ -203,9 +193,7 @@ export default function TaskDetailPage() {
         <div className="w-full p-4">
           {id && <TaskNotes taskId={id} />}
         </div>
-        <div className="w-full p-4">
-          {timeLogs && <LogsTable logs={timeLogs} />}
-        </div>
+       
       </div>
     </>
   );

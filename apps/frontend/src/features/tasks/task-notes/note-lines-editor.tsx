@@ -72,7 +72,7 @@ function getNestingLevel(lines: NoteLine[], id: string): number {
   let curr = lines.find((l) => l.id === id);
   while (curr && curr.parentId) {
     level++;
-    const next = lines.find((l) => l.id === curr.parentId);
+    const next = lines.find((l) => l.id === curr!.parentId);
     if (!next) break;
     curr = next;
   }
@@ -117,25 +117,79 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
   };
 
   const handleDelete = (id: string) => {
-    onChange(sortedLines.filter((l) => l.id !== id && l.parentId !== id));
+    // Получаем все потомки удаляемого элемента
+    const descendants = getDescendants(sortedLines, id);
+    const deleteIds = [id, ...descendants.map(d => d.id)];
+    
+    // Удаляем элемент и всех его потомков
+    onChange(sortedLines.filter((l) => !deleteIds.includes(l.id)));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, line: NoteLine) => {
+    // Проверяем, если это событие создания новой строки
+    if ((e as any).detail?.action === 'createNewLine') {
+      const currentLine = (e as any).detail.currentLine;
+      const newLineType = (e as any).detail.newLineType;
+      
+      // Создаем новую строку сразу под текущей
+      const newLine: NoteLine = {
+        id: generateId(),
+        parentId: currentLine.parentId, // Сохраняем тот же уровень вложенности
+        order: currentLine.order + 1,
+        type: newLineType,
+        content: "",
+      };
+      
+      // Сдвигаем все строки после текущей на +1
+      const updatedLines = sortedLines.map(l => 
+        l.order > currentLine.order ? { ...l, order: l.order + 1 } : l
+      );
+      
+      // Добавляем новую строку
+      onChange([...updatedLines, newLine]);
+      
+      // Устанавливаем фокус на новую строку
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('input[type="text"], textarea');
+        // Ищем input с data-line-id равным id новой строки
+        const targetInput = Array.from(inputs).find(input => 
+          (input as HTMLElement).closest('[data-line-id]')?.getAttribute('data-line-id') === newLine.id
+        ) as HTMLElement;
+        if (targetInput) {
+          targetInput.focus();
+        } else {
+          // Fallback: фокусируемся на следующем input после текущего
+          const currentInput = Array.from(inputs).find(input => 
+            (input as HTMLElement).closest('[data-line-id]')?.getAttribute('data-line-id') === currentLine.id
+          );
+          if (currentInput) {
+            const currentIndex = Array.from(inputs).indexOf(currentInput);
+            const nextInput = inputs[currentIndex + 1] as HTMLElement;
+            nextInput?.focus();
+          }
+        }
+      }, 10);
+      
+      return;
+    }
+    
+    // Остальная логика для обычных клавиш (оставляем как fallback)
     if (e.key === "Enter") {
       e.preventDefault();
-      const maxOrder =
-        sortedLines.length > 0
-          ? Math.max(...sortedLines.map((l) => l.order))
-          : 0;
       const newLine: NoteLine = {
         id: generateId(),
         parentId: line.parentId,
-        order: maxOrder + 1,
+        order: line.order + 1,
         type: "text",
         content: "",
       };
-      const updated = [...sortedLines, newLine];
-      onChange(updated);
+      
+      // Сдвигаем все строки после текущей
+      const updatedLines = sortedLines.map(l => 
+        l.order > line.order ? { ...l, order: l.order + 1 } : l
+      );
+      
+      onChange([...updatedLines, newLine]);
     } else if (e.key === "Backspace" && line.content === "") {
       e.preventDefault();
       onChange(
@@ -187,20 +241,39 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     newIndex: number,
     newParentId: string | null = null
   ) => {
-    const flat = sortedLines.filter((l) => l.parentId === newParentId);
-    const movedFlat = arrayMove(flat, oldIndex, newIndex);
-    let updated: NoteLine[] = sortedLines.map((l) => {
-      const idx = movedFlat.findIndex((f) => f.id === l.id);
-      if (l.parentId === newParentId && idx !== -1) {
-        return { ...l, order: idx, parentId: newParentId };
-      }
-      return l;
-    });
-    onChange(updated);
+    // Получаем перемещаемый элемент
+    const movedLine = sortedLines[oldIndex];
+    if (!movedLine) return;
+    
+    // Получаем все потомки перемещаемого элемента
+    const descendants = getDescendants(sortedLines, movedLine.id);
+    const movedIds = [movedLine.id, ...descendants.map(d => d.id)];
+    
+    // Отфильтровываем перемещаемые элементы из исходного массива
+    const remainingLines = sortedLines.filter(l => !movedIds.includes(l.id));
+    
+    // Обновляем parentId для корневого перемещаемого элемента
+    const updatedMovedLine = { ...movedLine, parentId: newParentId };
+    
+    // Вставляем перемещенный элемент и его потомков в новую позицию
+    const result = [
+      ...remainingLines.slice(0, newIndex),
+      updatedMovedLine,
+      ...descendants, // Потомки сохраняют свою структуру
+      ...remainingLines.slice(newIndex)
+    ];
+    
+    // Пересчитываем order для всех элементов
+    const reorderedLines = result.map((line, index) => ({
+      ...line,
+      order: index
+    }));
+    
+    onChange(reorderedLines);
   };
 
-  // DND: flat-список для SortableContext
-  const flatLines = sortedLines.filter((l) => l.parentId === null);
+  // DND: включаем ВСЕ строки в SortableContext, а не только корневые
+  const allLineIds = sortedLines.map(l => l.id);
 
   // Drag-to-delete: область для удаления
   const handleDragMove = (offsetX: number, offsetY?: number) => {
@@ -219,41 +292,40 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     newIndex: number,
     newParentId: string | null = null
   ) => {
-    if (dragOverDelete && flatLines[oldIndex]) {
-      handleDelete(flatLines[oldIndex].id);
-      setDragOverDelete(false);
+    if (dragOverDelete) {
+      const draggedLine = sortedLines[oldIndex];
+      if (draggedLine) {
+        handleDelete(draggedLine.id);
+        setDragOverDelete(false);
+      }
       return;
     }
+    
     // DND вложенность: вправо — вложить, влево — поднять
     let targetParentId = newParentId;
+    const draggedLine = sortedLines[oldIndex];
+    
     if (dragOffsetX > DRAG_NEST_INDENT && oldIndex > 0) {
       // Вложить в предыдущий блок
-      const prev = flatLines[oldIndex - 1];
-      if (
-        canNest(
-          sortedLines,
-          prev.id,
-          flatLines[oldIndex].id,
-          flatLines[oldIndex].type
-        )
-      ) {
+      const prev = sortedLines[oldIndex - 1];
+      if (prev && canNest(sortedLines, prev.id, draggedLine.id, draggedLine.type)) {
         targetParentId = prev.id;
       }
     } else if (dragOffsetX < -DRAG_NEST_INDENT) {
       // Поднять на уровень выше
-      const curr = flatLines[oldIndex];
-      if (curr && curr.parentId) {
-        const parent = sortedLines.find((l) => l.id === curr.parentId);
+      if (draggedLine && draggedLine.parentId) {
+        const parent = sortedLines.find((l) => l.id === draggedLine.parentId);
         targetParentId = parent?.parentId ?? null;
       }
     }
+    
     handleMove(oldIndex, newIndex, targetParentId);
   };
 
   return (
     <>
       <NoteLinesDndContext
-        lines={flatLines}
+        lines={sortedLines} // Передаем ВСЕ строки, включая вложенные
         onMove={handleMoveWithDelete}
         onDragMove={handleDragMove}
       >

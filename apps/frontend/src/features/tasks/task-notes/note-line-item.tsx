@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Heading, List, AlignLeft, Link as LinkIcon, Paperclip, Trash2, CheckSquare, Minus, Code2, Quote } from "lucide-react";
 
+const generateId = () => Math.random().toString(36).substring(2, 11);
+
 interface NoteLineItemProps {
   line: NoteLine;
   level: number;
@@ -21,7 +23,9 @@ interface NoteLineItemProps {
 }
 
 const typeButtons: { type: NoteLineType; label: string; icon: React.ReactNode }[] = [
-  { type: "heading", label: "Заголовок", icon: <Heading size={16} /> },
+  { type: "heading1", label: "Заголовок 1", icon: <Heading size={16} /> },
+  { type: "heading2", label: "Заголовок 2", icon: <Heading size={14} /> },
+  { type: "heading3", label: "Заголовок 3", icon: <Heading size={12} /> },
   { type: "list", label: "Список", icon: <List size={16} /> },
   { type: "text", label: "Текст", icon: <AlignLeft size={16} /> },
   { type: "link", label: "Ссылка", icon: <LinkIcon size={16} /> },
@@ -55,7 +59,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
     }
   };
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (showTypeMenu) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -70,6 +74,19 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
         setShowTypeMenu(false);
       }
     } else {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const createLineEvent = {
+          ...e,
+          detail: {
+            action: 'createNewLine',
+            currentLine: line,
+            newLineType: line.type
+          }
+        } as any;
+        onKeyDown(createLineEvent);
+        return;
+      }
       onKeyDown(e);
     }
   };
@@ -100,7 +117,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div ref={setNodeRef} style={style} {...attributes} data-line-id={line.id}>
       <span {...listeners} style={{ cursor: "grab", padding: "0 4px" }}>⠿</span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -126,37 +143,84 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
         </DropdownMenuContent>
       </DropdownMenu>
       {showTypeMenu && (
-        <div style={{ position: "absolute", zIndex: 10, background: "white", border: "1px solid #eee", borderRadius: 6, boxShadow: "0 2px 8px #0001", marginLeft: 40, marginTop: 4, minWidth: 180, transition: 'opacity 0.15s' }}>
+        <div style={{
+          position: "absolute",
+          zIndex: 10,
+          background: "#f7f7fa",
+          border: "1px solid #e5e7eb",
+          borderRadius: 8,
+          boxShadow: "0 4px 24px #0002",
+          marginLeft: 40,
+          marginTop: 4,
+          minWidth: 200,
+          color: "#222",
+          transition: 'opacity 0.2s cubic-bezier(.4,0,.2,1)',
+          fontSize: 15,
+          padding: 4,
+          animation: 'fadeIn 0.18s',
+        }}>
           {typeButtons.map((btn, idx) => (
             <div
               key={btn.type}
-              style={{ padding: 6, cursor: "pointer", display: "flex", alignItems: "center", background: idx === typeMenuIndex ? "#f0f4ff" : undefined, borderRadius: 4, transition: 'background 0.15s' }}
+              style={{
+                padding: '8px 12px',
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                background: idx === typeMenuIndex ? "#e0e7ff" : undefined,
+                borderRadius: 6,
+                fontWeight: idx === typeMenuIndex ? 600 : 400,
+                color: idx === typeMenuIndex ? "#1e293b" : undefined,
+                transition: 'background 0.15s',
+              }}
               onClick={() => handleTypeSelect(btn.type)}
               onMouseEnter={() => setTypeMenuIndex(idx)}
             >
-              <span style={{ marginRight: 8 }}>{btn.icon}</span> {btn.label}
+              <span style={{ marginRight: 10 }}>{btn.icon}</span> {btn.label}
             </div>
           ))}
         </div>
       )}
-      {line.type === "text" || line.type === "heading" || line.type === "list" || line.type === "link" ? (
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleInputKeyDown}
-          style={{ flex: 1, fontWeight: line.type === "heading" ? 600 : undefined }}
-          placeholder={line.type === "heading" ? "Заголовок..." : line.type === "list" ? "Пункт списка..." : line.type === "link" ? "Ссылка..." : "Текст..."}
-        />
-      ) : line.type === "todo" ? (
-        <>
-          <input type="checkbox" checked={!!line.checked} onChange={() => onChange(line.id, line.content)} style={{ marginRight: 8 }} />
+      {line.type === "text" || line.type === "heading1" || line.type === "heading2" || line.type === "heading3" || line.type === "list" || line.type === "link" ? (
+        <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+          {line.type === "list" && <span style={{ marginRight: 8, color: "#666" }}>•</span>}
           <input
             type="text"
             value={inputValue}
             onChange={handleInputChange}
-            onKeyDown={handleInputKeyDown}
-            style={{ flex: 1 }}
+            onKeyDown={handleKeyDown}
+            style={{ 
+              flex: 1, 
+              fontWeight: line.type === "heading1" ? 700 : line.type === "heading2" ? 600 : line.type === "heading3" ? 500 : undefined,
+              fontSize: line.type === "heading1" ? "1.5em" : line.type === "heading2" ? "1.25em" : line.type === "heading3" ? "1.1em" : undefined
+            }}
+            placeholder={
+              line.type === "heading1" ? "Заголовок 1..." : 
+              line.type === "heading2" ? "Заголовок 2..." : 
+              line.type === "heading3" ? "Заголовок 3..." : 
+              line.type === "list" ? "Пункт списка..." : 
+              line.type === "link" ? "Ссылка..." : "Текст..."
+            }
+          />
+        </div>
+      ) : line.type === "todo" ? (
+        <>
+          <input 
+            type="checkbox" 
+            checked={!!line.checked} 
+            onChange={(e) => {
+              const updatedLine = { ...line, checked: e.target.checked };
+              onChange(line.id, updatedLine.content || "");
+              onTypeChange(line.id, line.type);
+            }} 
+            style={{ marginRight: 8 }} 
+          />
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            style={{ flex: 1, textDecoration: line.checked ? "line-through" : "none", opacity: line.checked ? 0.6 : 1 }}
             placeholder="Задача..."
           />
         </>
@@ -166,7 +230,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
         <textarea
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={handleInputKeyDown}
+          onKeyDown={handleKeyDown}
           style={{ flex: 1, fontFamily: "monospace", background: "#f7f7f7", borderRadius: 4, minHeight: 32, padding: 4 }}
           placeholder="Код..."
         />
@@ -176,7 +240,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
             type="text"
             value={inputValue}
             onChange={handleInputChange}
-            onKeyDown={handleInputKeyDown}
+            onKeyDown={handleKeyDown}
             style={{ width: "100%", background: "transparent", border: "none", outline: "none" }}
             placeholder="Цитата..."
           />

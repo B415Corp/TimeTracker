@@ -39,8 +39,11 @@ import {
 import NoteCard from "./task-note-card.component";
 import { NoteLinesEditor } from "./note-lines-editor";
 import { NoteLine, NoteLineType } from "./note-line.types";
-import { deserializeNoteLines, serializeNoteLines } from "./note-lines-serialize";
+import { deserializeNoteLines, serializeNoteLines, treeToFlat } from "./note-lines-serialize";
 import { useSnackbar } from 'notistack';
+
+// Функция для генерации уникальных ID
+const generateId = () => Math.random().toString(36).substring(2, 11);
 
 const noteFormSchema = z.object({
   text_content: z.string().min(1, "Содержание обязательно"),
@@ -194,37 +197,55 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
 
   useEffect(() => {
     if (apiNotes) {
-      // Если text_content — строка (старый формат), оборачиваем в массив NoteLine
+      console.log("🔍 Загрузка: исходные apiNotes:", apiNotes);
+      
       let mapped: NoteLine[] = [];
-      if (Array.isArray(apiNotes) && apiNotes.length > 0 && typeof apiNotes[0].text_content === 'string') {
-        try {
-          // Пробуем распарсить как JSON (новый формат)
-          const parsed = JSON.parse(apiNotes[0].text_content);
-          if (Array.isArray(parsed)) {
-            mapped = deserializeNoteLines(apiNotes[0].text_content);
-          } else {
-            // Если не массив — fallback
+      if (Array.isArray(apiNotes) && apiNotes.length > 0) {
+        const noteContent = apiNotes[0].text_content;
+        console.log("🔍 Загрузка: noteContent:", noteContent);
+        
+        if (typeof noteContent === 'string') {
+          try {
+            // Пробуем распарсить как JSON (новый формат)
+            const parsed = JSON.parse(noteContent);
+            console.log("🔍 Загрузка: parsed JSON:", parsed);
+            
+            if (Array.isArray(parsed)) {
+              // Это дерево блоков - десериализуем в flat
+              mapped = deserializeNoteLines(noteContent);
+              console.log("🔍 Загрузка: десериализованные lines:", mapped);
+            } else {
+              // Это старый plain text
+              mapped = [{
+                id: generateId(),
+                parentId: null,
+                order: 0,
+                type: 'text',
+                content: noteContent,
+              }];
+            }
+          } catch {
+            // Если не JSON — это plain text
             mapped = [{
-              id: apiNotes[0].notes_id,
+              id: generateId(),
               parentId: null,
               order: 0,
               type: 'text',
-              content: apiNotes[0].text_content,
+              content: noteContent,
             }];
           }
-        } catch {
-          // Если не JSON — fallback
-          mapped = [{
-            id: apiNotes[0].notes_id,
-            parentId: null,
-            order: 0,
-            type: 'text',
-            content: apiNotes[0].text_content,
-          }];
+        } else if (Array.isArray(noteContent)) {
+          // Это уже массив — проверяем, дерево это или flat
+          if (noteContent.length > 0 && noteContent[0].children !== undefined) {
+            // Это дерево с children — преобразуем в flat
+            console.log("🔍 Загрузка: обнаружено дерево, преобразуем в flat");
+            mapped = treeToFlat(noteContent);
+            console.log("🔍 Загрузка: преобразованный flat:", mapped);
+          } else {
+            // Это уже flat-массив NoteLine
+            mapped = noteContent;
+          }
         }
-      } else if (Array.isArray(apiNotes) && apiNotes.length > 0 && Array.isArray(apiNotes[0].text_content)) {
-        // Новый формат: text_content — массив блоков
-        mapped = apiNotes[0].text_content;
       }
       setLines(mapped);
       setOriginalLines(mapped);
@@ -241,8 +262,12 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
   // Оптимизированное сохранение
   const handleSave = async () => {
     try {
+      console.log("🔍 Сохранение: исходные lines:", lines);
+      
       // Сохраняем всю структуру как JSON
       const json = serializeNoteLines(lines);
+      console.log("🔍 Сохранение: сериализованный JSON:", json);
+      
       if (apiNotes && apiNotes[0]) {
         await editNote({
           note_id: apiNotes[0].notes_id,
@@ -258,6 +283,7 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
       enqueueSnackbar("Заметки успешно сохранены!", { variant: "success" });
       setIsDirty(false);
     } catch (e) {
+      console.error("❌ Ошибка сохранения:", e);
       enqueueSnackbar("Ошибка при сохранении заметок", { variant: "error" });
     }
   };
@@ -328,7 +354,9 @@ function getNestingLevel(lines: NoteLine[], id: string): number {
   let curr = lines.find(l => l.id === id);
   for (; curr && curr.parentId;) {
     level++;
-    curr = lines.find(l => l.id === curr.parentId);
+    const nextCurr = lines.find(l => l.id === curr!.parentId);
+    if (!nextCurr) break;
+    curr = nextCurr;
   }
   return level;
 } 
