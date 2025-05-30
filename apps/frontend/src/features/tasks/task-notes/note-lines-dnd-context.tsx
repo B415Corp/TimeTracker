@@ -33,6 +33,16 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
   const [dragOverId, setDragOverId] = React.useState<string | null>(null);
   const [dropIndicatorStyle, setDropIndicatorStyle] = React.useState<React.CSSProperties>({});
 
+  // Отладочное логирование состояния
+  React.useEffect(() => {
+    console.log('Indicator state:', { 
+      isDragging, 
+      dragOverId, 
+      hasStyle: Object.keys(dropIndicatorStyle).length > 0,
+      dropIndicatorStyle 
+    });
+  }, [isDragging, dragOverId, dropIndicatorStyle]);
+
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
   };
@@ -68,28 +78,43 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
     
     // Обновляем позицию индикатора
     if (event.over?.id && event.active?.id !== event.over?.id) {
-      setDragOverId(event.over.id as string);
+      const overId = event.over.id as string;
+      setDragOverId(overId);
+      
+      console.log('DragMove over:', overId);
       
       // Находим элемент и позиционируем индикатор
-      const element = document.querySelector(`[data-line-id="${event.over.id}"]`);
+      const element = document.querySelector(`[data-line-id="${overId}"]`);
+      console.log('Found element:', element);
+      
       if (element) {
         const rect = element.getBoundingClientRect();
+        console.log('Element rect:', rect);
         
-        setDropIndicatorStyle({
-          position: "fixed",
-          left: rect.left,
-          width: rect.width,
-          height: 2,
-          top: rect.bottom + 1, // Всегда после элемента
+        const style = {
+          position: "fixed" as const,
+          left: rect.left + 'px',
+          width: rect.width + 'px', 
+          height: '3px',
+          top: (rect.bottom + 2) + 'px',
           background: "#2563eb",
-          borderRadius: 1,
-          zIndex: 9999,
-          pointerEvents: "none",
-          opacity: 0.9,
-          boxShadow: "0 0 6px rgba(37, 99, 235, 0.6)",
-        });
+          borderRadius: '2px',
+          zIndex: 99999,
+          pointerEvents: "none" as const,
+          opacity: 1,
+          boxShadow: "0 0 8px rgba(37, 99, 235, 0.8)",
+          border: "1px solid #1d4ed8",
+        };
+        
+        console.log('Setting indicator style:', style);
+        setDropIndicatorStyle(style);
+      } else {
+        console.log('Element not found for:', overId);
+        setDragOverId(null);
+        setDropIndicatorStyle({});
       }
     } else {
+      console.log('No valid over target');
       setDragOverId(null);
       setDropIndicatorStyle({});
     }
@@ -110,9 +135,12 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
       </DndContext>
       
       {/* Индикатор в портале для правильного позиционирования */}
-      {isDragging && dragOverId && typeof window !== 'undefined' && 
+      {isDragging && dragOverId && Object.keys(dropIndicatorStyle).length > 0 && typeof window !== 'undefined' && 
         createPortal(
-          <div style={dropIndicatorStyle} />,
+          <div 
+            style={dropIndicatorStyle}
+            data-drop-indicator="true"
+          />,
           document.body
         )
       }
