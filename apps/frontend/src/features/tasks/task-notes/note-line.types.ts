@@ -1,4 +1,4 @@
-export type NoteLineType = "heading" | "list" | "text" | "link" | "file";
+export type NoteLineType = "heading" | "list" | "text" | "link" | "file" | "todo" | "divider" | "code" | "quote";
 
 export interface NoteLine {
   id: string;
@@ -6,5 +6,7 @@ export interface NoteLine {
   order: number;
   type: NoteLineType;
   content: string;
+  checked?: boolean; // для todo
+  lang?: string; // для code
   // ...доп. поля (например, для ссылок/файлов)
 } 
