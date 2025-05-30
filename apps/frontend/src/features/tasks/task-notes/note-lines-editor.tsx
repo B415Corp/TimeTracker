@@ -1,7 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 // import { arrayMove } from "array-move";
 
 // Простая реализация arrayMove для перестановки элементов
@@ -14,6 +16,7 @@ function arrayMove<T>(array: T[], from: number, to: number): T[] {
 
 interface NoteLinesEditorProps {
   lines: NoteLine[];
+  onChange?: (lines: NoteLine[]) => void;
 }
 
 // Вспомогательная функция для построения дерева из flat-списка
@@ -23,7 +26,8 @@ function buildTree(
   level = 0,
   onChange: (id: string, value: string) => void,
   onTypeChange: (id: string, type: NoteLineType) => void,
-  onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void
+  onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void,
+  onDelete: (id: string) => void
 ): React.ReactNode[] {
   return lines
     .filter(line => line.parentId === parentId)
@@ -37,7 +41,7 @@ function buildTree(
           onTypeChange={onTypeChange}
           onKeyDown={e => onKeyDown(e, line)}
         />
-        {buildTree(lines, line.id, level + 1, onChange, onTypeChange, onKeyDown)}
+        {buildTree(lines, line.id, level + 1, onChange, onTypeChange, onKeyDown, onDelete)}
       </div>
     ));
 }
@@ -79,10 +83,18 @@ function canNest(lines: NoteLine[], parentId: string | null, draggedId: string, 
   return true;
 }
 
-export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initialLines }) => {
+export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initialLines, onChange }) => {
   const [lines, setLines] = useState<NoteLine[]>(initialLines);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<number>(0);
+
+  useEffect(() => {
+    setLines(initialLines);
+  }, [initialLines]);
+
+  useEffect(() => {
+    if (onChange) onChange(lines);
+  }, [lines]);
 
   const handleChange = (id: string, value: string) => {
     setLines(lines => lines.map(l => l.id === id ? { ...l, content: value } : l));
@@ -92,14 +104,17 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
     setLines(lines => lines.map(l => l.id === id ? { ...l, type } : l));
   };
 
+  const handleDelete = (id: string) => {
+    setLines(lines => lines.filter(l => l.id !== id && l.parentId !== id)); // удаляем строку и её прямых детей
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent, line: NoteLine) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      // Добавить новую строку после текущей
       const newLine: NoteLine = {
         id: generateId(),
         parentId: line.parentId,
-        order: line.order + 0.1, // временно, потом пересортируем
+        order: line.order + 0.1,
         type: "text",
         content: "",
       };
@@ -111,15 +126,13 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
       });
     } else if (e.key === "Backspace" && line.content === "") {
       e.preventDefault();
-      // Удалить строку, если она пустая
-      setLines(lines => lines.filter(l => l.id !== line.id));
+      setLines(lines => lines.filter(l => l.id !== line.id && l.parentId !== line.id));
     } else if (e.key === "Tab" && !e.shiftKey) {
       e.preventDefault();
       setLines(lines => {
         const idx = lines.findIndex(l => l.id === line.id);
         if (idx > 0) {
           const prev = lines[idx - 1];
-          // Сделать текущую строку дочерней предыдущей
           return lines.map(l => l.id === line.id ? { ...l, parentId: prev.id } : l);
         }
         return lines;
@@ -131,7 +144,6 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
         if (idx > -1) {
           const curr = lines[idx];
           const parent = lines.find(l => l.id === curr.parentId);
-          // Поднять на уровень выше (сделать дочерней родителя родителя)
           return lines.map(l => l.id === line.id ? { ...l, parentId: parent?.parentId ?? null } : l);
         }
         return lines;
@@ -194,16 +206,41 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
   const flatLines = lines.filter(l => l.parentId === null).sort((a, b) => a.order - b.order);
 
   return (
-    <NoteLinesDndContext
-      lines={flatLines}
-      onMove={(oldIndex, newIndex) => {
-        setDraggedId(flatLines[oldIndex]?.id ?? null);
-        handleMove(oldIndex, newIndex);
-        handleDragEnd(oldIndex, newIndex);
-      }}
-      onDragMove={handleDragMove}
-    >
-      {buildTree(lines, null, 0, handleChange, handleTypeChange, handleKeyDown)}
-    </NoteLinesDndContext>
+    <>
+      <NoteLinesDndContext
+        lines={flatLines}
+        onMove={(oldIndex, newIndex) => {
+          setDraggedId(flatLines[oldIndex]?.id ?? null);
+          handleMove(oldIndex, newIndex);
+          handleDragEnd(oldIndex, newIndex);
+        }}
+        onDragMove={handleDragMove}
+      >
+        {buildTree(lines, null, 0, handleChange, handleTypeChange, handleKeyDown, handleDelete)}
+      </NoteLinesDndContext>
+      <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 16 }}>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => {
+            setLines(lines => [
+              ...lines,
+              {
+                id: generateId(),
+                parentId: null,
+                order: lines.length,
+                type: "text",
+                content: "",
+              },
+            ]);
+          }}
+          className="size-8"
+          aria-label="Добавить строку"
+        >
+          <Plus size={16} />
+        </Button>
+      </div>
+    </>
   );
 }; 

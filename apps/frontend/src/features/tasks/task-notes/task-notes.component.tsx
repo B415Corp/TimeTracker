@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetTaskNotesQuery } from "@/shared/api/task.service";
-import { useCreateNotesMutation, useEditNotesMutation, useDeleteNotesMutation } from "@/shared/api/notes.service";
+import { useGetNotesByTaskQuery, useEditNotesMutation, useCreateNotesMutation } from "@/shared/api/notes.service";
+import { useCreateNotesMutation as useCreateNotesMutationFromNotesService } from "@/shared/api/notes.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -38,6 +39,7 @@ import {
 import NoteCard from "./task-note-card.component";
 import { NoteLinesEditor } from "./note-lines-editor";
 import { NoteLine } from "./note-line.types";
+import { deserializeNoteLines, serializeNoteLines } from "./note-lines-serialize";
 
 const noteFormSchema = z.object({
   text_content: z.string().min(1, "Содержание обязательно"),
@@ -170,12 +172,55 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
     setParentNote(null);
   };
 
-  // Тестовые данные для нового редактора
-  const testLines: NoteLine[] = [
-    { id: "1", parentId: null, order: 0, type: "heading", content: "Заголовок" },
-    { id: "2", parentId: null, order: 1, type: "text", content: "Текст 1" },
-    { id: "3", parentId: null, order: 2, type: "list", content: "Пункт списка" },
-  ];
+  // --- Новый редактор заметок с интеграцией API ---
+  const { data: apiNotes, isLoading: isNotesLoading } = useGetNotesByTaskQuery({ task_id: taskId });
+  const [editNote] = useEditNotesMutation();
+  const [createNote] = useCreateNotesMutation();
+  const [lines, setLines] = useState<NoteLine[]>([]);
+  const [isDirty, setIsDirty] = useState(false);
+
+  // Преобразование заметок из API в NoteLine[]
+  useEffect(() => {
+    if (apiNotes) {
+      setLines(apiNotes.map((n: any) => ({
+        id: n.notes_id,
+        parentId: n.parent_note_id ?? null,
+        order: n.nesting_level ?? 0,
+        type: "text", // TODO: если появятся типы, брать из n
+        content: n.text_content,
+      })));
+      setIsDirty(false);
+    }
+  }, [apiNotes]);
+
+  // Обработчик изменений в редакторе
+  const handleLinesChange = (newLines: NoteLine[]) => {
+    setLines(newLines);
+    setIsDirty(true);
+  };
+
+  // Сохранение изменений (bulk PATCH/POST)
+  const handleSave = async () => {
+    for (const line of lines) {
+      if (apiNotes?.some(n => n.notes_id === line.id)) {
+        await editNote({
+          note_id: line.id,
+          text_content: line.content,
+          parent_note_id: line.parentId ?? undefined,
+          nesting_level: getNestingLevel(lines, line.id),
+          task_id: taskId,
+        });
+      } else {
+        await createNote({
+          text_content: line.content,
+          parent_note_id: line.parentId ?? undefined,
+          nesting_level: getNestingLevel(lines, line.id),
+          task_id: taskId,
+        });
+      }
+    }
+    setIsDirty(false);
+  };
 
   if (isLoading) {
     return (
@@ -208,10 +253,23 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
 
   return (
     <div className="space-y-6">
-      {/* Новый редактор заметок для теста */}
+      {/* Новый редактор заметок с интеграцией API */}
       <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 16, marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 8 }}>Новый редактор заметок (тест)</h3>
-        <NoteLinesEditor lines={testLines} />
+        <h3 style={{ marginBottom: 8 }}>Новый редактор заметок (интеграция с API)</h3>
+        {isNotesLoading ? (
+          <div>Загрузка...</div>
+        ) : (
+          <>
+            <NoteLinesEditor lines={lines} onChange={handleLinesChange} />
+            <button
+              onClick={handleSave}
+              disabled={!isDirty}
+              style={{ marginTop: 12, padding: "6px 16px", borderRadius: 4, background: isDirty ? "#2563eb" : "#ccc", color: "#fff", border: "none", cursor: isDirty ? "pointer" : "not-allowed" }}
+            >
+              Сохранить
+            </button>
+          </>
+        )}
       </div>
       {mainNote ? (
         <div>
@@ -260,4 +318,15 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
       />
     </div>
   );
+}
+
+// Вспомогательная функция для уровня вложенности
+function getNestingLevel(lines: NoteLine[], id: string): number {
+  let level = 0;
+  let curr = lines.find(l => l.id === id);
+  while (curr && curr.parentId) {
+    level++;
+    curr = lines.find(l => l.id === curr.parentId);
+  }
+  return level;
 } 

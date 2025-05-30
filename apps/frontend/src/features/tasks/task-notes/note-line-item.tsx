@@ -7,8 +7,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
+import { Heading, List, AlignLeft, Link as LinkIcon, Paperclip, Trash2 } from "lucide-react";
 
 interface NoteLineItemProps {
   line: NoteLine;
@@ -16,18 +17,23 @@ interface NoteLineItemProps {
   onChange: (id: string, value: string) => void;
   onTypeChange: (id: string, type: NoteLineType) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
+  onDelete: (id: string) => void;
 }
 
-const typeButtons: { type: NoteLineType; label: string }[] = [
-  { type: "heading", label: "Заголовок" },
-  { type: "list", label: "Список" },
-  { type: "text", label: "Текст" },
-  { type: "link", label: "Ссылка" },
-  { type: "file", label: "Файл" },
+const typeButtons: { type: NoteLineType; label: string; icon: React.ReactNode }[] = [
+  { type: "heading", label: "Заголовок", icon: <Heading size={16} /> },
+  { type: "list", label: "Список", icon: <List size={16} /> },
+  { type: "text", label: "Текст", icon: <AlignLeft size={16} /> },
+  { type: "link", label: "Ссылка", icon: <LinkIcon size={16} /> },
+  { type: "file", label: "Файл", icon: <Paperclip size={16} /> },
 ];
 
+function getTypeIcon(type: NoteLineType) {
+  return typeButtons.find(btn => btn.type === type)?.icon ?? <AlignLeft size={16} />;
+}
+
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
-  const { line, level, onChange, onTypeChange, onKeyDown } = props;
+  const { line, level, onChange, onTypeChange, onKeyDown, onDelete } = props;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: line.id });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +56,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
-            <MoreVertical size={16} />
+            {getTypeIcon(line.type)}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
@@ -60,9 +66,14 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
               onClick={() => onTypeChange(line.id, btn.type)}
               disabled={btn.type === line.type}
             >
+              <span style={{ marginRight: 8 }}>{btn.icon}</span>
               {btn.label}
             </DropdownMenuItem>
           ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onDelete(line.id)} className="text-destructive focus:text-destructive">
+            <Trash2 size={16} style={{ marginRight: 8 }} /> Удалить
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {line.type === "text" || line.type === "heading" || line.type === "list" ? (
