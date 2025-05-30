@@ -14,6 +14,7 @@
     "dev:setup": "npm run db:start && echo 'Ожидание готовности БД...' && timeout /t 10 && npm run start"
   },
   "devDependencies": {
-    "concurrently": "^7.0.0"
+    "concurrently": "^7.0.0",
+    "typeorm": "^0.3.24"
   }
 }

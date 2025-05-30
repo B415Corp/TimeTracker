@@ -133,7 +133,7 @@ export class TasksService {
 
     // Создаём главную заметку для задачи
     await this.notesService.create({
-      text_content: '',
+      text_content: [],
       task_id: savedTask.task_id,
       parent_note_id: null,
     }, user_id);
