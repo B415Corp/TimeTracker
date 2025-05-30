@@ -34,9 +34,11 @@ function buildTree(
   return lines
     .filter((line) => line.parentId === parentId)
     .sort((a, b) => a.order - b.order)
-    .map((line) => (
-      <div key={line.id}>
+    .reduce<React.ReactNode[]>((acc, line) => {
+      // Добавляем сам элемент
+      acc.push(
         <SortableNoteLineItem
+          key={line.id}
           line={line}
           level={level}
           onChange={onChange}
@@ -46,19 +48,25 @@ function buildTree(
           isDragging={isDragging}
           dragOverId={dragOverId}
         />
-        {buildTree(
-          lines,
-          line.id,
-          level + 1,
-          onChange,
-          onTypeChange,
-          onKeyDown,
-          onDelete,
-          isDragging,
-          dragOverId
-        )}
-      </div>
-    ));
+      );
+      
+      // Добавляем дочерние элементы
+      const children = buildTree(
+        lines,
+        line.id,
+        level + 1,
+        onChange,
+        onTypeChange,
+        onKeyDown,
+        onDelete,
+        isDragging,
+        dragOverId
+      );
+      
+      acc.push(...children);
+      
+      return acc;
+    }, []);
 }
 
 function generateId() {

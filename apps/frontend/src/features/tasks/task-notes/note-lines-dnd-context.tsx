@@ -2,6 +2,8 @@ import React from "react";
 import {
   DndContext,
   closestCenter,
+  closestCorners,
+  pointerWithin,
   PointerSensor,
   useSensor,
   useSensors,
@@ -64,8 +66,27 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
     
     // Просто отслеживаем над каким элементом находимся
     if (event.over?.id && event.active?.id !== event.over?.id) {
-      setDragOverId(event.over.id as string);
+      const newDragOverId = event.over.id as string;
+      console.log('DragMove over element:', {
+        activeId: event.active?.id,
+        overId: newDragOverId,
+        previousDragOverId: dragOverId
+      });
+      
+      // Находим линию чтобы понять её уровень
+      const overLine = lines.find(l => l.id === newDragOverId);
+      const activeLine = lines.find(l => l.id === event.active?.id);
+      
+      console.log('Lines info:', {
+        overLine: overLine ? { id: overLine.id, content: overLine.content, parentId: overLine.parentId } : null,
+        activeLine: activeLine ? { id: activeLine.id, content: activeLine.content, parentId: activeLine.parentId } : null
+      });
+      
+      setDragOverId(newDragOverId);
     } else {
+      if (dragOverId !== null) {
+        console.log('Clearing dragOverId');
+      }
       setDragOverId(null);
     }
   };
@@ -73,7 +94,7 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragMove={handleDragMove}
