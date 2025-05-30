@@ -22,6 +22,7 @@ interface NoteLineItemProps {
   onDelete: (id: string) => void;
   isDragging?: boolean;
   dragOverId?: string | null;
+  insertPosition?: 'before' | 'after';
 }
 
 const typeButtons: { type: NoteLineType; label: string; icon: React.ReactNode }[] = [
@@ -43,7 +44,7 @@ function getTypeIcon(type: NoteLineType) {
 }
 
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
-  const { line, level, onChange, onTypeChange, onKeyDown, onDelete, isDragging, dragOverId } = props;
+  const { line, level, onChange, onTypeChange, onKeyDown, onDelete, isDragging, dragOverId, insertPosition } = props;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging: isCurrentDragging } = useSortable({ id: line.id });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showTypeMenu, setShowTypeMenu] = useState(false);
@@ -51,7 +52,8 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   const [typeMenuIndex, setTypeMenuIndex] = useState(0);
 
   // Показываем индикатор, когда над этим элементом перетаскивают
-  const showDropIndicator = isDragging && dragOverId === line.id;
+  // НО только если это не сам перетаскиваемый элемент
+  const showDropIndicator = isDragging && dragOverId === line.id && !isCurrentDragging;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -275,7 +277,8 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
         <div
           style={{
             position: "absolute",
-            bottom: -2,
+            top: insertPosition === 'before' ? -2 : undefined,
+            bottom: insertPosition === 'after' ? -2 : undefined,
             left: 0,
             right: 0,
             height: 3,

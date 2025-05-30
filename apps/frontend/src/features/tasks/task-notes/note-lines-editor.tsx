@@ -29,7 +29,8 @@ function buildTree(
   onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void,
   onDelete: (id: string) => void,
   isDragging?: boolean,
-  dragOverId?: string | null
+  dragOverId?: string | null,
+  insertPosition?: 'before' | 'after'
 ): React.ReactNode[] {
   return lines
     .filter((line) => line.parentId === parentId)
@@ -47,6 +48,7 @@ function buildTree(
           onDelete={onDelete}
           isDragging={isDragging}
           dragOverId={dragOverId}
+          insertPosition={insertPosition}
         />
       );
       
@@ -60,7 +62,8 @@ function buildTree(
         onKeyDown,
         onDelete,
         isDragging,
-        dragOverId
+        dragOverId,
+        insertPosition
       );
       
       acc.push(...children);
@@ -397,7 +400,7 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
   };
 
   // Функция для рендеринга с получением DND состояния
-  const renderContent = (isDragging?: boolean, dragOverId?: string | null) => {
+  const renderContent = (isDragging?: boolean, dragOverId?: string | null, insertPosition?: 'before' | 'after') => {
     return buildTree(
       sortedLines,
       null,
@@ -407,7 +410,8 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
       handleKeyDown,
       handleDelete,
       isDragging,
-      dragOverId
+      dragOverId,
+      insertPosition
     );
   };
 
@@ -418,7 +422,7 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
         onMove={handleMoveWithNesting}
         onDragMove={handleDragMove}
       >
-        {({ isDragging, dragOverId }) => renderContent(isDragging, dragOverId)}
+        {({ isDragging, dragOverId, insertPosition }) => renderContent(isDragging, dragOverId, insertPosition)}
       </NoteLinesDndContext>
       
       <div

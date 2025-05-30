@@ -321,7 +321,6 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
     <div className="space-y-6">
       {/* Новый редактор заметок с интеграцией API */}
       <div style={{ borderRadius: 8, padding: 16, marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 8 }}>Новый редактор заметок (интеграция с API)</h3>
         {isNotesLoading ? (
           <div>Загрузка...</div>
         ) : (
