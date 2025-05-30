@@ -54,6 +54,31 @@ function getDescendants(lines: NoteLine[], id: string): NoteLine[] {
   );
 }
 
+function getNestingLevel(lines: NoteLine[], id: string): number {
+  let level = 0;
+  let curr = lines.find(l => l.id === id);
+  while (curr && curr.parentId) {
+    level++;
+    curr = lines.find(l => l.id === curr.parentId);
+  }
+  return level;
+}
+
+function canNest(lines: NoteLine[], parentId: string | null, draggedId: string, type: NoteLineType): boolean {
+  if (!parentId) return true;
+  const parent = lines.find(l => l.id === parentId);
+  if (!parent) return true;
+  // Запретить вложенность "файл в файл"
+  if (parent.type === "file" && type === "file") return false;
+  // Запретить вложенность в своих потомков (циклы)
+  const descendants = getDescendants(lines, draggedId).map(d => d.id);
+  if (descendants.includes(parentId)) return false;
+  // Ограничение по уровню вложенности
+  const parentLevel = getNestingLevel(lines, parentId);
+  if (parentLevel >= 9) return false; // 0-based, значит максимум 10
+  return true;
+}
+
 export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initialLines }) => {
   const [lines, setLines] = useState<NoteLine[]>(initialLines);
   const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -118,15 +143,11 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
   const handleMove = (oldIndex: number, newIndex: number) => {
     setLines(lines => {
       if (draggedId) {
-        // переносим поддерево
         const dragged = lines.find(l => l.id === draggedId)!;
         const descendants = getDescendants(lines, draggedId);
         const idsToMove = [draggedId, ...descendants.map(d => d.id)];
-        // удаляем из старого места
         let filtered = lines.filter(l => !idsToMove.includes(l.id));
-        // вставляем в новое место
         filtered.splice(newIndex, 0, ...[dragged, ...descendants]);
-        // обновляем order
         return filtered.map((l, idx) => ({ ...l, order: idx }));
       }
       return lines;
@@ -144,20 +165,23 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
     setLines(lines => {
       if (draggedId) {
         let newParentId: string | null = null;
+        let canNestResult = true;
+        const dragged = lines.find(l => l.id === draggedId)!;
         if (dragOffset > 40 && newIndex > 0) {
-          // вложить в предыдущий элемент
           const prev = lines[newIndex - 1];
-          newParentId = prev.id;
+          canNestResult = canNest(lines, prev.id, draggedId, dragged.type);
+          if (canNestResult) newParentId = prev.id;
         } else if (dragOffset < -40) {
-          // поднять на уровень выше
           const curr = lines.find(l => l.id === draggedId)!;
           const parent = lines.find(l => l.id === curr.parentId);
-          newParentId = parent?.parentId ?? null;
+          canNestResult = canNest(lines, parent?.parentId ?? null, draggedId, dragged.type);
+          if (canNestResult) newParentId = parent?.parentId ?? null;
         } else {
-          // оставить на том же уровне
           const curr = lines.find(l => l.id === draggedId)!;
-          newParentId = curr.parentId;
+          canNestResult = canNest(lines, curr.parentId, draggedId, dragged.type);
+          if (canNestResult) newParentId = curr.parentId;
         }
+        if (!canNestResult) return lines; // запрещено
         return lines.map(l => l.id === draggedId ? { ...l, parentId: newParentId } : l);
       }
       return lines;
