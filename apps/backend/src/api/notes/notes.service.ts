@@ -26,10 +26,21 @@ export class NotesService {
       nestingLevel = (parentNote.nesting_level || 0) + 1;
     }
 
+    // Вычисляем order, если не передан
+    let order = note.order;
+    if (order === undefined) {
+      const siblings = await this.notesRepository.find({
+        where: { parent_note_id: note.parent_note_id ?? null, user_id },
+        select: ['order'],
+      });
+      order = siblings.length > 0 ? Math.max(...siblings.map(s => s.order ?? 0)) + 1 : 0;
+    }
+
     const newNote = this.notesRepository.create({ 
       ...note, 
       user_id,
-      nesting_level: nestingLevel
+      nesting_level: nestingLevel,
+      order,
     });
     return this.notesRepository.save(newNote);
   }
@@ -133,9 +144,13 @@ export class NotesService {
         existingNote.user_id, 
         updateData.nesting_level || existingNote.nesting_level
       );
-      
       // Проверяем, что заметка не становится родителем самой себе (прямо или косвенно)
       await this.validateCircularReference(notes_id, updateData.parent_note_id);
+    }
+
+    // Если order не передан, оставляем старый
+    if (updateData.order === undefined) {
+      updateData.order = existingNote.order;
     }
 
     await this.notesRepository.update(notes_id, updateData);

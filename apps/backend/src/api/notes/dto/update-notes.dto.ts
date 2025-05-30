@@ -34,4 +34,11 @@ export class UpdateNotesDto {
   @Min(0)
   @Max(10)
   nesting_level?: number;
+
+  @ApiProperty({ 
+    description: 'Порядок строки внутри родителя',
+    required: false
+  })
+  @IsOptional()
+  order?: number;
 }

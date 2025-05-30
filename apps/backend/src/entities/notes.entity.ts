@@ -60,6 +60,14 @@ export class Notes {
   @Column({ nullable: true })
   task_id: string;
 
+  @ApiProperty({
+    type: Number,
+    description: 'Порядок строки внутри родителя',
+    required: false,
+  })
+  @Column({ nullable: false, default: 0 })
+  order: number;
+
   @ApiProperty({ type: Date, description: 'Creation date of the note' })
   @CreateDateColumn()
   created_at: Date;

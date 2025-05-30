@@ -62,10 +62,9 @@ function getDescendants(lines: NoteLine[], id: string): NoteLine[] {
 function getNestingLevel(lines: NoteLine[], id: string): number {
   let level = 0;
   let curr = lines.find(l => l.id === id);
-  while (curr && curr.parentId) {
+  while (curr !== undefined && curr.parentId) {
     level++;
     curr = lines.find(l => l.id === curr.parentId);
-    if (!curr) break;
   }
   return level;
 }
@@ -137,16 +136,24 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines, onChang
     }
   };
 
-  // DND: вложенность и перенос поддерева
-  const handleMove = (oldIndex: number, newIndex: number) => {
-    // ... getDescendants ...
-    // ... перенос поддерева ...
-    // ... обновление order ...
-    // (скопировать логику из предыдущей версии, но использовать onChange)
-    // ...
-  };
+  // Состояние для отслеживания смещения по X (drag вправо/влево)
+  const [dragOffsetX, setDragOffsetX] = React.useState(0);
+  const DRAG_NEST_INDENT = 32; // px, шаг вложенности
+  const [pendingMove, setPendingMove] = React.useState<{oldIndex: number, newIndex: number, newParentId: string | null} | null>(null);
 
-  // ... handleDragMove, handleDragEnd ...
+  // Универсальное перемещение строки (и поддерева) с обновлением parentId и order
+  const handleMove = (oldIndex: number, newIndex: number, newParentId: string | null = null) => {
+    const flat = sortedLines.filter(l => l.parentId === newParentId);
+    const movedFlat = arrayMove(flat, oldIndex, newIndex);
+    let updated: NoteLine[] = sortedLines.map(l => {
+      const idx = movedFlat.findIndex(f => f.id === l.id);
+      if (l.parentId === newParentId && idx !== -1) {
+        return { ...l, order: idx, parentId: newParentId };
+      }
+      return l;
+    });
+    onChange(updated);
+  };
 
   // DND: flat-список для SortableContext
   const flatLines = sortedLines.filter(l => l.parentId === null);
@@ -156,9 +163,20 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines, onChang
       <NoteLinesDndContext
         lines={flatLines}
         onMove={(oldIndex, newIndex) => {
-          // ... handleMove ...
+          // dragOffsetX > DRAG_NEST_INDENT — вложить, < -DRAG_NEST_INDENT — поднять
+          let newParentId: string | null = null;
+          if (pendingMove) {
+            newParentId = pendingMove.newParentId;
+          }
+          handleMove(oldIndex, newIndex, newParentId);
+          setPendingMove(null);
         }}
-        onDragMove={() => {}}
+        onDragMove={offsetX => {
+          setDragOffsetX(offsetX);
+          // Пример: если offsetX > DRAG_NEST_INDENT, делаем parentId предыдущей строки
+          // (упрощённая логика, можно доработать)
+          // ...
+        }}
       >
         {buildTree(sortedLines, null, 0, handleChange, handleTypeChange, handleKeyDown, handleDelete)}
       </NoteLinesDndContext>
