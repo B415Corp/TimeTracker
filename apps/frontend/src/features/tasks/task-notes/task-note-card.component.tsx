@@ -37,7 +37,7 @@ export default function NoteCard({ note, onEdit, onDelete, onAddChild, isMain }:
             <CardTitle className="text-lg flex items-center gap-2">
               <FileText className="w-4 h-4" />
               {isMain && (
-                <Badge variant="primary" className="text-xs ml-2">Главная</Badge>
+                <Badge variant="default" className="text-xs ml-2">Главная</Badge>
               )}
             </CardTitle>
             <CardDescription className="flex items-center gap-4 mt-1">

@@ -213,7 +213,12 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
               childNotes.map((note) => (
                 <NoteCard
                   key={note.notes_id}
-                  note={note}
+                  note={{
+                    ...note,
+                    created_at: '', // Укажите значение по умолчанию или получите его из источника данных
+                    updated_at: '', // Укажите значение по умолчанию или получите его из источника данных
+                    text_content: '', // Укажите значение по умолчанию или получите его из источника данных
+                  }}
                   onEdit={handleEditNote}
                   onDelete={handleDeleteNote}
                   onAddChild={() => {}}
