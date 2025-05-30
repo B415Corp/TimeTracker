@@ -60,7 +60,7 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
     }
     
     // Обновляем позицию индикатора
-    if (event.over?.id) {
+    if (event.over?.id && event.active?.id !== event.over?.id) {
       setDragOverId(event.over.id as string);
       
       // Находим элемент и позиционируем индикатор
@@ -68,12 +68,42 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
       if (element) {
         const rect = element.getBoundingClientRect();
         
+        // Определяем, в какой части элемента находится курсор
+        const mouseY = (event as any).activatorEvent?.clientY || rect.top + rect.height / 2;
+        const elementCenter = rect.top + rect.height / 2;
+        const insertBefore = mouseY < elementCenter;
+        
+        // Находим индексы для определения правильной позиции
+        const activeIndex = lines.findIndex(l => l.id === event.active?.id);
+        const overIndex = lines.findIndex(l => l.id === event.over?.id);
+        
+        let targetTop = rect.top;
+        
+        if (insertBefore) {
+          // Показываем индикатор перед элементом
+          targetTop = rect.top - 1;
+        } else {
+          // Показываем индикатор после элемента
+          targetTop = rect.bottom - 1;
+        }
+        
+        // Если перемещение в пределах соседних элементов, корректируем позицию
+        if (Math.abs(activeIndex - overIndex) === 1) {
+          if (activeIndex < overIndex && !insertBefore) {
+            // Перемещение вниз к соседнему элементу - показываем после него
+            targetTop = rect.bottom - 1;
+          } else if (activeIndex > overIndex && insertBefore) {
+            // Перемещение вверх к соседнему элементу - показываем перед ним
+            targetTop = rect.top - 1;
+          }
+        }
+        
         setDropIndicatorStyle({
           position: "fixed",
           left: rect.left,
           width: rect.width,
           height: 2,
-          top: rect.bottom - 1, // Сразу под элементом
+          top: targetTop,
           background: "#2563eb",
           borderRadius: 1,
           zIndex: 9999,

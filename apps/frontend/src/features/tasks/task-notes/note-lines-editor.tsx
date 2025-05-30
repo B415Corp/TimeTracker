@@ -286,6 +286,9 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     const movedLine = sortedLines[oldIndex];
     if (!movedLine) return;
     
+    // Если newParentId не задан, сохраняем текущий parentId
+    const targetParentId = newParentId !== undefined ? newParentId : movedLine.parentId;
+    
     // Получаем все потомки перемещаемого элемента
     const descendants = getDescendants(sortedLines, movedLine.id);
     const movedIds = [movedLine.id, ...descendants.map(d => d.id)];
@@ -294,14 +297,30 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     const remainingLines = sortedLines.filter(l => !movedIds.includes(l.id));
     
     // Обновляем parentId для корневого перемещаемого элемента
-    const updatedMovedLine = { ...movedLine, parentId: newParentId };
+    const updatedMovedLine = { ...movedLine, parentId: targetParentId };
+    
+    // Определяем правильную позицию для вставки
+    let insertIndex = newIndex;
+    
+    // Если перемещаем в пределах того же родителя, корректируем индекс
+    if (targetParentId === movedLine.parentId) {
+      // Находим элементы того же уровня
+      const sameLevelLines = remainingLines.filter(l => l.parentId === targetParentId);
+      if (newIndex > oldIndex) {
+        // При движении вниз, индекс нужно уменьшить на 1
+        insertIndex = Math.min(newIndex, sameLevelLines.length);
+      } else {
+        // При движении вверх, оставляем как есть
+        insertIndex = Math.max(0, newIndex);
+      }
+    }
     
     // Вставляем перемещенный элемент и его потомков в новую позицию
     const result = [
-      ...remainingLines.slice(0, newIndex),
+      ...remainingLines.slice(0, insertIndex),
       updatedMovedLine,
       ...descendants, // Потомки сохраняют свою структуру
-      ...remainingLines.slice(newIndex)
+      ...remainingLines.slice(insertIndex)
     ];
     
     // Пересчитываем order для всех элементов
@@ -334,25 +353,38 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     // Скрываем индикатор сразу при начале перемещения
     setDropIndicator({ show: false });
     
-    // DND вложенность: вправо — вложить, влево — поднять
-    let targetParentId = newParentId;
     const draggedLine = sortedLines[oldIndex];
+    if (!draggedLine) return;
     
-    if (dragOffsetX > DRAG_NEST_INDENT && oldIndex > 0) {
-      // Вложить в предыдущий блок
-      const prev = sortedLines[oldIndex - 1];
-      if (prev && canNest(sortedLines, prev.id, draggedLine.id, draggedLine.type)) {
-        targetParentId = prev.id;
-      }
-    } else if (dragOffsetX < -DRAG_NEST_INDENT) {
-      // Поднять на уровень выше
-      if (draggedLine && draggedLine.parentId) {
-        const parent = sortedLines.find((l) => l.id === draggedLine.parentId);
-        targetParentId = parent?.parentId ?? null;
+    // По умолчанию сохраняем текущий parentId
+    let targetParentId = draggedLine.parentId;
+    
+    // DND вложенность: только если есть значительное смещение по X
+    if (Math.abs(dragOffsetX) > DRAG_NEST_INDENT) {
+      if (dragOffsetX > DRAG_NEST_INDENT && oldIndex > 0) {
+        // Вложить в предыдущий блок
+        const prev = sortedLines[oldIndex - 1];
+        if (prev && canNest(sortedLines, prev.id, draggedLine.id, draggedLine.type)) {
+          targetParentId = prev.id;
+        }
+      } else if (dragOffsetX < -DRAG_NEST_INDENT) {
+        // Поднять на уровень выше
+        if (draggedLine.parentId) {
+          const parent = sortedLines.find((l) => l.id === draggedLine.parentId);
+          targetParentId = parent?.parentId ?? null;
+        }
       }
     }
     
+    // Если был передан явный newParentId, используем его
+    if (newParentId !== null) {
+      targetParentId = newParentId;
+    }
+    
     handleMove(oldIndex, newIndex, targetParentId);
+    
+    // Сбрасываем смещение
+    setDragOffsetX(0);
   };
 
   return (
