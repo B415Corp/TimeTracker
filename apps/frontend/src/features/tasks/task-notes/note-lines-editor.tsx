@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
-import { NoteLineItem } from "./note-line-item";
+import { SortableNoteLineItem } from "./note-line-item";
+import { NoteLinesDndContext } from "./note-lines-dnd-context";
+import arrayMove from "array-move";
 
 interface NoteLinesEditorProps {
   lines: NoteLine[];
@@ -20,7 +22,7 @@ function buildTree(
     .sort((a, b) => a.order - b.order)
     .map(line => (
       <div key={line.id}>
-        <NoteLineItem
+        <SortableNoteLineItem
           line={line}
           level={level}
           onChange={onChange}
@@ -68,15 +70,47 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
       e.preventDefault();
       // Удалить строку, если она пустая
       setLines(lines => lines.filter(l => l.id !== line.id));
+    } else if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      setLines(lines => {
+        const idx = lines.findIndex(l => l.id === line.id);
+        if (idx > 0) {
+          const prev = lines[idx - 1];
+          // Сделать текущую строку дочерней предыдущей
+          return lines.map(l => l.id === line.id ? { ...l, parentId: prev.id } : l);
+        }
+        return lines;
+      });
+    } else if (e.key === "Tab" && e.shiftKey) {
+      e.preventDefault();
+      setLines(lines => {
+        const idx = lines.findIndex(l => l.id === line.id);
+        if (idx > -1) {
+          const curr = lines[idx];
+          const parent = lines.find(l => l.id === curr.parentId);
+          // Поднять на уровень выше (сделать дочерней родителя родителя)
+          return lines.map(l => l.id === line.id ? { ...l, parentId: parent?.parentId ?? null } : l);
+        }
+        return lines;
+      });
     }
   };
 
-  // Пересортировка order для корректного отображения
-  const normalizedLines = lines.map((l, idx) => ({ ...l, order: idx }));
+  // DND: перестановка строк (только для одного уровня)
+  const handleMove = (oldIndex: number, newIndex: number) => {
+    setLines(lines => {
+      const flat = [...lines];
+      const moved = arrayMove(flat, oldIndex, newIndex).map((l, idx) => ({ ...l, order: idx }));
+      return moved;
+    });
+  };
+
+  // Пока dnd только для flat-списка (без вложенности)
+  const flatLines = lines.filter(l => l.parentId === null).sort((a, b) => a.order - b.order);
 
   return (
-    <div>
-      {buildTree(normalizedLines, null, 0, handleChange, handleTypeChange, handleKeyDown)}
-    </div>
+    <NoteLinesDndContext lines={flatLines} onMove={handleMove}>
+      {buildTree(lines, null, 0, handleChange, handleTypeChange, handleKeyDown)}
+    </NoteLinesDndContext>
   );
 }; 

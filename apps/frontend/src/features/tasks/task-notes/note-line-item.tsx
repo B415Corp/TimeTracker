@@ -1,5 +1,7 @@
 import React from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface NoteLineItemProps {
   line: NoteLine;
@@ -9,9 +11,26 @@ interface NoteLineItemProps {
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
-export const NoteLineItem: React.FC<NoteLineItemProps> = ({ line, level, onChange, onTypeChange, onKeyDown }) => {
+export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
+  const { line, level, onChange, onTypeChange, onKeyDown } = props;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: line.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    display: "flex",
+    alignItems: "center",
+    marginLeft: level * 24,
+    gap: 8,
+    background: isDragging ? "#f0f0f0" : undefined,
+    borderRadius: 4,
+    padding: 2,
+  };
+
   return (
-    <div style={{ display: "flex", alignItems: "center", marginLeft: level * 24, gap: 8 }}>
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <span {...listeners} style={{ cursor: "grab", padding: "0 4px" }}>⠿</span>
       <select
         value={line.type}
         onChange={e => onTypeChange(line.id, e.target.value as NoteLineType)}
