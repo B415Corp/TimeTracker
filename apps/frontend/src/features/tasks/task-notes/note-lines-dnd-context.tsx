@@ -40,14 +40,21 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
+    console.log('handleDragEnd:', { activeId: active.id, overId: over?.id });
+    
     // Скрываем индикаторы
     setIsDragging(false);
     setDragOverId(null);
     setDropIndicatorStyle({});
     
-    if (active.id !== over?.id) {
+    if (active.id !== over?.id && over?.id) {
       const oldIndex = lines.findIndex(l => l.id === active.id);
       const newIndex = lines.findIndex(l => l.id === over?.id);
+      
+      console.log('DND indices:', { oldIndex, newIndex });
+      console.log('Active line:', lines[oldIndex]);
+      console.log('Over line:', lines[newIndex]);
+      
       if (oldIndex !== -1 && newIndex !== -1) {
         onMove(oldIndex, newIndex);
       }
@@ -68,42 +75,12 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
       if (element) {
         const rect = element.getBoundingClientRect();
         
-        // Определяем, в какой части элемента находится курсор
-        const mouseY = (event as any).activatorEvent?.clientY || rect.top + rect.height / 2;
-        const elementCenter = rect.top + rect.height / 2;
-        const insertBefore = mouseY < elementCenter;
-        
-        // Находим индексы для определения правильной позиции
-        const activeIndex = lines.findIndex(l => l.id === event.active?.id);
-        const overIndex = lines.findIndex(l => l.id === event.over?.id);
-        
-        let targetTop = rect.top;
-        
-        if (insertBefore) {
-          // Показываем индикатор перед элементом
-          targetTop = rect.top - 1;
-        } else {
-          // Показываем индикатор после элемента
-          targetTop = rect.bottom - 1;
-        }
-        
-        // Если перемещение в пределах соседних элементов, корректируем позицию
-        if (Math.abs(activeIndex - overIndex) === 1) {
-          if (activeIndex < overIndex && !insertBefore) {
-            // Перемещение вниз к соседнему элементу - показываем после него
-            targetTop = rect.bottom - 1;
-          } else if (activeIndex > overIndex && insertBefore) {
-            // Перемещение вверх к соседнему элементу - показываем перед ним
-            targetTop = rect.top - 1;
-          }
-        }
-        
         setDropIndicatorStyle({
           position: "fixed",
           left: rect.left,
           width: rect.width,
           height: 2,
-          top: targetTop,
+          top: rect.bottom + 1, // Всегда после элемента
           background: "#2563eb",
           borderRadius: 1,
           zIndex: 9999,
