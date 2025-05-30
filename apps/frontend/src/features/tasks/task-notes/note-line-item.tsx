@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -11,9 +11,18 @@ interface NoteLineItemProps {
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
+const typeButtons: { type: NoteLineType; label: string }[] = [
+  { type: "heading", label: "H" },
+  { type: "list", label: "•" },
+  { type: "text", label: "T" },
+  { type: "link", label: "🔗" },
+  { type: "file", label: "📎" },
+];
+
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   const { line, level, onChange, onTypeChange, onKeyDown } = props;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: line.id });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -31,17 +40,26 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <span {...listeners} style={{ cursor: "grab", padding: "0 4px" }}>⠿</span>
-      <select
-        value={line.type}
-        onChange={e => onTypeChange(line.id, e.target.value as NoteLineType)}
-        style={{ minWidth: 80 }}
-      >
-        <option value="heading">Заголовок</option>
-        <option value="list">Список</option>
-        <option value="text">Текст</option>
-        <option value="link">Ссылка</option>
-        <option value="file">Файл</option>
-      </select>
+      <div style={{ display: "flex", gap: 2 }}>
+        {typeButtons.map(btn => (
+          <button
+            key={btn.type}
+            type="button"
+            style={{
+              background: btn.type === line.type ? "#e0e0e0" : "transparent",
+              border: "none",
+              borderRadius: 2,
+              padding: "0 6px",
+              cursor: "pointer",
+              fontWeight: btn.type === line.type ? "bold" : undefined,
+            }}
+            onClick={() => onTypeChange(line.id, btn.type)}
+            tabIndex={-1}
+          >
+            {btn.label}
+          </button>
+        ))}
+      </div>
       {line.type === "text" || line.type === "heading" || line.type === "list" ? (
         <input
           type="text"
@@ -52,16 +70,39 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
           placeholder={line.type === "heading" ? "Заголовок..." : line.type === "list" ? "Пункт списка..." : "Текст..."}
         />
       ) : line.type === "link" ? (
-        <input
-          type="text"
-          value={line.content}
-          onChange={e => onChange(line.id, e.target.value)}
-          onKeyDown={onKeyDown}
-          style={{ flex: 1 }}
-          placeholder="URL или текст ссылки..."
-        />
+        <>
+          <input
+            type="text"
+            value={line.content}
+            onChange={e => onChange(line.id, e.target.value)}
+            onKeyDown={onKeyDown}
+            style={{ flex: 1 }}
+            placeholder="Текст ссылки..."
+          />
+          <input
+            type="url"
+            style={{ flex: 1, minWidth: 120 }}
+            placeholder="URL..."
+            disabled
+          />
+        </>
       ) : line.type === "file" ? (
-        <input type="file" disabled style={{ flex: 1 }} />
+        <>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            disabled
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{ flex: 1, minWidth: 120, background: "#fafafa", border: "1px solid #ccc", borderRadius: 2 }}
+            disabled
+          >
+            Прикрепить файл (заглушка)
+          </button>
+        </>
       ) : null}
     </div>
   );
