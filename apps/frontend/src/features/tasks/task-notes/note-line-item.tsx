@@ -2,6 +2,13 @@ import React, { useRef } from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 
 interface NoteLineItemProps {
   line: NoteLine;
@@ -12,11 +19,11 @@ interface NoteLineItemProps {
 }
 
 const typeButtons: { type: NoteLineType; label: string }[] = [
-  { type: "heading", label: "H" },
-  { type: "list", label: "•" },
-  { type: "text", label: "T" },
-  { type: "link", label: "🔗" },
-  { type: "file", label: "📎" },
+  { type: "heading", label: "Заголовок" },
+  { type: "list", label: "Список" },
+  { type: "text", label: "Текст" },
+  { type: "link", label: "Ссылка" },
+  { type: "file", label: "Файл" },
 ];
 
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
@@ -40,26 +47,24 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <span {...listeners} style={{ cursor: "grab", padding: "0 4px" }}>⠿</span>
-      <div style={{ display: "flex", gap: 2 }}>
-        {typeButtons.map(btn => (
-          <button
-            key={btn.type}
-            type="button"
-            style={{
-              background: btn.type === line.type ? "#e0e0e0" : "transparent",
-              border: "none",
-              borderRadius: 2,
-              padding: "0 6px",
-              cursor: "pointer",
-              fontWeight: btn.type === line.type ? "bold" : undefined,
-            }}
-            onClick={() => onTypeChange(line.id, btn.type)}
-            tabIndex={-1}
-          >
-            {btn.label}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
+            <MoreVertical size={16} />
           </button>
-        ))}
-      </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          {typeButtons.map(btn => (
+            <DropdownMenuItem
+              key={btn.type}
+              onClick={() => onTypeChange(line.id, btn.type)}
+              disabled={btn.type === line.type}
+            >
+              {btn.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
       {line.type === "text" || line.type === "heading" || line.type === "list" ? (
         <input
           type="text"

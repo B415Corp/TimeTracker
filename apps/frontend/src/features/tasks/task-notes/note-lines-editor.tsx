@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
@@ -46,8 +46,18 @@ function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+function getDescendants(lines: NoteLine[], id: string): NoteLine[] {
+  const children = lines.filter(l => l.parentId === id);
+  return children.reduce<NoteLine[]>(
+    (acc, child) => [...acc, child, ...getDescendants(lines, child.id)],
+    []
+  );
+}
+
 export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initialLines }) => {
   const [lines, setLines] = useState<NoteLine[]>(initialLines);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState<number>(0);
 
   const handleChange = (id: string, value: string) => {
     setLines(lines => lines.map(l => l.id === id ? { ...l, content: value } : l));
@@ -104,20 +114,71 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines: initial
     }
   };
 
-  // DND: перестановка строк (только для одного уровня)
+  // DND: вложенность и перенос поддерева
   const handleMove = (oldIndex: number, newIndex: number) => {
     setLines(lines => {
-      const flat = [...lines];
-      const moved = arrayMove(flat, oldIndex, newIndex).map((l, idx) => ({ ...l, order: idx }));
-      return moved;
+      if (draggedId) {
+        // переносим поддерево
+        const dragged = lines.find(l => l.id === draggedId)!;
+        const descendants = getDescendants(lines, draggedId);
+        const idsToMove = [draggedId, ...descendants.map(d => d.id)];
+        // удаляем из старого места
+        let filtered = lines.filter(l => !idsToMove.includes(l.id));
+        // вставляем в новое место
+        filtered.splice(newIndex, 0, ...[dragged, ...descendants]);
+        // обновляем order
+        return filtered.map((l, idx) => ({ ...l, order: idx }));
+      }
+      return lines;
     });
+    setDraggedId(null);
+    setDragOffset(0);
   };
 
-  // Пока dnd только для flat-списка (без вложенности)
+  const handleDragMove = (offsetX: number) => {
+    setDragOffset(offsetX);
+  };
+
+  // При drop определяем вложенность по dragOffset
+  const handleDragEnd = (oldIndex: number, newIndex: number) => {
+    setLines(lines => {
+      if (draggedId) {
+        let newParentId: string | null = null;
+        if (dragOffset > 40 && newIndex > 0) {
+          // вложить в предыдущий элемент
+          const prev = lines[newIndex - 1];
+          newParentId = prev.id;
+        } else if (dragOffset < -40) {
+          // поднять на уровень выше
+          const curr = lines.find(l => l.id === draggedId)!;
+          const parent = lines.find(l => l.id === curr.parentId);
+          newParentId = parent?.parentId ?? null;
+        } else {
+          // оставить на том же уровне
+          const curr = lines.find(l => l.id === draggedId)!;
+          newParentId = curr.parentId;
+        }
+        return lines.map(l => l.id === draggedId ? { ...l, parentId: newParentId } : l);
+      }
+      return lines;
+    });
+    setDraggedId(null);
+    setDragOffset(0);
+  };
+
+  // DND: flat-список для SortableContext
   const flatLines = lines.filter(l => l.parentId === null).sort((a, b) => a.order - b.order);
 
   return (
-    <NoteLinesDndContext lines={flatLines} onMove={handleMove}>
+    <NoteLinesDndContext
+      lines={flatLines}
+      onMove={(oldIndex, newIndex) => {
+        setDraggedId(flatLines[oldIndex]?.id ?? null);
+        handleMove(oldIndex, newIndex);
+        handleDragEnd(oldIndex, newIndex);
+      }}
+      onDragMove={handleDragMove}
+    >
       {buildTree(lines, null, 0, handleChange, handleTypeChange, handleKeyDown)}
     </NoteLinesDndContext>
   );

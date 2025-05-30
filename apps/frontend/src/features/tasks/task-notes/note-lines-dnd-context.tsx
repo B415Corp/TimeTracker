@@ -6,21 +6,22 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragMoveEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { NoteLine } from "./note-line.types";
 
 interface NoteLinesDndContextProps {
   lines: NoteLine[];
-  onMove: (oldIndex: number, newIndex: number) => void;
+  onMove: (oldIndex: number, newIndex: number, nesting?: number) => void;
+  onDragMove?: (offsetX: number) => void;
   children: React.ReactNode;
 }
 
-export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines, onMove, children }) => {
+export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines, onMove, onDragMove, children }) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
@@ -36,8 +37,19 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
     }
   };
 
+  const handleDragMove = (event: DragMoveEvent) => {
+    if (onDragMove && event.delta) {
+      onDragMove(event.delta.x);
+    }
+  };
+
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+      onDragMove={handleDragMove}
+    >
       <SortableContext items={lines.map(l => l.id)} strategy={verticalListSortingStrategy}>
         {children}
       </SortableContext>
