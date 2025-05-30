@@ -40,6 +40,7 @@ function buildTree(
           onChange={onChange}
           onTypeChange={onTypeChange}
           onKeyDown={e => onKeyDown(e, line)}
+          onDelete={onDelete}
         />
         {buildTree(lines, line.id, level + 1, onChange, onTypeChange, onKeyDown, onDelete)}
       </div>
@@ -64,6 +65,7 @@ function getNestingLevel(lines: NoteLine[], id: string): number {
   while (curr && curr.parentId) {
     level++;
     curr = lines.find(l => l.id === curr.parentId);
+    if (!curr) break;
   }
   return level;
 }

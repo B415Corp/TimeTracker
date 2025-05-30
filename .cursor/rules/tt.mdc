@@ -60,6 +60,7 @@ alwaysApply: false
 - React Router v7 для маршрутизации
 - React Hook Form + Zod для форм и валидации
 - Vitest + Testing Library для тестирования
+- Notistack - для уведомлений
 
 #### Backend
 - NestJS 10 + TypeScript
@@ -162,7 +163,7 @@ import { validateForm } from '../utils/validation';
 
 ### 1. Соглашения о коммитах
 
-Используем [Conventional Commits](https://www.conventionalcommits.org/):
+Используем [Conventional Commits](mdc:https:/www.conventionalcommits.org):
 
 ```bash
 # Типы коммитов

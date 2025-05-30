@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useGetTaskNotesQuery } from "@/shared/api/task.service";
-import { useGetNotesByTaskQuery, useEditNotesMutation, useCreateNotesMutation } from "@/shared/api/notes.service";
+import { useGetNotesByTaskQuery, useEditNotesMutation, useCreateNotesMutation, useDeleteNotesMutation } from "@/shared/api/notes.service";
 import { useCreateNotesMutation as useCreateNotesMutationFromNotesService } from "@/shared/api/notes.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,8 +38,9 @@ import {
 } from "@/components/ui/form";
 import NoteCard from "./task-note-card.component";
 import { NoteLinesEditor } from "./note-lines-editor";
-import { NoteLine } from "./note-line.types";
+import { NoteLine, NoteLineType } from "./note-line.types";
 import { deserializeNoteLines, serializeNoteLines } from "./note-lines-serialize";
+import { useSnackbar } from 'notistack';
 
 const noteFormSchema = z.object({
   text_content: z.string().min(1, "Содержание обязательно"),
@@ -144,11 +145,19 @@ function NoteDialog({ isOpen, onClose, taskId, editingNote, parentNote }: NoteDi
   );
 }
 
+function showSuccess(msg: string) {
+  alert(msg); // заменить на toast при наличии
+}
+function showError(msg: string) {
+  alert(msg); // заменить на toast при наличии
+}
+
 export default function TaskNotes({ taskId }: TaskNotesProps) {
   const { data: notes, isLoading, error } = useGetTaskNotesQuery(taskId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Notes | null>(null);
   const [parentNote, setParentNote] = useState<Notes | null>(null);
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleEditNote = (note: Notes) => {
     setEditingNote(note);
@@ -176,19 +185,22 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
   const { data: apiNotes, isLoading: isNotesLoading } = useGetNotesByTaskQuery({ task_id: taskId });
   const [editNote] = useEditNotesMutation();
   const [createNote] = useCreateNotesMutation();
+  const [deleteNote] = useDeleteNotesMutation();
   const [lines, setLines] = useState<NoteLine[]>([]);
   const [isDirty, setIsDirty] = useState(false);
+  const [originalLines, setOriginalLines] = useState<NoteLine[]>([]);
 
-  // Преобразование заметок из API в NoteLine[]
   useEffect(() => {
     if (apiNotes) {
-      setLines(apiNotes.map((n: any) => ({
+      const mapped = apiNotes.map((n: any) => ({
         id: n.notes_id,
         parentId: n.parent_note_id ?? null,
         order: n.nesting_level ?? 0,
-        type: "text", // TODO: если появятся типы, брать из n
+        type: "text" as NoteLineType,
         content: n.text_content,
-      })));
+      }));
+      setLines(mapped);
+      setOriginalLines(mapped);
       setIsDirty(false);
     }
   }, [apiNotes]);
@@ -199,18 +211,20 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
     setIsDirty(true);
   };
 
-  // Сохранение изменений (bulk PATCH/POST)
+  // Оптимизированное сохранение
   const handleSave = async () => {
-    for (const line of lines) {
-      if (apiNotes?.some(n => n.notes_id === line.id)) {
-        await editNote({
-          note_id: line.id,
-          text_content: line.content,
-          parent_note_id: line.parentId ?? undefined,
-          nesting_level: getNestingLevel(lines, line.id),
-          task_id: taskId,
-        });
-      } else {
+    try {
+      // Новые строки
+      const newLines = lines.filter(l => !originalLines.some(o => o.id === l.id));
+      // Изменённые строки
+      const changedLines = lines.filter(l => {
+        const orig = originalLines.find(o => o.id === l.id);
+        return orig && (orig.content !== l.content || orig.parentId !== l.parentId || getNestingLevel(lines, l.id) !== getNestingLevel(originalLines, l.id));
+      });
+      // Удалённые строки
+      const deletedLines = originalLines.filter(o => !lines.some(l => l.id === o.id));
+
+      for (const line of newLines) {
         await createNote({
           text_content: line.content,
           parent_note_id: line.parentId ?? undefined,
@@ -218,8 +232,23 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
           task_id: taskId,
         });
       }
+      for (const line of changedLines) {
+        await editNote({
+          note_id: line.id,
+          text_content: line.content,
+          parent_note_id: line.parentId ?? undefined,
+          nesting_level: getNestingLevel(lines, line.id),
+          task_id: taskId,
+        });
+      }
+      for (const line of deletedLines) {
+        await deleteNote({ id: line.id });
+      }
+      enqueueSnackbar("Заметки успешно сохранены!", { variant: "success" });
+      setIsDirty(false);
+    } catch (e) {
+      enqueueSnackbar("Ошибка при сохранении заметок", { variant: "error" });
     }
-    setIsDirty(false);
   };
 
   if (isLoading) {
@@ -326,7 +355,9 @@ function getNestingLevel(lines: NoteLine[], id: string): number {
   let curr = lines.find(l => l.id === id);
   while (curr && curr.parentId) {
     level++;
-    curr = lines.find(l => l.id === curr.parentId);
+    const next = lines.find(l => l.id === curr.parentId);
+    if (!next) break;
+    curr = next;
   }
   return level;
 } 
