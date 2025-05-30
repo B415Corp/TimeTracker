@@ -20,6 +20,8 @@ interface NoteLineItemProps {
   onTypeChange: (id: string, type: NoteLineType) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onDelete: (id: string) => void;
+  isDragging?: boolean;
+  dragOverId?: string | null;
 }
 
 const typeButtons: { type: NoteLineType; label: string; icon: React.ReactNode }[] = [
@@ -41,12 +43,15 @@ function getTypeIcon(type: NoteLineType) {
 }
 
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
-  const { line, level, onChange, onTypeChange, onKeyDown, onDelete } = props;
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: line.id });
+  const { line, level, onChange, onTypeChange, onKeyDown, onDelete, isDragging, dragOverId } = props;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging: isCurrentDragging } = useSortable({ id: line.id });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [inputValue, setInputValue] = useState(line.content);
   const [typeMenuIndex, setTypeMenuIndex] = useState(0);
+
+  // Показываем индикатор, когда над этим элементом перетаскивают
+  const showDropIndicator = isDragging && dragOverId === line.id;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -105,15 +110,16 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isCurrentDragging ? 0.5 : 1,
     display: "flex",
     alignItems: "center",
     marginLeft: level * 24,
     gap: 8,
-    background: isDragging ? "#f0f0f0" : undefined,
+    background: isCurrentDragging ? "#f0f0f0" : undefined,
     borderRadius: 4,
     padding: 2,
     minHeight: 32,
+    position: "relative" as const,
   };
 
   return (
@@ -263,6 +269,23 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
           </button>
         </>
       ) : null}
+      
+      {/* Простой индикатор места вставки */}
+      {showDropIndicator && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: -2,
+            left: 0,
+            right: 0,
+            height: 3,
+            background: "#2563eb",
+            borderRadius: 2,
+            boxShadow: "0 0 6px rgba(37, 99, 235, 0.6)",
+            zIndex: 10,
+          }}
+        />
+      )}
     </div>
   );
 }; 
