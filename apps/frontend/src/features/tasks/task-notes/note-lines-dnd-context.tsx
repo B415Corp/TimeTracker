@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import {
   DndContext,
   closestCenter,
@@ -7,6 +8,7 @@ import {
   useSensors,
   DragEndEvent,
   DragMoveEvent,
+  DragStartEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -26,8 +28,23 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
+  // Состояние для отслеживания активного перетаскивания
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragOverId, setDragOverId] = React.useState<string | null>(null);
+  const [dropIndicatorStyle, setDropIndicatorStyle] = React.useState<React.CSSProperties>({});
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setIsDragging(true);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    
+    // Скрываем индикаторы
+    setIsDragging(false);
+    setDragOverId(null);
+    setDropIndicatorStyle({});
+    
     if (active.id !== over?.id) {
       const oldIndex = lines.findIndex(l => l.id === active.id);
       const newIndex = lines.findIndex(l => l.id === over?.id);
@@ -41,18 +58,57 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
     if (onDragMove && event.delta) {
       onDragMove(event.delta.x, event.delta.y);
     }
+    
+    // Обновляем позицию индикатора
+    if (event.over?.id) {
+      setDragOverId(event.over.id as string);
+      
+      // Находим элемент и позиционируем индикатор
+      const element = document.querySelector(`[data-line-id="${event.over.id}"]`);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        
+        setDropIndicatorStyle({
+          position: "fixed",
+          left: rect.left,
+          width: rect.width,
+          height: 2,
+          top: rect.bottom - 1, // Сразу под элементом
+          background: "#2563eb",
+          borderRadius: 1,
+          zIndex: 9999,
+          pointerEvents: "none",
+          opacity: 0.9,
+          boxShadow: "0 0 6px rgba(37, 99, 235, 0.6)",
+        });
+      }
+    } else {
+      setDragOverId(null);
+      setDropIndicatorStyle({});
+    }
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-      onDragMove={handleDragMove}
-    >
-      <SortableContext items={lines.map(l => l.id)} strategy={verticalListSortingStrategy}>
-        {children}
-      </SortableContext>
-    </DndContext>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragMove={handleDragMove}
+      >
+        <SortableContext items={lines.map(l => l.id)} strategy={verticalListSortingStrategy}>
+          {children}
+        </SortableContext>
+      </DndContext>
+      
+      {/* Индикатор в портале для правильного позиционирования */}
+      {isDragging && dragOverId && typeof window !== 'undefined' && 
+        createPortal(
+          <div style={dropIndicatorStyle} />,
+          document.body
+        )
+      }
+    </>
   );
 }; 

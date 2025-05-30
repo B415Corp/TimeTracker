@@ -106,6 +106,13 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
   // Всегда сортируем по order
   const sortedLines = [...lines].sort((a, b) => a.order - b.order);
 
+  // Состояние для индикации места вставки
+  const [dropIndicator, setDropIndicator] = React.useState<{
+    show: boolean;
+    targetLineId?: string;
+    position?: 'before' | 'after';
+  }>({ show: false });
+
   const handleChange = (id: string, value: string) => {
     onChange(
       sortedLines.map((l) => (l.id === id ? { ...l, content: value } : l))
@@ -192,9 +199,26 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
       onChange([...updatedLines, newLine]);
     } else if (e.key === "Backspace" && line.content === "") {
       e.preventDefault();
-      onChange(
-        sortedLines.filter((l) => l.id !== line.id && l.parentId !== line.id)
-      );
+      
+      // Находим предыдущий элемент для фокуса
+      const currentIndex = sortedLines.findIndex(l => l.id === line.id);
+      const prevLine = currentIndex > 0 ? sortedLines[currentIndex - 1] : null;
+      
+      // Удаляем текущий элемент
+      const descendants = getDescendants(sortedLines, line.id);
+      const deleteIds = [line.id, ...descendants.map(d => d.id)];
+      onChange(sortedLines.filter((l) => !deleteIds.includes(l.id)));
+      
+      // Переводим фокус на предыдущий элемент
+      if (prevLine) {
+        setTimeout(() => {
+          const inputs = document.querySelectorAll('input[type="text"], textarea');
+          const targetInput = Array.from(inputs).find(input => 
+            (input as HTMLElement).closest('[data-line-id]')?.getAttribute('data-line-id') === prevLine.id
+          ) as HTMLElement;
+          targetInput?.focus();
+        }, 10);
+      }
     } else if (e.key === "Tab" && !e.shiftKey) {
       e.preventDefault();
       const idx = sortedLines.findIndex((l) => l.id === line.id);
@@ -205,6 +229,15 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
             l.id === line.id ? { ...l, parentId: prev.id } : l
           )
         );
+        
+        // Сохраняем фокус на текущем элементе
+        setTimeout(() => {
+          const inputs = document.querySelectorAll('input[type="text"], textarea');
+          const targetInput = Array.from(inputs).find(input => 
+            (input as HTMLElement).closest('[data-line-id]')?.getAttribute('data-line-id') === line.id
+          ) as HTMLElement;
+          targetInput?.focus();
+        }, 10);
       }
     } else if (e.key === "Tab" && e.shiftKey) {
       e.preventDefault();
@@ -220,6 +253,15 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
                 : l
             )
           );
+          
+          // Сохраняем фокус на текущем элементе
+          setTimeout(() => {
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+            const targetInput = Array.from(inputs).find(input => 
+              (input as HTMLElement).closest('[data-line-id]')?.getAttribute('data-line-id') === line.id
+            ) as HTMLElement;
+            targetInput?.focus();
+          }, 10);
         }
       }
     }
@@ -233,7 +275,6 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     newIndex: number;
     newParentId: string | null;
   } | null>(null);
-  const [dragOverDelete, setDragOverDelete] = React.useState(false);
 
   // Универсальное перемещение строки (и поддерева) с обновлением parentId и order
   const handleMove = (
@@ -270,36 +311,28 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     }));
     
     onChange(reorderedLines);
+    
+    // Скрываем индикатор после перемещения
+    setDropIndicator({ show: false });
   };
 
   // DND: включаем ВСЕ строки в SortableContext, а не только корневые
   const allLineIds = sortedLines.map(l => l.id);
 
-  // Drag-to-delete: область для удаления
+  // Показ индикации места вставки
   const handleDragMove = (offsetX: number, offsetY?: number) => {
     setDragOffsetX(offsetX);
-    // Если offsetY достаточно большой (перетаскивание вниз) — показываем область удаления
-    if (typeof offsetY === "number" && offsetY > 80) {
-      setDragOverDelete(true);
-    } else {
-      setDragOverDelete(false);
-    }
+    // Не показываем индикатор здесь - он будет управляться в DND контексте
   };
 
-  // Drag-to-delete: удаление при отпускании над областью
-  const handleMoveWithDelete = (
+  // Обработка завершения перетаскивания
+  const handleMoveWithNesting = (
     oldIndex: number,
     newIndex: number,
     newParentId: string | null = null
   ) => {
-    if (dragOverDelete) {
-      const draggedLine = sortedLines[oldIndex];
-      if (draggedLine) {
-        handleDelete(draggedLine.id);
-        setDragOverDelete(false);
-      }
-      return;
-    }
+    // Скрываем индикатор сразу при начале перемещения
+    setDropIndicator({ show: false });
     
     // DND вложенность: вправо — вложить, влево — поднять
     let targetParentId = newParentId;
@@ -326,7 +359,7 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     <>
       <NoteLinesDndContext
         lines={sortedLines} // Передаем ВСЕ строки, включая вложенные
-        onMove={handleMoveWithDelete}
+        onMove={handleMoveWithNesting}
         onDragMove={handleDragMove}
       >
         {buildTree(
@@ -339,29 +372,7 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
           handleDelete
         )}
       </NoteLinesDndContext>
-      {dragOverDelete && (
-        <div
-          style={{
-            position: "fixed",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 80,
-            background: "#ffeaea",
-            color: "#d32f2f",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 600,
-            fontSize: 18,
-            zIndex: 1000,
-            borderTop: "2px solid #d32f2f",
-          }}
-        >
-          <Trash2 size={28} style={{ marginRight: 12 }} /> Перетащите сюда для
-          удаления
-        </div>
-      )}
+      
       <div
         style={{ display: "flex", justifyContent: "flex-start", marginTop: 16 }}
       >
