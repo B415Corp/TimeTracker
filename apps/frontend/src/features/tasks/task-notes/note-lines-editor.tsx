@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
-import arrayMove from "array-move";
+// import { arrayMove } from "array-move";
+
+// Простая реализация arrayMove для перестановки элементов
+function arrayMove<T>(array: T[], from: number, to: number): T[] {
+  const arr = array.slice();
+  const val = arr.splice(from, 1)[0];
+  arr.splice(to, 0, val);
+  return arr;
+}
 
 interface NoteLinesEditorProps {
   lines: NoteLine[];

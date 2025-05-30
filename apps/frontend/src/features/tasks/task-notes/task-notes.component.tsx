@@ -36,6 +36,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import NoteCard from "./task-note-card.component";
+import { NoteLinesEditor } from "./note-lines-editor";
+import { NoteLine } from "./note-line.types";
 
 const noteFormSchema = z.object({
   text_content: z.string().min(1, "Содержание обязательно"),
@@ -168,6 +170,13 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
     setParentNote(null);
   };
 
+  // Тестовые данные для нового редактора
+  const testLines: NoteLine[] = [
+    { id: "1", parentId: null, order: 0, type: "heading", content: "Заголовок" },
+    { id: "2", parentId: null, order: 1, type: "text", content: "Текст 1" },
+    { id: "3", parentId: null, order: 2, type: "list", content: "Пункт списка" },
+  ];
+
   if (isLoading) {
     return (
       <Card>
@@ -199,6 +208,11 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
 
   return (
     <div className="space-y-6">
+      {/* Новый редактор заметок для теста */}
+      <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 16, marginBottom: 24 }}>
+        <h3 style={{ marginBottom: 8 }}>Новый редактор заметок (тест)</h3>
+        <NoteLinesEditor lines={testLines} />
+      </div>
       {mainNote ? (
         <div>
           <NoteCard
