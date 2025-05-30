@@ -36,8 +36,24 @@ export class NotesService {
       order = siblings.length > 0 ? Math.max(...siblings.map(s => s.order ?? 0)) + 1 : 0;
     }
 
+    // Обратная совместимость: если text_content строка — оборачиваем в массив блоков
+    let text_content = note.text_content;
+    if (typeof text_content === 'string') {
+      try {
+        const parsed = JSON.parse(text_content);
+        if (Array.isArray(parsed)) {
+          text_content = parsed;
+        } else {
+          text_content = [{ id: Date.now().toString(), parentId: null, order: 0, type: 'text', content: text_content }];
+        }
+      } catch {
+        text_content = [{ id: Date.now().toString(), parentId: null, order: 0, type: 'text', content: text_content }];
+      }
+    }
+
     const newNote = this.notesRepository.create({ 
       ...note, 
+      text_content,
       user_id,
       nesting_level: nestingLevel,
       order,
@@ -104,15 +120,45 @@ export class NotesService {
       throw new NotFoundException('Note not found');
     }
 
+    // Обратная совместимость: если text_content строка — оборачиваем в массив блоков
+    if (typeof note.text_content === 'string') {
+      try {
+        const parsed = JSON.parse(note.text_content);
+        if (Array.isArray(parsed)) {
+          note.text_content = parsed;
+        } else {
+          note.text_content = [{ id: note.notes_id, parentId: null, order: 0, type: 'text', content: note.text_content }];
+        }
+      } catch {
+        note.text_content = [{ id: note.notes_id, parentId: null, order: 0, type: 'text', content: note.text_content }];
+      }
+    }
+
     return note;
   }
 
   async findByTask(task_id: string, user_id: string): Promise<Notes[]> {
-    return this.notesRepository.find({
+    const notes = await this.notesRepository.find({
       where: { task_id, user_id },
       order: { created_at: 'DESC' },
       relations: ['childNotes'],
     });
+    // Обратная совместимость для каждой заметки
+    for (const note of notes) {
+      if (typeof note.text_content === 'string') {
+        try {
+          const parsed = JSON.parse(note.text_content);
+          if (Array.isArray(parsed)) {
+            note.text_content = parsed;
+          } else {
+            note.text_content = [{ id: note.notes_id, parentId: null, order: 0, type: 'text', content: note.text_content }];
+          }
+        } catch {
+          note.text_content = [{ id: note.notes_id, parentId: null, order: 0, type: 'text', content: note.text_content }];
+        }
+      }
+    }
+    return notes;
   }
 
   async findNoteHierarchy(notes_id: string, user_id: string): Promise<Notes> {

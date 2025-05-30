@@ -2,7 +2,7 @@ import React from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import { arrayMove } from "array-move";
 
@@ -140,6 +140,7 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines, onChang
   const [dragOffsetX, setDragOffsetX] = React.useState(0);
   const DRAG_NEST_INDENT = 32; // px, шаг вложенности
   const [pendingMove, setPendingMove] = React.useState<{oldIndex: number, newIndex: number, newParentId: string | null} | null>(null);
+  const [dragOverDelete, setDragOverDelete] = React.useState(false);
 
   // Универсальное перемещение строки (и поддерева) с обновлением parentId и order
   const handleMove = (oldIndex: number, newIndex: number, newParentId: string | null = null) => {
@@ -158,28 +159,56 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({ lines, onChang
   // DND: flat-список для SortableContext
   const flatLines = sortedLines.filter(l => l.parentId === null);
 
+  // Drag-to-delete: область для удаления
+  const handleDragMove = (offsetX: number, offsetY?: number) => {
+    setDragOffsetX(offsetX);
+    // Если offsetY достаточно большой (перетаскивание вниз) — показываем область удаления
+    if (typeof offsetY === 'number' && offsetY > 80) {
+      setDragOverDelete(true);
+    } else {
+      setDragOverDelete(false);
+    }
+  };
+
+  // Drag-to-delete: удаление при отпускании над областью
+  const handleMoveWithDelete = (oldIndex: number, newIndex: number, newParentId: string | null = null) => {
+    if (dragOverDelete && flatLines[oldIndex]) {
+      handleDelete(flatLines[oldIndex].id);
+      setDragOverDelete(false);
+      return;
+    }
+    handleMove(oldIndex, newIndex, newParentId);
+  };
+
   return (
     <>
       <NoteLinesDndContext
         lines={flatLines}
-        onMove={(oldIndex, newIndex) => {
-          // dragOffsetX > DRAG_NEST_INDENT — вложить, < -DRAG_NEST_INDENT — поднять
-          let newParentId: string | null = null;
-          if (pendingMove) {
-            newParentId = pendingMove.newParentId;
-          }
-          handleMove(oldIndex, newIndex, newParentId);
-          setPendingMove(null);
-        }}
-        onDragMove={offsetX => {
-          setDragOffsetX(offsetX);
-          // Пример: если offsetX > DRAG_NEST_INDENT, делаем parentId предыдущей строки
-          // (упрощённая логика, можно доработать)
-          // ...
-        }}
+        onMove={handleMoveWithDelete}
+        onDragMove={handleDragMove}
       >
         {buildTree(sortedLines, null, 0, handleChange, handleTypeChange, handleKeyDown, handleDelete)}
       </NoteLinesDndContext>
+      {dragOverDelete && (
+        <div style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 80,
+          background: '#ffeaea',
+          color: '#d32f2f',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: 600,
+          fontSize: 18,
+          zIndex: 1000,
+          borderTop: '2px solid #d32f2f',
+        }}>
+          <Trash2 size={28} style={{ marginRight: 12 }} /> Перетащите сюда для удаления
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 16 }}>
         <Button
           type="button"

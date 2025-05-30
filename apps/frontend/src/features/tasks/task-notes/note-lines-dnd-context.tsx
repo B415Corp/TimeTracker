@@ -16,8 +16,8 @@ import { NoteLine } from "./note-line.types";
 
 interface NoteLinesDndContextProps {
   lines: NoteLine[];
-  onMove: (oldIndex: number, newIndex: number, nesting?: number) => void;
-  onDragMove?: (offsetX: number) => void;
+  onMove: (oldIndex: number, newIndex: number, newParentId?: string | null) => void;
+  onDragMove?: (offsetX: number, offsetY?: number) => void;
   children: React.ReactNode;
 }
 
@@ -39,7 +39,7 @@ export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines,
 
   const handleDragMove = (event: DragMoveEvent) => {
     if (onDragMove && event.delta) {
-      onDragMove(event.delta.x);
+      onDragMove(event.delta.x, event.delta.y);
     }
   };
 

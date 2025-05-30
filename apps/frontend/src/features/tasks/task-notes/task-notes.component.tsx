@@ -192,13 +192,38 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
 
   useEffect(() => {
     if (apiNotes) {
-      const mapped = apiNotes.map((n: any) => ({
-        id: n.notes_id,
-        parentId: n.parent_note_id ?? null,
-        order: n.nesting_level ?? 0,
-        type: "text" as NoteLineType,
-        content: n.text_content,
-      }));
+      // Если text_content — строка (старый формат), оборачиваем в массив NoteLine
+      let mapped: NoteLine[] = [];
+      if (Array.isArray(apiNotes) && apiNotes.length > 0 && typeof apiNotes[0].text_content === 'string') {
+        try {
+          // Пробуем распарсить как JSON (новый формат)
+          const parsed = JSON.parse(apiNotes[0].text_content);
+          if (Array.isArray(parsed)) {
+            mapped = deserializeNoteLines(apiNotes[0].text_content);
+          } else {
+            // Если не массив — fallback
+            mapped = [{
+              id: apiNotes[0].notes_id,
+              parentId: null,
+              order: 0,
+              type: 'text',
+              content: apiNotes[0].text_content,
+            }];
+          }
+        } catch {
+          // Если не JSON — fallback
+          mapped = [{
+            id: apiNotes[0].notes_id,
+            parentId: null,
+            order: 0,
+            type: 'text',
+            content: apiNotes[0].text_content,
+          }];
+        }
+      } else if (Array.isArray(apiNotes) && apiNotes.length > 0 && Array.isArray(apiNotes[0].text_content)) {
+        // Новый формат: text_content — массив блоков
+        mapped = apiNotes[0].text_content;
+      }
       setLines(mapped);
       setOriginalLines(mapped);
       setIsDirty(false);
@@ -214,35 +239,19 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
   // Оптимизированное сохранение
   const handleSave = async () => {
     try {
-      // Новые строки
-      const newLines = lines.filter(l => !originalLines.some(o => o.id === l.id));
-      // Изменённые строки
-      const changedLines = lines.filter(l => {
-        const orig = originalLines.find(o => o.id === l.id);
-        return orig && (orig.content !== l.content || orig.parentId !== l.parentId || getNestingLevel(lines, l.id) !== getNestingLevel(originalLines, l.id));
-      });
-      // Удалённые строки
-      const deletedLines = originalLines.filter(o => !lines.some(l => l.id === o.id));
-
-      for (const line of newLines) {
-        await createNote({
-          text_content: line.content,
-          parent_note_id: line.parentId ?? undefined,
-          nesting_level: getNestingLevel(lines, line.id),
-          task_id: taskId,
-        });
-      }
-      for (const line of changedLines) {
+      // Сохраняем всю структуру как JSON
+      const json = serializeNoteLines(lines);
+      if (apiNotes && apiNotes[0]) {
         await editNote({
-          note_id: line.id,
-          text_content: line.content,
-          parent_note_id: line.parentId ?? undefined,
-          nesting_level: getNestingLevel(lines, line.id),
+          note_id: apiNotes[0].notes_id,
+          text_content: json,
           task_id: taskId,
         });
-      }
-      for (const line of deletedLines) {
-        await deleteNote({ id: line.id });
+      } else {
+        await createNote({
+          text_content: json,
+          task_id: taskId,
+        });
       }
       enqueueSnackbar("Заметки успешно сохранены!", { variant: "success" });
       setIsDirty(false);
@@ -353,11 +362,9 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
 function getNestingLevel(lines: NoteLine[], id: string): number {
   let level = 0;
   let curr = lines.find(l => l.id === id);
-  while (curr && curr.parentId) {
+  for (; curr !== undefined && curr.parentId;) {
     level++;
-    const next = lines.find(l => l.id === curr.parentId);
-    if (!next) break;
-    curr = next;
+    curr = lines.find(l => l.id === curr.parentId);
   }
   return level;
 } 
