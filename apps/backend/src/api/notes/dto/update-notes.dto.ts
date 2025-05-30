@@ -2,10 +2,10 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString, IsOptional, IsUUID, IsNumber, Min, Max } from "class-validator";
 
 export class UpdateNotesDto {
-  @ApiProperty({ description: 'JSON-структура заметки (массив блоков)' })
+  @ApiProperty({ description: 'Text-content of note' })
   @IsOptional()
   @IsString()
-  text_content?: any;
+  text_content?: string;
 
   @ApiProperty({ 
     description: 'Parent note ID for nested notes',

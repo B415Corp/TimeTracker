@@ -31,11 +31,11 @@ export class Notes {
   user_id: string;
 
   @ApiProperty({
-    type: 'object',
-    description: 'JSON-структура заметки (массив блоков)',
+    type: String,
+    description: 'Content of the note',
   })
-  @Column('json', { nullable: false, default: () => "'[]'" })
-  text_content: any;
+  @Column('text')
+  text_content: string;
 
   @ApiProperty({
     type: String,
