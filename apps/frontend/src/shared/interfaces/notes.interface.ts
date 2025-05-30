@@ -3,7 +3,7 @@ import { z } from "zod";
 // NotesSchema
 export const NotesSchema = z.object({
   notes_id: z.string(),
-  text_content: z.string(),
+  text_content: z.union([z.string(), z.array(z.any())]),
   parent_note_id: z.string().nullable().optional(),
   task_id: z.string().nullable().optional(),
   nesting_level: z.number().default(0),

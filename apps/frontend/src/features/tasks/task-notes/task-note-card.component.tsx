@@ -79,9 +79,17 @@ export default function NoteCard({ note, onEdit, onDelete, onAddChild, isMain }:
       </CardHeader>
       <CardContent>
         <div className="prose prose-sm max-w-none">
-          <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-            {note.text_content}
-          </p>
+          {typeof note.text_content === 'string' ? (
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">{note.text_content}</p>
+          ) : Array.isArray(note.text_content) ? (
+            <div className="space-y-1">
+              {note.text_content.map((block: any) => (
+                <div key={block.id} className="text-sm text-muted-foreground">
+                  <span className="font-semibold">[{block.type}]</span> {block.content}
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
         {note.childNotes && note.childNotes.length > 0 && (
           <div className="mt-3 text-xs text-muted-foreground">

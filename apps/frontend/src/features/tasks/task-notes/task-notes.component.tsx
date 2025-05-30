@@ -71,12 +71,14 @@ function NoteDialog({ isOpen, onClose, taskId, editingNote, parentNote }: NoteDi
   const form = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
     defaultValues: {
-      text_content: editingNote?.text_content || "",
+      text_content: Array.isArray(editingNote?.text_content)
+        ? JSON.stringify(editingNote.text_content)
+        : (editingNote?.text_content || ""),
       parent_note_id: parentNote?.notes_id || editingNote?.parent_note_id || undefined,
     },
   });
 
-  const onSubmit = async (values: NoteFormValues) => {
+  const onSubmit: (values: NoteFormValues) => Promise<void> = async (values) => {
     try {
       if (isEditMode && editingNote) {
         await editNote({
@@ -111,7 +113,7 @@ function NoteDialog({ isOpen, onClose, taskId, editingNote, parentNote }: NoteDi
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
             <FormField
               control={form.control}
               name="text_content"
@@ -292,7 +294,7 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
   return (
     <div className="space-y-6">
       {/* Новый редактор заметок с интеграцией API */}
-      <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 16, marginBottom: 24 }}>
+      <div style={{ borderRadius: 8, padding: 16, marginBottom: 24 }}>
         <h3 style={{ marginBottom: 8 }}>Новый редактор заметок (интеграция с API)</h3>
         {isNotesLoading ? (
           <div>Загрузка...</div>
@@ -309,44 +311,6 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
           </>
         )}
       </div>
-      {mainNote ? (
-        <div>
-          <NoteCard
-            note={mainNote}
-            onEdit={handleEditNote}
-            onDelete={handleDeleteNote}
-            onAddChild={handleAddChildNote}
-            isMain
-          />
-          <div className="mt-6 space-y-3">
-            {childNotes.length > 0 ? (
-              childNotes.map((note) => (
-                <NoteCard
-                  key={note.notes_id}
-                  note={{
-                    ...note,
-                    created_at: '', // Укажите значение по умолчанию или получите его из источника данных
-                    updated_at: '', // Укажите значение по умолчанию или получите его из источника данных
-                    text_content: '', // Укажите значение по умолчанию или получите его из источника данных
-                  }}
-                  onEdit={handleEditNote}
-                  onDelete={handleDeleteNote}
-                  onAddChild={() => {}}
-                />
-              ))
-            ) : (
-              <div className="text-muted-foreground text-sm mt-2 ml-4">Вложенных заметок нет</div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="p-6 text-center text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Заметка не найдена</p>
-          </CardContent>
-        </Card>
-      )}
       <NoteDialog
         isOpen={dialogOpen}
         onClose={closeDialog}
@@ -362,7 +326,7 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
 function getNestingLevel(lines: NoteLine[], id: string): number {
   let level = 0;
   let curr = lines.find(l => l.id === id);
-  for (; curr !== undefined && curr.parentId;) {
+  for (; curr && curr.parentId;) {
     level++;
     curr = lines.find(l => l.id === curr.parentId);
   }
