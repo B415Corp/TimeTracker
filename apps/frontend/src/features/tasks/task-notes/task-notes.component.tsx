@@ -249,12 +249,14 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
       }
       setLines(mapped);
       setOriginalLines(mapped);
+      console.log('setLines (useEffect)', mapped);
       setIsDirty(false);
     }
   }, [apiNotes]);
 
   // Обработчик изменений в редакторе
   const handleLinesChange = (newLines: NoteLine[]) => {
+    console.log('handleLinesChange', newLines);
     setLines(newLines);
     setIsDirty(true);
   };

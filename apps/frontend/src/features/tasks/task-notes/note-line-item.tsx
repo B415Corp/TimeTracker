@@ -13,6 +13,8 @@ import {
 import { Heading, List, AlignLeft, Link as LinkIcon, Paperclip, Trash2, CheckSquare, Minus, Code2, Quote } from "lucide-react";
 import { useDndTreeContext } from "./note-lines-dnd-context";
 
+console.log('FILE NOTE-LINE-ITEM');
+
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 interface NoteLineItemProps {
@@ -66,6 +68,7 @@ function getDescendantIds(lines: NoteLine[], id: string): string[] {
 }
 
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
+  console.log('RENDER SortableNoteLineItem', props.line.id, {dragOverlay: props.dragOverlay, isDragging: props.isDragging});
   const { line, level, onChange, onTypeChange, onKeyDown, onDelete, dragOverlay } = props;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging, over } = useSortable({ id: line.id });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -76,6 +79,11 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const editableRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setInputValue(line.content);
+    console.log('useEffect setInputValue', {id: line.id, content: line.content});
+  }, [line.id, line.content]);
 
   // Скрывать элемент, если он входит в перемещаемую ветку (кроме DragOverlay)
   let hide = false;

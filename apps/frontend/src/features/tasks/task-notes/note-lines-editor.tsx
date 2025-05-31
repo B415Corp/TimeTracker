@@ -8,6 +8,8 @@ import { NoteLinesDndTreeContext } from "./note-lines-dnd-context";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 // import { arrayMove } from "array-move";
 
+console.log('FILE NOTE-LINES-EDITOR');
+
 // Простая реализация arrayMove для перестановки элементов
 function arrayMove<T>(array: T[], from: number, to: number): T[] {
   const arr = array.slice();
@@ -125,6 +127,7 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
   onChange,
   onSave,
 }) => {
+  console.log('RENDER NoteLinesEditor');
   // Всегда сортируем по order
   const sortedLines = [...lines].sort((a, b) => a.order - b.order);
 
@@ -335,6 +338,15 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     newLines.splice(insertIdx, 0, movedLine);
     // Пересчитываем order для всех
     newLines = newLines.map((line, idx) => ({ ...line, order: idx }));
+    console.log('handleMove', {
+      sourceId,
+      newParentId,
+      position,
+      movedLine,
+      siblings: siblings.map(l => l.id),
+      insertIdx,
+      result: newLines.map(l => ({id: l.id, parentId: l.parentId, order: l.order, content: l.content}))
+    });
     onChange(newLines);
   };
 
@@ -433,7 +445,12 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
           <ClipboardCopy size={16} /> {copied ? "Скопировано!" : "Копировать MD"}
         </button>
       </div>
-      <NoteLinesDndTreeContext lines={sortedLines} onMove={handleMove}>
+      <NoteLinesDndTreeContext lines={sortedLines} onMove={handleMove}
+        onChange={handleChange}
+        onTypeChange={handleTypeChange}
+        onKeyDown={handleKeyDown}
+        onDelete={handleDelete}
+      >
         {renderContent()}
       </NoteLinesDndTreeContext>
       

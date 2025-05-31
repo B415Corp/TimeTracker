@@ -1,3 +1,5 @@
+console.log('FILE NOTE-LINES-DND-CONTEXT');
+
 import React, { createContext, useContext } from "react";
 import {
   DndContext,
@@ -15,13 +17,17 @@ import {
   useSortable,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { NoteLine } from "./note-line.types";
+import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 
 interface NoteLinesDndTreeContextProps {
   lines: NoteLine[];
   onMove: (sourceId: string, destinationId: string | null, position: number) => void;
   children: React.ReactNode;
+  onChange: (id: string, value: string) => void;
+  onTypeChange: (id: string, type: NoteLineType) => void;
+  onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void;
+  onDelete: (id: string) => void;
 }
 
 interface DndTreeContextValue {
@@ -46,30 +52,44 @@ function findLineById(lines: NoteLine[], id: string): NoteLine | undefined {
   return lines.find((l) => l.id === id);
 }
 
+class DndErrorBoundary extends React.Component<{children: React.ReactNode}, {error: any}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { error };
+  }
+  componentDidCatch(error: any, info: any) {
+    console.log('DND_ERROR_BOUNDARY', error, info);
+  }
+  render() {
+    if (this.state.error) {
+      return <div style={{color:'red'}}>DND ERROR: {String(this.state.error)}</div>;
+    }
+    return this.props.children;
+  }
+}
+
 // Собрать ветку для DragOverlay
-function renderBranch(line: NoteLine, lines: NoteLine[], level: number = 0): React.ReactNode {
+export function NoteLinesDndTreeContext(props: NoteLinesDndTreeContextProps) {
   return (
-    <React.Fragment key={line.id}>
-      <SortableNoteLineItem
-        line={line}
-        level={level}
-        onChange={() => {}}
-        onTypeChange={() => {}}
-        onKeyDown={() => {}}
-        onDelete={() => {}}
-        dragOverlay // специальный проп для DragOverlay
-      />
-      {lines.filter(l => l.parentId === line.id).map(child => renderBranch(child, lines, level + 1))}
-    </React.Fragment>
+    <DndErrorBoundary>
+      <NoteLinesDndTreeContextInner {...props} />
+    </DndErrorBoundary>
   );
 }
 
-// DND-контекст для вложенных заметок
-export const NoteLinesDndTreeContext: React.FC<NoteLinesDndTreeContextProps> = ({
+function NoteLinesDndTreeContextInner({
   lines,
   onMove,
   children,
-}) => {
+  onChange,
+  onTypeChange,
+  onKeyDown,
+  onDelete,
+}: NoteLinesDndTreeContextProps) {
+  console.log('RENDER NoteLinesDndTreeContext');
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
@@ -77,6 +97,8 @@ export const NoteLinesDndTreeContext: React.FC<NoteLinesDndTreeContextProps> = (
   // Состояния для dnd
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [draggedLine, setDraggedLine] = React.useState<NoteLine | null>(null);
+
+  console.log('RENDER NoteLinesDndTreeContext', {linesCount: lines.length});
 
   // Обработка начала перетаскивания
   const handleDragStart = (event: DragStartEvent) => {
@@ -101,6 +123,7 @@ export const NoteLinesDndTreeContext: React.FC<NoteLinesDndTreeContextProps> = (
     const parentId = overLine?.parentId ?? null;
     const siblings = lines.filter((l) => l.parentId === parentId);
     const newIndex = siblings.findIndex((l) => l.id === destinationId);
+    console.log('DnD handleDragEnd', {sourceId, destinationId, parentId, newIndex, siblings: siblings.map(s=>s.id)});
     onMove(sourceId, parentId, newIndex);
   };
 
@@ -119,10 +142,34 @@ export const NoteLinesDndTreeContext: React.FC<NoteLinesDndTreeContextProps> = (
         >
           {children}
         </SortableContext>
-        <DragOverlay dropAnimation={null}>
-          {activeId && draggedLine ? renderBranch(draggedLine, lines) : <div style={{display:'none'}} />}
-        </DragOverlay>
+        <div style={{display:'none'}} />
       </DndContext>
     </DndTreeContext.Provider>
   );
-}; 
+}
+
+function renderBranch(
+  line: NoteLine,
+  lines: NoteLine[],
+  level: number = 0,
+  onChange: (id: string, value: string) => void,
+  onTypeChange: (id: string, type: NoteLineType) => void,
+  onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void,
+  onDelete: (id: string) => void
+): React.ReactNode {
+  console.log('RENDER renderBranch', line.id, {level});
+  return (
+    <React.Fragment key={line.id}>
+      <SortableNoteLineItem
+        line={line}
+        level={level}
+        onChange={onChange}
+        onTypeChange={onTypeChange}
+        onKeyDown={(e) => onKeyDown(e, line)}
+        onDelete={onDelete}
+        dragOverlay // специальный проп для DragOverlay
+      />
+      {lines.filter(l => l.parentId === line.id).map(child => renderBranch(child, lines, level + 1, onChange, onTypeChange, onKeyDown, onDelete))}
+    </React.Fragment>
+  );
+} 
