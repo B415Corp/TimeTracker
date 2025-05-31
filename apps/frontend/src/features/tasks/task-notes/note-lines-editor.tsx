@@ -19,6 +19,7 @@ function arrayMove<T>(array: T[], from: number, to: number): T[] {
 interface NoteLinesEditorProps {
   lines: NoteLine[];
   onChange: (lines: NoteLine[]) => void;
+  onSave?: () => void;
 }
 
 // Новый buildTree с SortableContext на каждом уровне
@@ -123,6 +124,7 @@ function linesToMarkdown(lines: NoteLine[], parentId: string | null = null, leve
 export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
   lines,
   onChange,
+  onSave,
 }) => {
   // Всегда сортируем по order
   const sortedLines = [...lines].sort((a, b) => a.order - b.order);
@@ -415,10 +417,7 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
         <button
           type="button"
           className="flex items-center gap-1 px-3 py-1 rounded bg-primary text-white hover:bg-primary/90 transition"
-          onClick={() => {
-            // Логика сохранения из старой кнопки
-            onChange([...lines]);
-          }}
+          onClick={onSave ? onSave : () => onChange([...lines])}
         >
           <Save size={16} /> Сохранить
         </button>

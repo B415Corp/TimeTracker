@@ -325,14 +325,7 @@ export default function TaskNotes({ taskId }: TaskNotesProps) {
           <div>Загрузка...</div>
         ) : (
           <>
-            <NoteLinesEditor lines={lines} onChange={handleLinesChange} />
-            <button
-              onClick={handleSave}
-              disabled={!isDirty}
-              style={{ marginTop: 12, padding: "6px 16px", borderRadius: 4, background: isDirty ? "#2563eb" : "#ccc", color: "#fff", border: "none", cursor: isDirty ? "pointer" : "not-allowed" }}
-            >
-              Сохранить
-            </button>
+            <NoteLinesEditor lines={lines} onChange={handleLinesChange} onSave={handleSave} />
           </>
         )}
       </div>
