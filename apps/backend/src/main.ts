@@ -8,101 +8,16 @@ import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import * as express from 'express';
+import { setupSwagger } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(
-    new (await import('@nestjs/common')).ValidationPipe({ transform: true })
-  );
-  const logger = new Logger('Bootstrap');
-  logger.log('Application is starting...');
 
-  const configService = app.get(ConfigService);
-  logger.log('ConfigService loaded');
-
-  // Добавляем задержку для обеспечения полной загрузки конфигурации
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  logger.log(`NODE_ENV from process.env: ${process.env.NODE_ENV}`);
-  logger.log(`NODE_ENV from ConfigService: ${configService.get('NODE_ENV')}`);
-
-  console.log('process.env.NODE_ENV', process.env.NODE_ENV, process.env);
-
-  const environment =
-    process.env.NODE_ENV || configService.get('NODE_ENV') || 'development';
-  logger.log(`Final environment: ${environment}`);
-
-  app.useGlobalInterceptors(new TransformInterceptor());
-  app.useGlobalFilters(new HttpExceptionFilter());
-
-  // Включаем версионирование API через URI
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
-
-  app.enableCors({
-    origin: '*',
-  });
-
-  // Устанавливаем глобальный префикс для API
-  app.setGlobalPrefix('api', {
-    exclude: ['/health', '/docs', '/docs-json']
-  });
-
-  logger.log(`Environment Info: ${process.env.NODE_ENV}`);
-
-  const config = new DocumentBuilder()
-    .setTitle(`API: "${process.env.NODE_ENV}" environment`)
-    .setDescription(
-      `API description (Environment Info: ${process.env.NODE_ENV})`
-    )
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-      filter: true,
-      tryItOutEnabled: true,
-      tagsSorter: 'alpha',
-      operationsSorter: (a, b) => {
-        const methodsOrder = [
-          'get',
-          'post',
-          'put',
-          'delete',
-          'patch',
-          'options',
-          'head',
-        ];
-        let result =
-          methodsOrder.indexOf(a.get('method')) -
-          methodsOrder.indexOf(b.get('method'));
-
-        if (result === 0) {
-          result = a.get('path').localeCompare(b.get('path'));
-        }
-
-        return result;
-      },
-    },
-  });
-
-  const port = process.env.PORT || 3000;
-  const host = process.env.HOST || '0.0.0.0';
-
-  // Добавление маршрута для возврата JSON схемы
-  app.use('/docs-json', (req, res) => {
-    res.json(document);
-  });
-
-  await app.listen(port, host);
-
-  logger.log(`Server is running on http://${host}:${port}`);
-  logger.log(`Environment: ${environment.toUpperCase()}`);
+  app.useGlobalPipes(new ValidationPipe());
+  
+  await setupSwagger(app);
+  
+  await app.listen(3000);
 }
-
 bootstrap();

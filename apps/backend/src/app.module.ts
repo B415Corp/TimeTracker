@@ -27,6 +27,21 @@ import { TaskStatusModule } from './api/task-status/task-status.module';
 import { TaskStatusColumnModule } from './api/task-status-column/task-status-column.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+
+export async function setupSwagger(app) {
+  const config = new DocumentBuilder()
+    .setTitle('TimeTracker API')
+    .setDescription('API для системы учета времени')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+}
 
 @Module({
   imports: [
@@ -88,7 +103,15 @@ import { AppService } from './app.service';
     TaskStatusModule,
     TaskStatusColumnModule,
   ],
-  providers: [AuthService, JwtStrategy, AppService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
   exports: [AuthService],
   controllers: [AppController],
 })
