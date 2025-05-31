@@ -2,7 +2,7 @@ import React from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import { arrayMove } from "array-move";
 
@@ -17,6 +17,7 @@ function arrayMove<T>(array: T[], from: number, to: number): T[] {
 interface NoteLinesEditorProps {
   lines: NoteLine[];
   onChange: (lines: NoteLine[]) => void;
+  onSave?: () => void;
 }
 
 // Вспомогательная функция для построения дерева из flat-списка
@@ -119,6 +120,7 @@ function canNest(
 export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
   lines,
   onChange,
+  onSave,
 }) => {
   // Всегда сортируем по order
   const sortedLines = [...lines].sort((a, b) => a.order - b.order);
@@ -417,6 +419,16 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
 
   return (
     <>
+      {/* Top bar */}
+      <div className="flex items-center gap-2 mb-4 p-2 bg-muted rounded-lg sticky top-0 z-10">
+        <button
+          type="button"
+          className="flex items-center gap-1 px-3 py-1 rounded bg-primary text-white hover:bg-primary/90 transition"
+          onClick={onSave ? onSave : () => onChange([...lines])}
+        >
+          <Save size={16} /> Сохранить
+        </button>
+      </div>
       <NoteLinesDndContext
         lines={sortedLines}
         onMove={handleMoveWithNesting}
