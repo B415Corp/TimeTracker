@@ -2,7 +2,7 @@ import React from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ClipboardCopy, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteLinesDndTreeContext } from "./note-lines-dnd-context";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -96,6 +96,28 @@ function canNest(
   const parentLevel = getNestingLevel(lines, parentId);
   if (parentLevel >= 9) return false; // 0-based, значит максимум 10
   return true;
+}
+
+// Функция для преобразования lines в Markdown
+function linesToMarkdown(lines: NoteLine[], parentId: string | null = null, level = 0): string {
+  return lines
+    .filter(l => l.parentId === parentId)
+    .sort((a, b) => a.order - b.order)
+    .map(l => {
+      let prefix = "";
+      if (l.type === "heading1") prefix = "# ";
+      else if (l.type === "heading2") prefix = "## ";
+      else if (l.type === "heading3") prefix = "### ";
+      else if (l.type === "list") prefix = "- ";
+      else if (l.type === "todo") prefix = l.checked ? "- [x] " : "- [ ] ";
+      else if (l.type === "quote") prefix = "> ";
+      else if (l.type === "code") prefix = "```\n";
+      else prefix = level > 0 ? "  ".repeat(level) + "- " : "";
+      let content = l.content || "";
+      if (l.type === "code") content = content + "\n```";
+      return prefix + content + "\n" + linesToMarkdown(lines, l.id, level + 1);
+    })
+    .join("");
 }
 
 export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
@@ -383,8 +405,33 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     handleDelete
   );
 
+  // Состояние для копирования
+  const [copied, setCopied] = React.useState(false);
+
   return (
     <>
+      {/* Top bar */}
+      <div className="flex items-center gap-2 mb-4 p-2 bg-muted rounded-lg sticky top-0 z-10">
+        <button
+          type="button"
+          className="flex items-center gap-1 px-3 py-1 rounded bg-primary text-white hover:bg-primary/90 transition"
+          onClick={() => onChange([...lines])}
+        >
+          <Save size={16} /> Сохранить
+        </button>
+        <button
+          type="button"
+          className="flex items-center gap-1 px-3 py-1 rounded bg-secondary text-gray-900 dark:text-gray-100 hover:bg-secondary/80 transition"
+          onClick={() => {
+            const md = linesToMarkdown(lines);
+            navigator.clipboard.writeText(md);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1200);
+          }}
+        >
+          <ClipboardCopy size={16} /> {copied ? "Скопировано!" : "Копировать MD"}
+        </button>
+      </div>
       <NoteLinesDndTreeContext lines={sortedLines} onMove={handleMove}>
         {renderContent()}
       </NoteLinesDndTreeContext>

@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -52,6 +53,7 @@ function isDescendant(lines: NoteLine[], parentId: string | null, id: string): b
     if (curr.parentId === parentId) return true;
     if (!curr.parentId) break;
     curr = lines.find(l => l.id === curr.parentId);
+    if (!curr) break;
   }
   return false;
 }
@@ -72,6 +74,9 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   const [inputValue, setInputValue] = useState(line.content);
   const [typeMenuIndex, setTypeMenuIndex] = useState(0);
   const { activeId, lines } = useDndTreeContext();
+  const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const editableRef = useRef<HTMLDivElement>(null);
 
   // Скрывать элемент, если он входит в перемещаемую ветку (кроме DragOverlay)
   let hide = false;
@@ -183,6 +188,36 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
     }
   };
 
+  const handleDivKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Проксируем только нужные клавиши
+    if (e.key === 'Enter' || e.key === 'Backspace' || e.key === 'Tab') {
+      // Приводим к типу, ожидаемому onKeyDown
+      onKeyDown(e as unknown as React.KeyboardEvent);
+    }
+  };
+
+  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (window.getSelection()?.toString()) {
+      setMenuPos({ x: e.clientX, y: e.clientY });
+      setShowMenu(true);
+    } else {
+      setShowMenu(false);
+    }
+  };
+
+  const handleMenuAction = (action: "bold" | "italic" | "underline") => {
+    document.execCommand(action);
+    setShowMenu(false);
+  };
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const close = () => setShowMenu(false);
+    window.addEventListener("mousedown", close);
+    return () => window.removeEventListener("mousedown", close);
+  }, [showMenu]);
+
   return (
     <div
       ref={setNodeRef}
@@ -194,7 +229,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
       <span
         {...listeners}
         style={dragHandleStyle}
-        className="group-hover:opacity-100 opacity-0 transition-opacity duration-100 select-none"
+        className="group-hover:opacity-100 opacity-0 transition-opacity duration-100 select-none mr-3"
       >
         ⠿
       </span>
@@ -260,7 +295,55 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
           ))}
         </div>
       )}
-      {line.type === "text" || line.type === "heading1" || line.type === "heading2" || line.type === "heading3" || line.type === "list" || line.type === "link" ? (
+      {line.type === "text" ? (
+        <div
+          ref={editableRef}
+          contentEditable
+          suppressContentEditableWarning
+          className="flex-1 outline-none min-h-[1.8em] px-1"
+          spellCheck={true}
+          onInput={e => {
+            const value = (e.target as HTMLElement).innerHTML;
+            setInputValue(value);
+            onChange(line.id, value);
+          }}
+          onKeyDown={handleDivKeyDown}
+          onContextMenu={handleContextMenu}
+          dangerouslySetInnerHTML={undefined}
+        >
+          <span dangerouslySetInnerHTML={{ __html: inputValue }} />
+          {showMenu && menuPos && ReactDOM.createPortal(
+            <div
+              className="fixed z-50 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded shadow-md flex gap-1 p-1"
+              style={{ left: menuPos.x, top: menuPos.y }}
+              onMouseDown={e => e.stopPropagation()}
+            >
+              <button
+                className="px-2 py-1 rounded hover:bg-primary/20 font-bold"
+                onClick={() => handleMenuAction("bold")}
+                type="button"
+              >
+                B
+              </button>
+              <button
+                className="px-2 py-1 rounded hover:bg-primary/20 italic"
+                onClick={() => handleMenuAction("italic")}
+                type="button"
+              >
+                I
+              </button>
+              <button
+                className="px-2 py-1 rounded hover:bg-primary/20 underline"
+                onClick={() => handleMenuAction("underline")}
+                type="button"
+              >
+                U
+              </button>
+            </div>,
+            document.body
+          )}
+        </div>
+      ) : line.type === "heading1" || line.type === "heading2" || line.type === "heading3" || line.type === "list" || line.type === "link" ? (
         <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
           {line.type === "list" && <span style={{ marginRight: 8, color: "#666" }}>•</span>}
           <input
