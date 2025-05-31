@@ -2,13 +2,11 @@ import React from "react";
 import { NoteLine, NoteLineType } from "./note-line.types";
 import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
-import { Plus, Trash2, ClipboardCopy, Save } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteLinesDndTreeContext } from "./note-lines-dnd-context";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 // import { arrayMove } from "array-move";
-
-console.log('FILE NOTE-LINES-EDITOR');
 
 // Простая реализация arrayMove для перестановки элементов
 function arrayMove<T>(array: T[], from: number, to: number): T[] {
@@ -21,7 +19,6 @@ function arrayMove<T>(array: T[], from: number, to: number): T[] {
 interface NoteLinesEditorProps {
   lines: NoteLine[];
   onChange: (lines: NoteLine[]) => void;
-  onSave?: () => void;
 }
 
 // Новый buildTree с SortableContext на каждом уровне
@@ -37,6 +34,7 @@ function buildTree(
   const children = lines
     .filter((line) => line.parentId === parentId)
     .sort((a, b) => a.order - b.order);
+  if (children.length === 0) return null;
   return (
     <SortableContext items={children.map(l => l.id)} strategy={verticalListSortingStrategy}>
       {children.map(line => (
@@ -100,34 +98,10 @@ function canNest(
   return true;
 }
 
-// Функция для преобразования lines в Markdown
-function linesToMarkdown(lines: NoteLine[], parentId: string | null = null, level = 0): string {
-  return lines
-    .filter(l => l.parentId === parentId)
-    .sort((a, b) => a.order - b.order)
-    .map(l => {
-      let prefix = "";
-      if (l.type === "heading1") prefix = "# ";
-      else if (l.type === "heading2") prefix = "## ";
-      else if (l.type === "heading3") prefix = "### ";
-      else if (l.type === "list") prefix = "- ";
-      else if (l.type === "todo") prefix = l.checked ? "- [x] " : "- [ ] ";
-      else if (l.type === "quote") prefix = "> ";
-      else if (l.type === "code") prefix = "```\n";
-      else prefix = level > 0 ? "  ".repeat(level) + "- " : "";
-      let content = l.content || "";
-      if (l.type === "code") content = content + "\n```";
-      return prefix + content + "\n" + linesToMarkdown(lines, l.id, level + 1);
-    })
-    .join("");
-}
-
 export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
   lines,
   onChange,
-  onSave,
 }) => {
-  console.log('RENDER NoteLinesEditor');
   // Всегда сортируем по order
   const sortedLines = [...lines].sort((a, b) => a.order - b.order);
 
@@ -338,15 +312,6 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     newLines.splice(insertIdx, 0, movedLine);
     // Пересчитываем order для всех
     newLines = newLines.map((line, idx) => ({ ...line, order: idx }));
-    console.log('handleMove', {
-      sourceId,
-      newParentId,
-      position,
-      movedLine,
-      siblings: siblings.map(l => l.id),
-      insertIdx,
-      result: newLines.map(l => ({id: l.id, parentId: l.parentId, order: l.order, content: l.content}))
-    });
     onChange(newLines);
   };
 
@@ -418,39 +383,9 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     handleDelete
   );
 
-  // Состояние для копирования
-  const [copied, setCopied] = React.useState(false);
-
   return (
     <>
-      {/* Top bar */}
-      <div className="flex items-center gap-2 mb-4 p-2 bg-muted rounded-lg sticky top-0 z-10">
-        <button
-          type="button"
-          className="flex items-center gap-1 px-3 py-1 rounded bg-primary text-white hover:bg-primary/90 transition"
-          onClick={onSave ? onSave : () => onChange([...lines])}
-        >
-          <Save size={16} /> Сохранить
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-1 px-3 py-1 rounded bg-secondary text-gray-900 dark:text-gray-100 hover:bg-secondary/80 transition"
-          onClick={() => {
-            const md = linesToMarkdown(lines);
-            navigator.clipboard.writeText(md);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1200);
-          }}
-        >
-          <ClipboardCopy size={16} /> {copied ? "Скопировано!" : "Копировать MD"}
-        </button>
-      </div>
-      <NoteLinesDndTreeContext lines={sortedLines} onMove={handleMove}
-        onChange={handleChange}
-        onTypeChange={handleTypeChange}
-        onKeyDown={handleKeyDown}
-        onDelete={handleDelete}
-      >
+      <NoteLinesDndTreeContext lines={sortedLines} onMove={handleMove}>
         {renderContent()}
       </NoteLinesDndTreeContext>
       

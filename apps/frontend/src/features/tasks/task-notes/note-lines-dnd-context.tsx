@@ -127,6 +127,20 @@ function NoteLinesDndTreeContextInner({
     onMove(sourceId, parentId, newIndex);
   };
 
+  // Чистый компонент для DragOverlay (без хуков DnD)
+  function PureNoteLineBranch({ line, lines, level = 0 }: { line: NoteLine, lines: NoteLine[], level?: number }) {
+    return (
+      <div style={{ marginLeft: level * 24, padding: 4, background: '#f7f7fa', borderRadius: 6, minWidth: 220, marginBottom: 2 }}>
+        <div style={{ fontWeight: line.type?.startsWith('heading') ? 600 : 400, fontSize: line.type === 'heading1' ? 20 : line.type === 'heading2' ? 17 : 15 }}>
+          {line.content}
+        </div>
+        {lines.filter(l => l.parentId === line.id).map(child => (
+          <PureNoteLineBranch key={child.id} line={child} lines={lines} level={level + 1} />
+        ))}
+      </div>
+    );
+  }
+
   // Рендерим DndContext и SortableContext для всех элементов
   return (
     <DndTreeContext.Provider value={{ activeId, lines }}>

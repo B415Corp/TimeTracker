@@ -198,7 +198,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
     setTypeMenuIndex(0);
     onTypeChange(line.id, type);
     if (inputValue.startsWith("/")) {
-      const clean = inputValue.replace(/^\/+/, "");
+      const clean = inputValue.replace(/^\/+/,'');
       onChange(line.id, clean);
       setInputValue(clean);
     }
