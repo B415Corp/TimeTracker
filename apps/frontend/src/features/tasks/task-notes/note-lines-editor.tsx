@@ -415,7 +415,10 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
         <button
           type="button"
           className="flex items-center gap-1 px-3 py-1 rounded bg-primary text-white hover:bg-primary/90 transition"
-          onClick={() => onChange([...lines])}
+          onClick={() => {
+            // Логика сохранения из старой кнопки
+            onChange([...lines]);
+          }}
         >
           <Save size={16} /> Сохранить
         </button>

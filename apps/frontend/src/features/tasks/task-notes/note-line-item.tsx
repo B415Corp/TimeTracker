@@ -224,207 +224,213 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
       style={style}
       {...attributes}
       data-line-id={line.id}
-      className="group w-full transition-colors duration-100 hover:bg-primary/10"
+      className="group w-full transition-colors duration-100 hover:bg-primary/10 flex flex-row items-center"
     >
       <span
         {...listeners}
         style={dragHandleStyle}
-        className="group-hover:opacity-100 opacity-0 transition-opacity duration-100 select-none mr-3"
+        className="group-hover:opacity-100 opacity-0 transition-opacity duration-100 select-none w-6 flex-shrink-0 flex items-center justify-center mr-2"
       >
         ⠿
       </span>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
-            {getTypeIcon(line.type)}
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {typeButtons.map(btn => (
-            <DropdownMenuItem
-              key={btn.type}
-              onClick={() => onTypeChange(line.id, btn.type)}
-              disabled={btn.type === line.type}
+      <div className="flex-1 flex flex-row items-center gap-0.5">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
+              className="mr-2 group-hover:opacity-100 opacity-0 transition-opacity duration-100"
             >
-              <span style={{ marginRight: 8 }}>{btn.icon}</span>
-              {btn.label}
+              {getTypeIcon(line.type)}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {typeButtons.map(btn => (
+              <DropdownMenuItem
+                key={btn.type}
+                onClick={() => onTypeChange(line.id, btn.type)}
+                disabled={btn.type === line.type}
+              >
+                <span style={{ marginRight: 8 }}>{btn.icon}</span>
+                {btn.label}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onDelete(line.id)} className="text-destructive focus:text-destructive">
+              <Trash2 size={16} style={{ marginRight: 8 }} /> Удалить
             </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onDelete(line.id)} className="text-destructive focus:text-destructive">
-            <Trash2 size={16} style={{ marginRight: 8 }} /> Удалить
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {showTypeMenu && (
-        <div style={{
-          position: "absolute",
-          zIndex: 10,
-          background: "#f7f7fa",
-          border: "1px solid #e5e7eb",
-          borderRadius: 8,
-          boxShadow: "0 4px 24px #0002",
-          marginLeft: 40,
-          marginTop: 4,
-          minWidth: 200,
-          color: "#222",
-          transition: 'opacity 0.2s cubic-bezier(.4,0,.2,1)',
-          fontSize: 15,
-          padding: 4,
-          animation: 'fadeIn 0.18s',
-        }}>
-          {typeButtons.map((btn, idx) => (
-            <div
-              key={btn.type}
-              style={{
-                padding: '8px 12px',
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                background: idx === typeMenuIndex ? "#e0e7ff" : undefined,
-                borderRadius: 6,
-                fontWeight: idx === typeMenuIndex ? 600 : 400,
-                color: idx === typeMenuIndex ? "#1e293b" : undefined,
-                transition: 'background 0.15s',
-              }}
-              onClick={() => handleTypeSelect(btn.type)}
-              onMouseEnter={() => setTypeMenuIndex(idx)}
-            >
-              <span style={{ marginRight: 10 }}>{btn.icon}</span> {btn.label}
-            </div>
-          ))}
-        </div>
-      )}
-      {line.type === "text" ? (
-        <div
-          ref={editableRef}
-          contentEditable
-          suppressContentEditableWarning
-          className="flex-1 outline-none min-h-[1.8em] px-1"
-          spellCheck={true}
-          onInput={e => {
-            const value = (e.target as HTMLElement).innerHTML;
-            setInputValue(value);
-            onChange(line.id, value);
-          }}
-          onKeyDown={handleDivKeyDown}
-          onContextMenu={handleContextMenu}
-          dangerouslySetInnerHTML={undefined}
-        >
-          <span dangerouslySetInnerHTML={{ __html: inputValue }} />
-          {showMenu && menuPos && ReactDOM.createPortal(
-            <div
-              className="fixed z-50 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded shadow-md flex gap-1 p-1"
-              style={{ left: menuPos.x, top: menuPos.y }}
-              onMouseDown={e => e.stopPropagation()}
-            >
-              <button
-                className="px-2 py-1 rounded hover:bg-primary/20 font-bold"
-                onClick={() => handleMenuAction("bold")}
-                type="button"
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {showTypeMenu && (
+          <div style={{
+            position: "absolute",
+            zIndex: 10,
+            background: "#f7f7fa",
+            border: "1px solid #e5e7eb",
+            borderRadius: 8,
+            boxShadow: "0 4px 24px #0002",
+            marginLeft: 40,
+            marginTop: 4,
+            minWidth: 200,
+            color: "#222",
+            transition: 'opacity 0.2s cubic-bezier(.4,0,.2,1)',
+            fontSize: 15,
+            padding: 4,
+            animation: 'fadeIn 0.18s',
+          }}>
+            {typeButtons.map((btn, idx) => (
+              <div
+                key={btn.type}
+                style={{
+                  padding: '8px 12px',
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  background: idx === typeMenuIndex ? "#e0e7ff" : undefined,
+                  borderRadius: 6,
+                  fontWeight: idx === typeMenuIndex ? 600 : 400,
+                  color: idx === typeMenuIndex ? "#1e293b" : undefined,
+                  transition: 'background 0.15s',
+                }}
+                onClick={() => handleTypeSelect(btn.type)}
+                onMouseEnter={() => setTypeMenuIndex(idx)}
               >
-                B
-              </button>
-              <button
-                className="px-2 py-1 rounded hover:bg-primary/20 italic"
-                onClick={() => handleMenuAction("italic")}
-                type="button"
-              >
-                I
-              </button>
-              <button
-                className="px-2 py-1 rounded hover:bg-primary/20 underline"
-                onClick={() => handleMenuAction("underline")}
-                type="button"
-              >
-                U
-              </button>
-            </div>,
-            document.body
-          )}
-        </div>
-      ) : line.type === "heading1" || line.type === "heading2" || line.type === "heading3" || line.type === "list" || line.type === "link" ? (
-        <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
-          {line.type === "list" && <span style={{ marginRight: 8, color: "#666" }}>•</span>}
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            style={{ 
-              flex: 1, 
-              fontWeight: line.type === "heading1" ? 700 : line.type === "heading2" ? 600 : line.type === "heading3" ? 500 : undefined,
-              fontSize: line.type === "heading1" ? "1.5em" : line.type === "heading2" ? "1.25em" : line.type === "heading3" ? "1.1em" : undefined
+                <span style={{ marginRight: 10 }}>{btn.icon}</span> {btn.label}
+              </div>
+            ))}
+          </div>
+        )}
+        {line.type === "text" ? (
+          <div
+            ref={editableRef}
+            contentEditable
+            suppressContentEditableWarning
+            className="outline-none min-h-[1.8em] px-1 flex-1"
+            spellCheck={true}
+            onInput={e => {
+              const value = (e.target as HTMLElement).innerHTML;
+              setInputValue(value);
+              onChange(line.id, value);
             }}
-            placeholder={
-              line.type === "heading1" ? "Заголовок 1..." : 
-              line.type === "heading2" ? "Заголовок 2..." : 
-              line.type === "heading3" ? "Заголовок 3..." : 
-              line.type === "list" ? "Пункт списка..." : 
-              line.type === "link" ? "Ссылка..." : "Текст..."
-            }
-          />
-        </div>
-      ) : line.type === "todo" ? (
-        <>
-          <input 
-            type="checkbox" 
-            checked={!!line.checked} 
-            onChange={(e) => {
-              const updatedLine = { ...line, checked: e.target.checked };
-              onChange(line.id, updatedLine.content || "");
-              onTypeChange(line.id, line.type);
-            }} 
-            style={{ marginRight: 8 }} 
-          />
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            style={{ flex: 1, textDecoration: line.checked ? "line-through" : "none", opacity: line.checked ? 0.6 : 1 }}
-            placeholder="Задача..."
-          />
-        </>
-      ) : line.type === "divider" ? (
-        <hr style={{ flex: 1, border: 0, borderTop: "1.5px solid #bbb", margin: "8px 0" }} />
-      ) : line.type === "code" ? (
-        <textarea
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          style={{ flex: 1, fontFamily: "monospace", background: "#f7f7f7", borderRadius: 4, minHeight: 32, padding: 4 }}
-          placeholder="Код..."
-        />
-      ) : line.type === "quote" ? (
-        <div style={{ flex: 1, borderLeft: "3px solid #bbb", paddingLeft: 12, color: "#666", fontStyle: "italic", background: "#fafafa" }}>
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            style={{ width: "100%", background: "transparent", border: "none", outline: "none" }}
-            placeholder="Цитата..."
-          />
-        </div>
-      ) : line.type === "file" ? (
-        <>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            disabled
-          />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            style={{ flex: 1, minWidth: 120, background: "#fafafa", border: "1px solid #ccc", borderRadius: 2 }}
-            disabled
+            onKeyDown={handleDivKeyDown}
+            onContextMenu={handleContextMenu}
+            dangerouslySetInnerHTML={undefined}
           >
-            Прикрепить файл (заглушка)
-          </button>
-        </>
-      ) : null}
+            <span dangerouslySetInnerHTML={{ __html: inputValue }} />
+            {showMenu && menuPos && ReactDOM.createPortal(
+              <div
+                className="fixed z-50 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded shadow-md flex gap-1 p-1"
+                style={{ left: menuPos.x, top: menuPos.y }}
+                onMouseDown={e => e.stopPropagation()}
+              >
+                <button
+                  className="px-2 py-1 rounded hover:bg-primary/20 font-bold"
+                  onClick={() => handleMenuAction("bold")}
+                  type="button"
+                >
+                  B
+                </button>
+                <button
+                  className="px-2 py-1 rounded hover:bg-primary/20 italic"
+                  onClick={() => handleMenuAction("italic")}
+                  type="button"
+                >
+                  I
+                </button>
+                <button
+                  className="px-2 py-1 rounded hover:bg-primary/20 underline"
+                  onClick={() => handleMenuAction("underline")}
+                  type="button"
+                >
+                  U
+                </button>
+              </div>,
+              document.body
+            )}
+          </div>
+        ) : line.type === "heading1" || line.type === "heading2" || line.type === "heading3" || line.type === "list" || line.type === "link" ? (
+          <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+            {line.type === "list" && <span style={{ marginRight: 8, color: "#666" }}>•</span>}
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              style={{ 
+                flex: 1, 
+                fontWeight: line.type === "heading1" ? 700 : line.type === "heading2" ? 600 : line.type === "heading3" ? 500 : undefined,
+                fontSize: line.type === "heading1" ? "1.5em" : line.type === "heading2" ? "1.25em" : line.type === "heading3" ? "1.1em" : undefined
+              }}
+              placeholder={
+                line.type === "heading1" ? "Заголовок 1..." : 
+                line.type === "heading2" ? "Заголовок 2..." : 
+                line.type === "heading3" ? "Заголовок 3..." : 
+                line.type === "list" ? "Пункт списка..." : 
+                line.type === "link" ? "Ссылка..." : "Текст..."
+              }
+            />
+          </div>
+        ) : line.type === "todo" ? (
+          <>
+            <input 
+              type="checkbox" 
+              checked={!!line.checked} 
+              onChange={(e) => {
+                const updatedLine = { ...line, checked: e.target.checked };
+                onChange(line.id, updatedLine.content || "");
+                onTypeChange(line.id, line.type);
+              }} 
+              style={{ marginRight: 8 }} 
+            />
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              style={{ flex: 1, textDecoration: line.checked ? "line-through" : "none", opacity: line.checked ? 0.6 : 1 }}
+              placeholder="Задача..."
+            />
+          </>
+        ) : line.type === "divider" ? (
+          <hr style={{ flex: 1, border: 0, borderTop: "1.5px solid #bbb", margin: "8px 0" }} />
+        ) : line.type === "code" ? (
+          <textarea
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            style={{ flex: 1, fontFamily: "monospace", background: "#f7f7f7", borderRadius: 4, minHeight: 32, padding: 4 }}
+            placeholder="Код..."
+          />
+        ) : line.type === "quote" ? (
+          <div style={{ flex: 1, borderLeft: "3px solid #bbb", paddingLeft: 12, color: "#666", fontStyle: "italic", background: "#fafafa" }}>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              style={{ width: "100%", background: "transparent", border: "none", outline: "none" }}
+              placeholder="Цитата..."
+            />
+          </div>
+        ) : line.type === "file" ? (
+          <>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              disabled
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              style={{ flex: 1, minWidth: 120, background: "#fafafa", border: "1px solid #ccc", borderRadius: 2 }}
+              disabled
+            >
+              Прикрепить файл (заглушка)
+            </button>
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }; 
