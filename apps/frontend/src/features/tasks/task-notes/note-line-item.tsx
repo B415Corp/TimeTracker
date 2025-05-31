@@ -21,6 +21,7 @@ interface NoteLineItemProps {
   onTypeChange: (id: string, type: NoteLineType) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onDelete: (id: string) => void;
+  dragOverlay?: boolean;
   isDragging?: boolean;
   dragOverId?: string | null;
   insertPosition?: 'before' | 'after';
@@ -44,17 +45,79 @@ function getTypeIcon(type: NoteLineType) {
   return typeButtons.find(btn => btn.type === type)?.icon ?? <AlignLeft size={16} />;
 }
 
+function isDescendant(lines: NoteLine[], parentId: string | null, id: string): boolean {
+  if (!parentId) return false;
+  let curr = lines.find(l => l.id === id);
+  while (curr) {
+    if (curr.parentId === parentId) return true;
+    if (!curr.parentId) break;
+    curr = lines.find(l => l.id === curr.parentId);
+  }
+  return false;
+}
+
+function getDescendantIds(lines: NoteLine[], id: string): string[] {
+  const children = lines.filter(l => l.parentId === id);
+  return children.reduce<string[]>(
+    (acc, child) => [...acc, child.id, ...getDescendantIds(lines, child.id)],
+    []
+  );
+}
+
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
-  const { line, level, onChange, onTypeChange, onKeyDown, onDelete } = props;
+  const { line, level, onChange, onTypeChange, onKeyDown, onDelete, dragOverlay } = props;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging, over } = useSortable({ id: line.id });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [inputValue, setInputValue] = useState(line.content);
   const [typeMenuIndex, setTypeMenuIndex] = useState(0);
-  const { activeId } = useDndTreeContext();
+  const { activeId, lines } = useDndTreeContext();
 
+  // Скрывать элемент, если он входит в перемещаемую ветку (кроме DragOverlay)
+  let hide = false;
+  if (!dragOverlay && activeId) {
+    if (line.id === activeId) hide = true;
+    else {
+      const descendantIds = getDescendantIds(lines, activeId);
+      if (descendantIds.includes(line.id)) hide = true;
+    }
+  }
+  if (hide) return null;
+
+  // Получаем все строки из props через context или пробрасываем
+  // Для простоты используем window (можно заменить на context, если нужно)
+  const allLines = (window as any).__NOTE_LINES__ || [];
+
+  // Является ли этот элемент потомком активного dnd
+  const isChildOfActive = activeId && isDescendant(allLines, activeId, line.id);
+  const isActiveDnd = isDragging || activeId === line.id || isChildOfActive;
+
+  // Цвета для темной/светлой темы через CSS-переменные
+  const primaryColor = 'var(--primary, #2563eb)';
+  const dropBg = 'var(--dnd-drop-bg, rgba(37,99,235,0.18))';
+  const dragBg = 'var(--dnd-drag-bg, rgba(80,80,100,0.18))';
+  const overBg = 'var(--dnd-over-bg, rgba(37,99,235,0.22))';
+
+  // Подсветка области дропа
   const isOver = over?.id === line.id && !isDragging;
-  const isActiveDnd = isDragging || activeId === line.id;
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: isActiveDnd ? transition : undefined,
+    opacity: isActiveDnd ? 0.5 : 1,
+    marginLeft: level * 24,
+    background: isOver ? overBg : isActiveDnd ? dragBg : undefined,
+    borderRadius: 6,
+    position: 'relative' as const,
+    minHeight: 36,
+    display: 'flex',
+    alignItems: 'center',
+    zIndex: isDragging ? 10 : 1,
+    boxShadow: isActiveDnd ? `0 2px 12px ${primaryColor}22` : undefined,
+    marginBottom: 2,
+    transitionProperty: isActiveDnd ? 'background, box-shadow, opacity, transform' : undefined,
+    transitionDuration: isActiveDnd ? '120ms' : undefined,
+  };
 
   const dragHandleStyle = {
     cursor: "grab",
@@ -64,47 +127,6 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
     userSelect: "none" as const,
     display: "flex",
     alignItems: "center"
-  };
-
-  const nestingLine = level > 0 ? (
-    <div style={{
-      position: "absolute",
-      left: 0,
-      top: 0,
-      bottom: 0,
-      width: 8,
-      borderLeft: "2px solid #e0e7ef",
-      marginLeft: (level - 1) * 24 + 12,
-      zIndex: 0
-    }} />
-  ) : null;
-
-  // Цвета для темной/светлой темы через CSS-переменные
-  const primaryColor = 'var(--primary, #2563eb)';
-  const borderColor = 'var(--border, #444c5e)';
-  const dropBg = 'var(--dnd-drop-bg, rgba(37,99,235,0.18))';
-  const dragBg = 'var(--dnd-drag-bg, rgba(80,80,100,0.18))';
-  const dragBorder = 'var(--dnd-drag-border, #3b82f6)';
-  const overBorder = 'var(--dnd-over-border, #2563eb)';
-  const overBg = 'var(--dnd-over-bg, rgba(37,99,235,0.22))';
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition: isActiveDnd ? transition : undefined,
-    opacity: isDragging ? 0.5 : 1,
-    marginLeft: level * 24,
-    background: isOver ? overBg : isDragging ? dragBg : undefined,
-    border: isOver ? `2px solid ${overBorder}` : isDragging ? `2px solid ${dragBorder}` : `2px solid ${borderColor}`,
-    borderRadius: 6,
-    position: 'relative' as const,
-    minHeight: 36,
-    display: 'flex',
-    alignItems: 'center',
-    zIndex: isDragging ? 10 : 1,
-    boxShadow: isDragging ? `0 2px 12px ${primaryColor}22` : undefined,
-    marginBottom: 2,
-    transitionProperty: isActiveDnd ? 'background, border, box-shadow, opacity, transform' : undefined,
-    transitionDuration: isActiveDnd ? '120ms' : undefined,
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -162,9 +184,20 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} data-line-id={line.id}>
-      {nestingLine}
-      <span {...listeners} style={dragHandleStyle}>⠿</span>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      data-line-id={line.id}
+      className="group w-full transition-colors duration-100 hover:bg-primary/10"
+    >
+      <span
+        {...listeners}
+        style={dragHandleStyle}
+        className="group-hover:opacity-100 opacity-0 transition-opacity duration-100 select-none"
+      >
+        ⠿
+      </span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
