@@ -1,133 +1,163 @@
-# План реализации прикрепления файлов к заметкам
+# План добавления файлов к заметкам
 
-## ✅ Общие требования
-- [ ] Максимальный размер файла: 25MB
-- [ ] Поддерживаемые форматы: .pdf, .doc, .docx, .png, .jpg, .jpeg
-- [ ] Прогресс-бар загрузки
-- [ ] Валидация на клиенте и сервере
+## Бэкенд
 
-## 🔧 Бэкенд
-
-### 1. Модель данных (3 часа)
+### Сущности
+- [ ] Создать `apps/backend/src/entities/file.entity.ts`:
 ```typescript
-// apps/backend/src/entities/file.entity.ts
 @Entity()
 export class File {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  name: string; // Оригинальное имя файла
+  name: string;
 
   @Column({ type: 'bigint' })
-  size: number; // Размер в байтах
+  size: number;
 
   @Column()
-  storageKey: string; // Путь в S3/локальном хранилище
+  storageKey: string;
 
   @Column()
-  mimeType: string; // Тип содержимого
+  mimeType: string;
 
-  @ManyToOne(() => Note, (note) => note.files)
+  @CreateDateColumn()
+  uploadedAt: Date;
+
+  @ManyToOne(() => Note, (note) => note.files, { onDelete: 'CASCADE' })
   note: Note;
 }
 ```
-- [ ] Добавить связь OneToMany в `Note` сущность (`apps/backend/src/entities/note.entity.ts`)
-- [ ] Создать миграцию для добавления таблицы `file`
-- [ ] Добавить индексы для оптимизации запросов по `noteId`
 
-### 2. API (6 часов)
-| Метод  | Путь                                      | Описание                               |
-|--------|-------------------------------------------|----------------------------------------|
-| POST   | `/api/v1/notes/{noteId}/files`           | Загрузка файла (multipart/form-data)  |
-| GET    | `/api/v1/notes/{noteId}/files`           | Получение списка файлов для заметки   |
-| DELETE | `/api/v1/notes/{noteId}/files/{fileId}`  | Удаление файла                         |
+- [ ] Обновить `apps/backend/src/entities/note.entity.ts`:
+```typescript
+@OneToMany(() => File, (file) => file.note)
+files: File[];
+```
 
-- [ ] Реализовать `FileController` (`apps/backend/src/api/notes/file.controller.ts`)
-- [ ] Реализовать `FileService` (`apps/backend/src/api/notes/file.service.ts`)
-- [ ] Добавить валидацию входящих файлов (размер, тип) с помощью `@nestjs/common` и `class-validator`
-- [ ] Интегрировать с логикой хранения файлов
-- [ ] Обеспечить авторизацию доступа (использование Guards)
+### DTO
+- [ ] Создать `apps/backend/src/api/notes/dto/file.dto.ts`:
+```typescript
+export class FileDto {
+  id: string;
+  name: string;
+  size: number;
+  storageKey: string;
+  mimeType: string;
+  uploadedAt: string;
+}
+
+export class UploadFileDto {
+  @IsNotEmpty()
+  file: Express.Multer.File;
+}
+```
+
+### API
+- [ ] Создать `apps/backend/src/api/notes/file.service.ts`:
+```typescript
+@Injectable()
+export class FileService {
+  uploadFile(noteId: string, file: Express.Multer.File): Promise<FileDto>
+  getFiles(noteId: string): Promise<FileDto[]>
+  deleteFile(fileId: string): Promise<void>
+  validateFile(file: Express.Multer.File): boolean
+}
+```
+
+- [ ] Создать `apps/backend/src/api/notes/file.controller.ts`:
+```typescript
+@Controller('notes/:noteId/files')
+export class FileController {
+  @Post()
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@Param('noteId') noteId: string, @UploadedFile() file: Express.Multer.File)
+
+  @Get()
+  getFiles(@Param('noteId') noteId: string)
+
+  @Delete(':fileId')
+  deleteFile(@Param('fileId') fileId: string)
+}
+```
+
+- [ ] Настроить multer middleware для загрузки файлов
+- [ ] Добавить валидацию: макс 25MB, типы: pdf, doc, docx, png, jpg, jpeg
+- [ ] Обновить `notes.module.ts` (добавить FileService, FileController)
+
+### Хранилище
+- [ ] Добавить в `.env`:
+```
+UPLOAD_PATH=./uploads
+MAX_FILE_SIZE=26214400
+```
+- [ ] Создать папку `/uploads` в корне бэкенда
+- [ ] Логика сохранения: `/uploads/{noteId}/{uuid}.ext`
+
+## Фронтенд
+
+### Компоненты UI
+- [ ] Создать `apps/frontend/src/components/ui/file-uploader.tsx`:
+```typescript
+interface FileUploaderProps {
+  noteId: string;
+  onUpload: (file: FileDto) => void;
+  maxSize?: number;
+  accept?: string;
+}
+```
+
+- [ ] Создать `apps/frontend/src/components/ui/file-list.tsx`:
+```typescript
+interface FileListProps {
+  files: FileDto[];
+  onDelete: (fileId: string) => void;
+}
+```
+
+- [ ] Создать `apps/frontend/src/components/ui/file-item.tsx`:
+```typescript
+interface FileItemProps {
+  file: FileDto;
+  onDelete: (fileId: string) => void;
+}
+```
+
+### API Service
+- [ ] Обновить `apps/frontend/src/shared/api/notes.service.ts`:
+```typescript
+export const notesApi = {
+  // существующие методы...
+  
+  uploadFile: (noteId: string, file: File): Promise<FileDto> => 
+    axios.post(`/api/v1/notes/${noteId}/files`, formData),
+    
+  getFiles: (noteId: string): Promise<FileDto[]> => 
+    axios.get(`/api/v1/notes/${noteId}/files`),
+    
+  deleteFile: (noteId: string, fileId: string): Promise<void> => 
+    axios.delete(`/api/v1/notes/${noteId}/files/${fileId}`)
+}
+```
+
+### Интеграция
+- [ ] Найти компонент заметки (NoteCard или similar)
+- [ ] Добавить FileUploader и FileList в компонент заметки
+- [ ] Реализовать drag-and-drop функциональность
+- [ ] Добавить progress bar для загрузки
+- [ ] Обработка ошибок через notistack
+
+## Миграция
+- [ ] Создать миграцию для таблицы `files`
+- [ ] Добавить индекс на `note_id`
+
+## Тестирование
+- [ ] Backend: юнит-тесты FileService
+- [ ] Frontend: тесты компонентов
+- [ ] E2E: загрузка, отображение, удаление файлов
+
+## Финальные шаги
 - [ ] Обновить Swagger документацию
-
-### 3. Хранилище (4 часа)
-- [ ] Настроить локальное хранилище для разработки (`/uploads/{noteId}/{fileId}.ext`)
-- [ ] Настроить S3 для продакшена:
-  - [ ] Создать S3 Bucket (например, `timetracker-files-prod`)
-  - [ ] Настроить IAM пользователя/роль с минимальными правами (PutObject, GetObject, DeleteObject)
-  - [ ] Реализовать логику сохранения файлов с уникальным именем (UUID) и путем (`{noteId}/{uuid}.ext`)
-  - [ ] Добавить конфигурацию в `.env` (S3 keys, bucket name)
-- [ ] Обработка временных файлов после загрузки
-
-## 🖥️ Фронтенд
-
-### 1. Компоненты (8 часов)
-- [ ] Создать компонент `FileUploader` (`apps/frontend/src/components/ui/file-uploader.tsx`)
-  - [ ] UI для drag-and-drop и выбора файла через кнопку
-  - [ ] Отображение выбранных файлов перед загрузкой
-  - [ ] Валидация размера и типа файла на клиенте
-  - [ ] Индикация прогресса загрузки
-  - [ ] Обработка ошибок валидации (уведомления Notistack)
-- [ ] Создать компонент `FileList` (`apps/frontend/src/components/ui/file-list.tsx`)
-  - [ ] Отображение списка прикрепленных файлов (имя, размер, иконка)
-  - [ ] Кнопка для скачивания файла
-  - [ ] Кнопка для удаления файла
-- [ ] Создать компонент `FileItem` (`apps/frontend/src/components/ui/file-list/file-item.tsx`)
-  - [ ] Отображение одного файла в списке
-  - [ ] Логика скачивания и удаления
-
-### 2. Интеграция с API и логика (4 часа)
-- [ ] Добавить методы для работы с файлами в `notes.service.ts` (`apps/frontend/src/shared/api/notes.service.ts`)
-  - [ ] `uploadFile(noteId: string, file: File): Promise<FileDto>`
-  - [ ] `getFiles(noteId: string): Promise<FileDto[]>`
-  - [ ] `deleteFile(noteId: string, fileId: string): Promise<void>`
-- [ ] Использовать `axios` для HTTP запросов
-- [ ] Интегрировать `FileUploader` и `FileList` в компонент `NoteCard` или соответствующий виджет заметок
-- [ ] Обработка состояний загрузки, ошибок и успешного завершения
-- [ ] Отображение уведомлений Notistack при ошибках API
-
-## 🧪 Тестирование (5 часов)
-
-### Бэкенд
-- [ ] Юнит-тесты для `FileService` (загрузка, удаление)
-- [ ] Интеграционные тесты для `FileController` и роутов
-- [ ] Тестирование валидации (размер, тип)
-- [ ] Тестирование авторизации доступа
-
-### Фронтенд
-- [ ] Компонентные тесты для `FileUploader`, `FileList`, `FileItem`
-- [ ] Интеграционные тесты сервиса `notes.service.ts` (мокирование API)
-- [ ] E2E тесты (Playwright):
-  - [ ] Успешная загрузка файла через drag-and-drop
-  - [ ] Успешная загрузка файла через диалог выбора
-  - [ ] Попытка загрузки файла больше 25MB (проверка ошибки)
-  - [ ] Попытка загрузки файла неподдерживаемого типа (проверка ошибки)
-  - [ ] Удаление файла из списка
-  - [ ] Проверка отображения списка файлов после загрузки/удаления
-
-## 📚 Документация (3 часа)
-- [ ] Обновить `NOTES_HIERARCHY_DOCS.md` с описанием новой функциональности прикрепления файлов
-- [ ] Добавить примеры использования в `FRONTEND_NOTES_INTEGRATION.md`
-
-## 📅 График
-| Этап             | Подзадачи                                                               | Оценка (часы) | Статус |
-|------------------|-------------------------------------------------------------------------|---------------|--------|
-| **Бэкенд**       | Модель данных, API, Хранилище                                          | 13            | [ ]    |
-| **Фронтенд**     | Компоненты FileUploader/FileList, Интеграция с API, Логика            | 12            | [ ]    |
-| **Тестирование** | Юнит-, Интеграционные, E2E тесты                                       | 5             | [ ]    |
-| **Документация** | Обновление `NOTES_HIERARCHY_DOCS.md`, `FRONTEND_NOTES_INTEGRATION.md` | 3             | [ ]    |
-| **Деплой**       | Сборка, настройка окружения prod (S3), проверка работы                | 2             | [ ]    |
-| **Всего:**       |                                                                         | **35**        |        |
-
-## ⚠️ Риски
-| Риск                                      | Вероятность | Влияние | Mitigation                                                                   |
-|-------------------------------------------|-------------|---------|------------------------------------------------------------------------------|
-| Перегрузка сервера при массовой загрузке | Средняя     | Высокое | Ограничение на количество одновременных загрузок, настройка Nginx лимитов   |
-| Ошибки очистки временных файлов          | Низкая      | Среднее | Использование библиотек для загрузки с автоматической очисткой, мониторинг  |
-| XSS через имена файлов                   | Низкая      | Среднее | Санитизация имен файлов при отображении, проверка mimeType                  |
-| Проблемы с доступом к S3                 | Средняя     | Высокое | Двойная проверка IAM политик, тестирование в dev/staging окружении          |
-
-## 🔗 Связанные документы
-- [Feature-Sliced Design](docs/architecture/frontend.md)
-- [NestJS модули](docs/architecture/backend.md)
-- [Политика хранения файлов](docs/storage-policy.md) (Необходимо создать) 
+- [ ] Проверить работу в dev окружении
+- [ ] Commit и push изменений 
