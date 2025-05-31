@@ -35,7 +35,6 @@ function buildTree(
   const children = lines
     .filter((line) => line.parentId === parentId)
     .sort((a, b) => a.order - b.order);
-  if (children.length === 0) return null;
   return (
     <SortableContext items={children.map(l => l.id)} strategy={verticalListSortingStrategy}>
       {children.map(line => (

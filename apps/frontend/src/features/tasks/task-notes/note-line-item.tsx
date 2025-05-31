@@ -48,12 +48,11 @@ function getTypeIcon(type: NoteLineType) {
 
 function isDescendant(lines: NoteLine[], parentId: string | null, id: string): boolean {
   if (!parentId) return false;
-  let curr = lines.find(l => l.id === id);
+  let curr: NoteLine | undefined = lines.find(l => l.id === id);
   while (curr) {
     if (curr.parentId === parentId) return true;
     if (!curr.parentId) break;
     curr = lines.find(l => l.id === curr.parentId);
-    if (!curr) break;
   }
   return false;
 }
@@ -87,7 +86,16 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
       if (descendantIds.includes(line.id)) hide = true;
     }
   }
-  if (hide) return null;
+  if (hide) {
+    // Возвращаем скрытый div вместо null, чтобы не нарушать порядок хуков
+    return (
+      <div
+        ref={setNodeRef}
+        style={{ display: "none" }}
+        data-line-id={line.id}
+      />
+    );
+  }
 
   // Получаем все строки из props через context или пробрасываем
   // Для простоты используем window (можно заменить на context, если нужно)
@@ -429,7 +437,7 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
               Прикрепить файл (заглушка)
             </button>
           </>
-        ) : null}
+        ) : <div style={{display:'none'}} />}
       </div>
     </div>
   );

@@ -120,7 +120,7 @@ export const NoteLinesDndTreeContext: React.FC<NoteLinesDndTreeContextProps> = (
           {children}
         </SortableContext>
         <DragOverlay dropAnimation={null}>
-          {activeId && draggedLine ? renderBranch(draggedLine, lines) : null}
+          {activeId && draggedLine ? renderBranch(draggedLine, lines) : <div style={{display:'none'}} />}
         </DragOverlay>
       </DndContext>
     </DndTreeContext.Provider>
