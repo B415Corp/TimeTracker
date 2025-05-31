@@ -1,189 +1,126 @@
-console.log('FILE NOTE-LINES-DND-CONTEXT');
-
-import React, { createContext, useContext } from "react";
+import React from "react";
 import {
   DndContext,
   closestCenter,
+  closestCorners,
+  pointerWithin,
   PointerSensor,
   useSensor,
   useSensors,
   DragEndEvent,
+  DragMoveEvent,
   DragStartEvent,
-  DragOverlay,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
 } from "@dnd-kit/sortable";
-import { NoteLine, NoteLineType } from "./note-line.types";
-import { SortableNoteLineItem } from "./note-line-item";
+import { NoteLine } from "./note-line.types";
 
-interface NoteLinesDndTreeContextProps {
+interface NoteLinesDndContextProps {
   lines: NoteLine[];
-  onMove: (sourceId: string, destinationId: string | null, position: number) => void;
-  children: React.ReactNode;
-  onChange: (id: string, value: string) => void;
-  onTypeChange: (id: string, type: NoteLineType) => void;
-  onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void;
-  onDelete: (id: string) => void;
+  onMove: (oldIndex: number, newIndex: number, newParentId?: string | null) => void;
+  onDragMove?: (offsetX: number, offsetY?: number) => void;
+  children: (props: { 
+    isDragging: boolean; 
+    dragOverId: string | null;
+    insertPosition?: 'before' | 'after';
+  }) => React.ReactNode;
 }
 
-interface DndTreeContextValue {
-  activeId: string | null;
-  lines: NoteLine[];
-}
-const DndTreeContext = createContext<DndTreeContextValue>({ activeId: null, lines: [] });
-export const useDndTreeContext = () => useContext(DndTreeContext);
-
-// Вспомогательная функция для построения дерева из flat массива
-function buildTree(lines: NoteLine[], parentId: string | null = null): NoteLine[] {
-  return lines
-    .filter((line) => line.parentId === parentId)
-    .map((line) => ({
-      ...line,
-      children: buildTree(lines, line.id),
-    }));
-}
-
-// Вспомогательная функция для поиска по id
-function findLineById(lines: NoteLine[], id: string): NoteLine | undefined {
-  return lines.find((l) => l.id === id);
-}
-
-class DndErrorBoundary extends React.Component<{children: React.ReactNode}, {error: any}> {
-  constructor(props: any) {
-    super(props);
-    this.state = { error: null };
-  }
-  static getDerivedStateFromError(error: any) {
-    return { error };
-  }
-  componentDidCatch(error: any, info: any) {
-    console.log('DND_ERROR_BOUNDARY', error, info);
-  }
-  render() {
-    if (this.state.error) {
-      return <div style={{color:'red'}}>DND ERROR: {String(this.state.error)}</div>;
-    }
-    return this.props.children;
-  }
-}
-
-// Собрать ветку для DragOverlay
-export function NoteLinesDndTreeContext(props: NoteLinesDndTreeContextProps) {
-  return (
-    <DndErrorBoundary>
-      <NoteLinesDndTreeContextInner {...props} />
-    </DndErrorBoundary>
-  );
-}
-
-function NoteLinesDndTreeContextInner({
-  lines,
-  onMove,
-  children,
-  onChange,
-  onTypeChange,
-  onKeyDown,
-  onDelete,
-}: NoteLinesDndTreeContextProps) {
-  console.log('RENDER NoteLinesDndTreeContext');
+export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines, onMove, onDragMove, children }) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  // Состояния для dnd
-  const [activeId, setActiveId] = React.useState<string | null>(null);
-  const [draggedLine, setDraggedLine] = React.useState<NoteLine | null>(null);
+  // Простое состояние для отслеживания перетаскивания
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragOverId, setDragOverId] = React.useState<string | null>(null);
+  const [insertPosition, setInsertPosition] = React.useState<'before' | 'after'>('after');
 
-  console.log('RENDER NoteLinesDndTreeContext', {linesCount: lines.length});
-
-  // Обработка начала перетаскивания
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-    const line = findLineById(lines, event.active.id as string);
-    if (line) {
-      setDraggedLine(line);
+    setIsDragging(true);
+    console.log('Drag started:', event.active.id);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    console.log('handleDragEnd:', { activeId: active.id, overId: over?.id });
+    
+    // Скрываем индикаторы
+    setIsDragging(false);
+    setDragOverId(null);
+    setInsertPosition('after');
+    
+    if (active.id !== over?.id && over?.id) {
+      const oldIndex = lines.findIndex(l => l.id === active.id);
+      const newIndex = lines.findIndex(l => l.id === over?.id);
+      
+      console.log('DND indices:', { oldIndex, newIndex });
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        onMove(oldIndex, newIndex);
+      }
     }
   };
 
-  // Обработка завершения перетаскивания
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-    setDraggedLine(null);
-    if (!over || active.id === over.id) return;
-    // Определяем позицию и родителя
-    const destinationId = over.id as string;
-    const sourceId = active.id as string;
-    // Для простоты: вставляем в того же родителя, что и over
-    const overLine = findLineById(lines, destinationId);
-    const parentId = overLine?.parentId ?? null;
-    const siblings = lines.filter((l) => l.parentId === parentId);
-    const newIndex = siblings.findIndex((l) => l.id === destinationId);
-    console.log('DnD handleDragEnd', {sourceId, destinationId, parentId, newIndex, siblings: siblings.map(s=>s.id)});
-    onMove(sourceId, parentId, newIndex);
+  const handleDragMove = (event: DragMoveEvent) => {
+    if (onDragMove && event.delta) {
+      onDragMove(event.delta.x, event.delta.y);
+    }
+    
+    // Просто отслеживаем над каким элементом находимся
+    if (event.over?.id && event.active?.id !== event.over?.id) {
+      const newDragOverId = event.over.id as string;
+      
+      // Определяем позицию вставки на основе индексов
+      const activeIndex = lines.findIndex(l => l.id === event.active?.id);
+      const overIndex = lines.findIndex(l => l.id === newDragOverId);
+      
+      // Если перетаскиваем сверху вниз - вставляем после, снизу вверх - перед
+      const insertPos = activeIndex < overIndex ? 'after' : 'before';
+      
+      console.log('DragMove over element:', {
+        activeId: event.active?.id,
+        overId: newDragOverId,
+        activeIndex,
+        overIndex,
+        insertPosition: insertPos,
+        previousDragOverId: dragOverId
+      });
+      
+      // Находим линию чтобы понять её уровень
+      const overLine = lines.find(l => l.id === newDragOverId);
+      const activeLine = lines.find(l => l.id === event.active?.id);
+      
+      console.log('Lines info:', {
+        overLine: overLine ? { id: overLine.id, content: overLine.content, parentId: overLine.parentId } : null,
+        activeLine: activeLine ? { id: activeLine.id, content: activeLine.content, parentId: activeLine.parentId } : null
+      });
+      
+      setDragOverId(newDragOverId);
+      setInsertPosition(insertPos);
+    } else {
+      if (dragOverId !== null) {
+        console.log('Clearing dragOverId');
+      }
+      setDragOverId(null);
+      setInsertPosition('after');
+    }
   };
 
-  // Чистый компонент для DragOverlay (без хуков DnD)
-  function PureNoteLineBranch({ line, lines, level = 0 }: { line: NoteLine, lines: NoteLine[], level?: number }) {
-    return (
-      <div style={{ marginLeft: level * 24, padding: 4, background: '#f7f7fa', borderRadius: 6, minWidth: 220, marginBottom: 2 }}>
-        <div style={{ fontWeight: line.type?.startsWith('heading') ? 600 : 400, fontSize: line.type === 'heading1' ? 20 : line.type === 'heading2' ? 17 : 15 }}>
-          {line.content}
-        </div>
-        {lines.filter(l => l.parentId === line.id).map(child => (
-          <PureNoteLineBranch key={child.id} line={child} lines={lines} level={level + 1} />
-        ))}
-      </div>
-    );
-  }
-
-  // Рендерим DndContext и SortableContext для всех элементов
   return (
-    <DndTreeContext.Provider value={{ activeId, lines }}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={lines.map((l) => l.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {children}
-        </SortableContext>
-        <div style={{display:'none'}} />
-      </DndContext>
-    </DndTreeContext.Provider>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragMove={handleDragMove}
+    >
+      <SortableContext items={lines.map(l => l.id)} strategy={verticalListSortingStrategy}>
+        {children({ isDragging, dragOverId, insertPosition })}
+      </SortableContext>
+    </DndContext>
   );
-}
-
-function renderBranch(
-  line: NoteLine,
-  lines: NoteLine[],
-  level: number = 0,
-  onChange: (id: string, value: string) => void,
-  onTypeChange: (id: string, type: NoteLineType) => void,
-  onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void,
-  onDelete: (id: string) => void
-): React.ReactNode {
-  console.log('RENDER renderBranch', line.id, {level});
-  return (
-    <React.Fragment key={line.id}>
-      <SortableNoteLineItem
-        line={line}
-        level={level}
-        onChange={onChange}
-        onTypeChange={onTypeChange}
-        onKeyDown={(e) => onKeyDown(e, line)}
-        onDelete={onDelete}
-        dragOverlay // специальный проп для DragOverlay
-      />
-      {lines.filter(l => l.parentId === line.id).map(child => renderBranch(child, lines, level + 1, onChange, onTypeChange, onKeyDown, onDelete))}
-    </React.Fragment>
-  );
-} 
+}; 
