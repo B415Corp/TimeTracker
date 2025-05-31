@@ -1,126 +1,98 @@
-import React from "react";
+import React, { createContext, useContext } from "react";
 import {
   DndContext,
   closestCenter,
-  closestCorners,
-  pointerWithin,
   PointerSensor,
   useSensor,
   useSensors,
   DragEndEvent,
-  DragMoveEvent,
   DragStartEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
 } from "@dnd-kit/sortable";
 import { NoteLine } from "./note-line.types";
 
-interface NoteLinesDndContextProps {
+interface NoteLinesDndTreeContextProps {
   lines: NoteLine[];
-  onMove: (oldIndex: number, newIndex: number, newParentId?: string | null) => void;
-  onDragMove?: (offsetX: number, offsetY?: number) => void;
-  children: (props: { 
-    isDragging: boolean; 
-    dragOverId: string | null;
-    insertPosition?: 'before' | 'after';
-  }) => React.ReactNode;
+  onMove: (sourceId: string, destinationId: string | null, position: number) => void;
+  children: React.ReactNode;
 }
 
-export const NoteLinesDndContext: React.FC<NoteLinesDndContextProps> = ({ lines, onMove, onDragMove, children }) => {
+interface DndTreeContextValue {
+  activeId: string | null;
+}
+const DndTreeContext = createContext<DndTreeContextValue>({ activeId: null });
+export const useDndTreeContext = () => useContext(DndTreeContext);
+
+// Вспомогательная функция для построения дерева из flat массива
+function buildTree(lines: NoteLine[], parentId: string | null = null): NoteLine[] {
+  return lines
+    .filter((line) => line.parentId === parentId)
+    .map((line) => ({
+      ...line,
+      children: buildTree(lines, line.id),
+    }));
+}
+
+// Вспомогательная функция для поиска по id
+function findLineById(lines: NoteLine[], id: string): NoteLine | undefined {
+  return lines.find((l) => l.id === id);
+}
+
+// DND-контекст для вложенных заметок
+export const NoteLinesDndTreeContext: React.FC<NoteLinesDndTreeContextProps> = ({
+  lines,
+  onMove,
+  children,
+}) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  // Простое состояние для отслеживания перетаскивания
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [dragOverId, setDragOverId] = React.useState<string | null>(null);
-  const [insertPosition, setInsertPosition] = React.useState<'before' | 'after'>('after');
+  // Состояния для dnd
+  const [activeId, setActiveId] = React.useState<string | null>(null);
 
+  // Обработка начала перетаскивания
   const handleDragStart = (event: DragStartEvent) => {
-    setIsDragging(true);
-    console.log('Drag started:', event.active.id);
+    setActiveId(event.active.id as string);
   };
 
+  // Обработка завершения перетаскивания
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
-    console.log('handleDragEnd:', { activeId: active.id, overId: over?.id });
-    
-    // Скрываем индикаторы
-    setIsDragging(false);
-    setDragOverId(null);
-    setInsertPosition('after');
-    
-    if (active.id !== over?.id && over?.id) {
-      const oldIndex = lines.findIndex(l => l.id === active.id);
-      const newIndex = lines.findIndex(l => l.id === over?.id);
-      
-      console.log('DND indices:', { oldIndex, newIndex });
-      
-      if (oldIndex !== -1 && newIndex !== -1) {
-        onMove(oldIndex, newIndex);
-      }
-    }
+    setActiveId(null);
+    if (!over || active.id === over.id) return;
+    // Определяем позицию и родителя
+    const destinationId = over.id as string;
+    const sourceId = active.id as string;
+    // Для простоты: вставляем в того же родителя, что и over
+    const overLine = findLineById(lines, destinationId);
+    const parentId = overLine?.parentId ?? null;
+    const siblings = lines.filter((l) => l.parentId === parentId);
+    const newIndex = siblings.findIndex((l) => l.id === destinationId);
+    onMove(sourceId, parentId, newIndex);
   };
 
-  const handleDragMove = (event: DragMoveEvent) => {
-    if (onDragMove && event.delta) {
-      onDragMove(event.delta.x, event.delta.y);
-    }
-    
-    // Просто отслеживаем над каким элементом находимся
-    if (event.over?.id && event.active?.id !== event.over?.id) {
-      const newDragOverId = event.over.id as string;
-      
-      // Определяем позицию вставки на основе индексов
-      const activeIndex = lines.findIndex(l => l.id === event.active?.id);
-      const overIndex = lines.findIndex(l => l.id === newDragOverId);
-      
-      // Если перетаскиваем сверху вниз - вставляем после, снизу вверх - перед
-      const insertPos = activeIndex < overIndex ? 'after' : 'before';
-      
-      console.log('DragMove over element:', {
-        activeId: event.active?.id,
-        overId: newDragOverId,
-        activeIndex,
-        overIndex,
-        insertPosition: insertPos,
-        previousDragOverId: dragOverId
-      });
-      
-      // Находим линию чтобы понять её уровень
-      const overLine = lines.find(l => l.id === newDragOverId);
-      const activeLine = lines.find(l => l.id === event.active?.id);
-      
-      console.log('Lines info:', {
-        overLine: overLine ? { id: overLine.id, content: overLine.content, parentId: overLine.parentId } : null,
-        activeLine: activeLine ? { id: activeLine.id, content: activeLine.content, parentId: activeLine.parentId } : null
-      });
-      
-      setDragOverId(newDragOverId);
-      setInsertPosition(insertPos);
-    } else {
-      if (dragOverId !== null) {
-        console.log('Clearing dragOverId');
-      }
-      setDragOverId(null);
-      setInsertPosition('after');
-    }
-  };
-
+  // Рендерим DndContext и SortableContext для всех элементов
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragMove={handleDragMove}
-    >
-      <SortableContext items={lines.map(l => l.id)} strategy={verticalListSortingStrategy}>
-        {children({ isDragging, dragOverId, insertPosition })}
-      </SortableContext>
-    </DndContext>
+    <DndTreeContext.Provider value={{ activeId }}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={lines.map((l) => l.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {children}
+        </SortableContext>
+      </DndContext>
+    </DndTreeContext.Provider>
   );
 }; 

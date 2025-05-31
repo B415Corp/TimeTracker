@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Heading, List, AlignLeft, Link as LinkIcon, Paperclip, Trash2, CheckSquare, Minus, Code2, Quote } from "lucide-react";
+import { useDndTreeContext } from "./note-lines-dnd-context";
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
@@ -44,16 +45,67 @@ function getTypeIcon(type: NoteLineType) {
 }
 
 export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
-  const { line, level, onChange, onTypeChange, onKeyDown, onDelete, isDragging, dragOverId, insertPosition } = props;
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging: isCurrentDragging } = useSortable({ id: line.id });
+  const { line, level, onChange, onTypeChange, onKeyDown, onDelete } = props;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, over } = useSortable({ id: line.id });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [inputValue, setInputValue] = useState(line.content);
   const [typeMenuIndex, setTypeMenuIndex] = useState(0);
+  const { activeId } = useDndTreeContext();
 
-  // Показываем индикатор, когда над этим элементом перетаскивают
-  // НО только если это не сам перетаскиваемый элемент
-  const showDropIndicator = isDragging && dragOverId === line.id && !isCurrentDragging;
+  const isOver = over?.id === line.id && !isDragging;
+  const isActiveDnd = isDragging || activeId === line.id;
+
+  const dragHandleStyle = {
+    cursor: "grab",
+    padding: "0 8px 0 0",
+    fontSize: 22,
+    color: isDragging ? "#2563eb" : "#888",
+    userSelect: "none" as const,
+    display: "flex",
+    alignItems: "center"
+  };
+
+  const nestingLine = level > 0 ? (
+    <div style={{
+      position: "absolute",
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: 8,
+      borderLeft: "2px solid #e0e7ef",
+      marginLeft: (level - 1) * 24 + 12,
+      zIndex: 0
+    }} />
+  ) : null;
+
+  // Цвета для темной/светлой темы через CSS-переменные
+  const primaryColor = 'var(--primary, #2563eb)';
+  const borderColor = 'var(--border, #444c5e)';
+  const dropBg = 'var(--dnd-drop-bg, rgba(37,99,235,0.18))';
+  const dragBg = 'var(--dnd-drag-bg, rgba(80,80,100,0.18))';
+  const dragBorder = 'var(--dnd-drag-border, #3b82f6)';
+  const overBorder = 'var(--dnd-over-border, #2563eb)';
+  const overBg = 'var(--dnd-over-bg, rgba(37,99,235,0.22))';
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: isActiveDnd ? transition : undefined,
+    opacity: isDragging ? 0.5 : 1,
+    marginLeft: level * 24,
+    background: isOver ? overBg : isDragging ? dragBg : undefined,
+    border: isOver ? `2px solid ${overBorder}` : isDragging ? `2px solid ${dragBorder}` : `2px solid ${borderColor}`,
+    borderRadius: 6,
+    position: 'relative' as const,
+    minHeight: 36,
+    display: 'flex',
+    alignItems: 'center',
+    zIndex: isDragging ? 10 : 1,
+    boxShadow: isDragging ? `0 2px 12px ${primaryColor}22` : undefined,
+    marginBottom: 2,
+    transitionProperty: isActiveDnd ? 'background, border, box-shadow, opacity, transform' : undefined,
+    transitionDuration: isActiveDnd ? '120ms' : undefined,
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -109,24 +161,10 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
     }
   };
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isCurrentDragging ? 0.5 : 1,
-    display: "flex",
-    alignItems: "center",
-    marginLeft: level * 24,
-    gap: 8,
-    background: isCurrentDragging ? "#f0f0f0" : undefined,
-    borderRadius: 4,
-    padding: 2,
-    minHeight: 32,
-    position: "relative" as const,
-  };
-
   return (
     <div ref={setNodeRef} style={style} {...attributes} data-line-id={line.id}>
-      <span {...listeners} style={{ cursor: "grab", padding: "0 4px" }}>⠿</span>
+      {nestingLine}
+      <span {...listeners} style={dragHandleStyle}>⠿</span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button type="button" style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
@@ -271,24 +309,6 @@ export const SortableNoteLineItem: React.FC<NoteLineItemProps> = (props) => {
           </button>
         </>
       ) : null}
-      
-      {/* Простой индикатор места вставки */}
-      {showDropIndicator && (
-        <div
-          style={{
-            position: "absolute",
-            top: insertPosition === 'before' ? -2 : undefined,
-            bottom: insertPosition === 'after' ? -2 : undefined,
-            left: 0,
-            right: 0,
-            height: 3,
-            background: "#2563eb",
-            borderRadius: 2,
-            boxShadow: "0 0 6px rgba(37, 99, 235, 0.6)",
-            zIndex: 10,
-          }}
-        />
-      )}
     </div>
   );
 }; 

@@ -4,6 +4,8 @@ import { SortableNoteLineItem } from "./note-line-item";
 import { NoteLinesDndContext } from "./note-lines-dnd-context";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NoteLinesDndTreeContext } from "./note-lines-dnd-context";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 // import { arrayMove } from "array-move";
 
 // Простая реализация arrayMove для перестановки элементов
@@ -19,7 +21,7 @@ interface NoteLinesEditorProps {
   onChange: (lines: NoteLine[]) => void;
 }
 
-// Вспомогательная функция для построения дерева из flat-списка
+// Новый buildTree с SortableContext на каждом уровне
 function buildTree(
   lines: NoteLine[],
   parentId: string | null = null,
@@ -27,49 +29,29 @@ function buildTree(
   onChange: (id: string, value: string) => void,
   onTypeChange: (id: string, type: NoteLineType) => void,
   onKeyDown: (e: React.KeyboardEvent, line: NoteLine) => void,
-  onDelete: (id: string) => void,
-  isDragging?: boolean,
-  dragOverId?: string | null,
-  insertPosition?: 'before' | 'after'
-): React.ReactNode[] {
-  return lines
+  onDelete: (id: string) => void
+): React.ReactNode {
+  const children = lines
     .filter((line) => line.parentId === parentId)
-    .sort((a, b) => a.order - b.order)
-    .reduce<React.ReactNode[]>((acc, line) => {
-      // Добавляем сам элемент
-      acc.push(
-        <SortableNoteLineItem
-          key={line.id}
-          line={line}
-          level={level}
-          onChange={onChange}
-          onTypeChange={onTypeChange}
-          onKeyDown={(e) => onKeyDown(e, line)}
-          onDelete={onDelete}
-          isDragging={isDragging}
-          dragOverId={dragOverId}
-          insertPosition={insertPosition}
-        />
-      );
-      
-      // Добавляем дочерние элементы
-      const children = buildTree(
-        lines,
-        line.id,
-        level + 1,
-        onChange,
-        onTypeChange,
-        onKeyDown,
-        onDelete,
-        isDragging,
-        dragOverId,
-        insertPosition
-      );
-      
-      acc.push(...children);
-      
-      return acc;
-    }, []);
+    .sort((a, b) => a.order - b.order);
+  if (children.length === 0) return null;
+  return (
+    <SortableContext items={children.map(l => l.id)} strategy={verticalListSortingStrategy}>
+      {children.map(line => (
+        <React.Fragment key={line.id}>
+          <SortableNoteLineItem
+            line={line}
+            level={level}
+            onChange={onChange}
+            onTypeChange={onTypeChange}
+            onKeyDown={(e) => onKeyDown(e, line)}
+            onDelete={onDelete}
+          />
+          {buildTree(lines, line.id, level + 1, onChange, onTypeChange, onKeyDown, onDelete)}
+        </React.Fragment>
+      ))}
+    </SortableContext>
+  );
 }
 
 function generateId() {
@@ -293,53 +275,44 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
     newParentId: string | null;
   } | null>(null);
 
-  // Универсальное перемещение строки (и поддерева) с обновлением parentId и order
+  // Новый обработчик перемещения для вложенного dnd
   const handleMove = (
-    oldIndex: number,
-    newIndex: number,
-    newParentId: string | null = null
+    sourceId: string,
+    newParentId: string | null,
+    position: number
   ) => {
-    console.log('handleMove:', { oldIndex, newIndex, newParentId });
-    
-    // Получаем перемещаемый элемент
-    const movedLine = sortedLines[oldIndex];
-    if (!movedLine) {
-      console.log('movedLine not found');
-      return;
-    }
-    
-    console.log('movedLine:', movedLine);
-    
-    // Если newParentId не задан, сохраняем текущий parentId
-    const targetParentId = newParentId !== undefined ? newParentId : movedLine.parentId;
-    
-    console.log('targetParentId:', targetParentId);
-    
-    // Создаем копию массива
-    const newLines = [...sortedLines];
-    
-    // Удаляем элемент из старой позиции
-    const [removed] = newLines.splice(oldIndex, 1);
-    
+    // Копируем массив
+    let newLines = [...sortedLines];
+    // Находим перемещаемый элемент
+    const movedIdx = newLines.findIndex((l) => l.id === sourceId);
+    if (movedIdx === -1) return;
+    const movedLine = { ...newLines[movedIdx] };
+    // Удаляем из старого места
+    newLines.splice(movedIdx, 1);
     // Обновляем parentId
-    const updatedLine = { ...removed, parentId: targetParentId };
-    
-    // Вставляем в новую позицию
-    const insertIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
-    newLines.splice(insertIndex, 0, updatedLine);
-    
-    // Пересчитываем order для всех элементов
-    const reorderedLines = newLines.map((line, index) => ({
-      ...line,
-      order: index
-    }));
-    
-    console.log('result:', reorderedLines);
-    
-    onChange(reorderedLines);
-    
-    // Скрываем индикатор после перемещения
-    setDropIndicator({ show: false });
+    movedLine.parentId = newParentId;
+    // Вставляем в новое место среди siblings
+    const siblings = newLines.filter((l) => l.parentId === newParentId);
+    const siblingIds = siblings.map((l) => l.id);
+    // Находим индекс для вставки в общем массиве
+    let insertIdx = 0;
+    if (siblings.length === 0) {
+      // Вставка в конец, ищем последнее совпадение по parentId
+      const lastIdx = newLines.reduce((acc, l, idx) => l.parentId === newParentId ? idx : acc, -1);
+      insertIdx = lastIdx + 1;
+    } else if (position >= siblings.length) {
+      // Вставка в конец siblings
+      const lastSiblingId = siblingIds[siblingIds.length - 1];
+      insertIdx = newLines.findIndex((l) => l.id === lastSiblingId) + 1;
+    } else {
+      // Вставка перед sibling по позиции
+      const targetSiblingId = siblingIds[position];
+      insertIdx = newLines.findIndex((l) => l.id === targetSiblingId);
+    }
+    newLines.splice(insertIdx, 0, movedLine);
+    // Пересчитываем order для всех
+    newLines = newLines.map((line, idx) => ({ ...line, order: idx }));
+    onChange(newLines);
   };
 
   // DND: включаем ВСЕ строки в SortableContext, а не только корневые
@@ -393,37 +366,28 @@ export const NoteLinesEditor: React.FC<NoteLinesEditorProps> = ({
       targetParentId = newParentId;
     }
     
-    handleMove(oldIndex, newIndex, targetParentId);
+    handleMove(draggedLine.id, targetParentId, newIndex);
     
     // Сбрасываем смещение
     setDragOffsetX(0);
   };
 
   // Функция для рендеринга с получением DND состояния
-  const renderContent = (isDragging?: boolean, dragOverId?: string | null, insertPosition?: 'before' | 'after') => {
-    return buildTree(
-      sortedLines,
-      null,
-      0,
-      handleChange,
-      handleTypeChange,
-      handleKeyDown,
-      handleDelete,
-      isDragging,
-      dragOverId,
-      insertPosition
-    );
-  };
+  const renderContent = () => buildTree(
+    sortedLines,
+    null,
+    0,
+    handleChange,
+    handleTypeChange,
+    handleKeyDown,
+    handleDelete
+  );
 
   return (
     <>
-      <NoteLinesDndContext
-        lines={sortedLines}
-        onMove={handleMoveWithNesting}
-        onDragMove={handleDragMove}
-      >
-        {({ isDragging, dragOverId, insertPosition }) => renderContent(isDragging, dragOverId, insertPosition)}
-      </NoteLinesDndContext>
+      <NoteLinesDndTreeContext lines={sortedLines} onMove={handleMove}>
+        {renderContent()}
+      </NoteLinesDndTreeContext>
       
       <div
         style={{ display: "flex", justifyContent: "flex-start", marginTop: 16 }}
