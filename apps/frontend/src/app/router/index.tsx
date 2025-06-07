@@ -9,7 +9,6 @@ import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import {
   HomePage,
   LoginPage,
-  NotesDetailPage,
   PlansPage,
   ProjectDetailPage,
   ProjectsPage,
@@ -133,20 +132,6 @@ const router = createBrowserRouter(
               ]}
             >
               <TaskDetailPage />
-            </PrivateRoute>
-          ),
-        },
-        {
-          path: ROUTES.NOTES + "/:id",
-          element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
-              <NotesDetailPage />
             </PrivateRoute>
           ),
         },

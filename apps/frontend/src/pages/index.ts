@@ -1,8 +1,6 @@
 export { default as HomePage } from "./home/home.page";
 export { default as LoginPage } from "./auth/login.page";
 export { default as RegisterPage } from "./auth/register.page";
-export { default as NotesPage } from "./notes/notes.page";
-export { default as NotesDetailPage } from "./notes/notes-detail.page";
 export { default as PlansPage } from "./plans/plans.page";
 export { default as ProjectsPage } from "./project/projects.page";
 export { default as ProjectDetailPage } from "./project/project-detail.page";

@@ -1,7 +1,7 @@
 import { useGetUserQuery } from "@/shared/api/user.service";
 import { useParams } from "react-router-dom";
-import UserMePage from "./tabs/user-me.page";
-import UserExternalPage from "./tabs/user-external.page";
+import { UserMeFeature } from "@/features/user/UserMeFeature";
+import { UserExternalFeature } from "@/features/user/UserExternalFeature";
 
 export default function UserPage() {
   const { id } = useParams<{ id: string }>();
@@ -9,7 +9,7 @@ export default function UserPage() {
 
   return (
     <div className="flex flex-col w-full h-full">
-      {userMe?.user_id === id ? <UserMePage /> : <UserExternalPage />}
+      {userMe?.user_id === id ? <UserMeFeature /> : <UserExternalFeature />}
     </div>
   );
 }
