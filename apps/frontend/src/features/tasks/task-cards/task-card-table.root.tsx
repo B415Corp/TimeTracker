@@ -47,7 +47,7 @@ import { Currency } from "@/shared/interfaces/currency.interface";
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
 import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
 import TaskSharedUsers from "../shared-users/task-shared-users";
-import RateItem from "@/entities/rate/rate-item";
+import { RateItem } from "@/entities/rate";
 
 type dialogType = "edit" | "delete" | null;
 

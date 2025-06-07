@@ -2,7 +2,7 @@ import React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
-const TiptapEditor: React.FC<{
+export const TiptapEditor: React.FC<{
   initialContent?: string;
   onChange: (content: string) => void;
 }> = ({ initialContent = '', onChange }) => {
@@ -22,4 +22,4 @@ const TiptapEditor: React.FC<{
   );
 };
 
-export default TiptapEditor;
+

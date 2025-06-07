@@ -1,1 +1,1 @@
- 
+export * from "./project.interface"; 

@@ -20,7 +20,7 @@ interface Props {
   metaText?: string;
 }
 
-export default function UserAvatar({
+export function UserAvatar({
   name,
   planId,
   size = "small",

@@ -9,7 +9,7 @@ interface Props {
   className?: string;
 }
 
-export default function PlayPauseButton({
+export function PlayPauseButton({
   isPlay,
   isLoading,
   onClick,

@@ -1,0 +1,1 @@
+export { RateItem } from "./rate-item";

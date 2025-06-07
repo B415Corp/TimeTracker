@@ -17,7 +17,7 @@ import { useGetUserQuery } from "@/shared/api/user.service";
 import { Bell } from "lucide-react";
 import { Badge } from "@ui/badge";
 import RoleBadge from "@/entities/role/role-badge";
-import UserAvatar from "@/entities/user/UserAvatar";
+import { UserAvatar } from "@/entities/user";
 
 interface props {
   dialogIsOpen: boolean;

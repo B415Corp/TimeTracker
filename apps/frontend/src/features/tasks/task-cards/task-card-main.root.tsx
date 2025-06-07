@@ -10,7 +10,7 @@ import {
 } from "@ui/card";
 import { useNavigate } from "react-router-dom";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
-import RateItem from "@/entities/rate/rate-item";
+import { RateItem } from "@/entities/rate";
 
 // Определяем тип значения контекста
 interface context {

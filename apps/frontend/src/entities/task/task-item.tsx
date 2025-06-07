@@ -15,8 +15,8 @@ import { useEffect } from "react";
 import { startTimer, stopTimer } from "@/features/time/model/time.slice";
 import { TIMELOGSTATUS } from "@/shared/enums/time-logs.enum";
 import { useGetUserQuery } from "@/shared/api/user.service";
-import PlayPauseButton from "../play-pause/play-pause-button";
 import TimerComponent from "../timer/timer";
+import { PlayPauseButton } from "../play-pause";
 
 interface Props {
   task_id: string;

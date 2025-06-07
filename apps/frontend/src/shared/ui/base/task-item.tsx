@@ -1,4 +1,3 @@
-import PlayPauseButton from "./play-pause-button";
 import {
   useGetTimeLogLatestTaskQuery,
   usePostTimeLogStartMutation,
@@ -10,13 +9,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@ui/tooltip";
-import TimerComponent from "../shared/ui/base/timer";
 import { LoaderCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { startTimer, stopTimer } from "@/features/time/model/time.slice";
 import { TIMELOGSTATUS } from "@/shared/enums/time-logs.enum";
 import { useGetUserQuery } from "@/shared/api/user.service";
+import { PlayPauseButton } from "@/entities/play-pause";
+import { TimerComponent } from "@/entities/timer";
 
 interface Props {
   task_id: string;

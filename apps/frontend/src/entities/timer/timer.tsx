@@ -9,7 +9,7 @@ interface Props {
   fallbackStatus?: string;
 }
 
-function TimerComponent({ task_id, fallbackTime = 0 }: Props) {
+export function TimerComponent({ task_id, fallbackTime = 0 }: Props) {
   // Получаем данные таймера и глобальный тик из redux
   const { accumulated, startTime, status } = useSelector(
     (state: RootState) =>
