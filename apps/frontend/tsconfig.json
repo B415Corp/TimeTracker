@@ -4,12 +4,13 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ui/*": ["./src/shared/ui/*"]
     },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx" // Добавьте эту строку
+    "jsx": "react-jsx"
   },
   "include": ["src/**/*"],
   "exclude": [
