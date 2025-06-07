@@ -20,7 +20,7 @@ export class Notes {
   notes_id: string;
 
   @ApiProperty({ type: String, description: 'Name of the client' })
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
   @ApiProperty({
@@ -35,7 +35,7 @@ export class Notes {
     type: String,
     description: 'Contact information of the client',
   })
-  @Column()
+  @Column({ nullable: true })
   text_content: string;
 
   @ApiProperty({ type: Date, description: 'Creation date of the client' })

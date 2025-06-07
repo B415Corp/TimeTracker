@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "start:frontend": "npm --workspace=apps/frontend run dev",
-    "start:backend": "npm --workspace=apps/backend run start:dev",
+    "start:back end": "npm --workspace=apps/backend run start:dev",
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
   },
   "devDependencies": {
