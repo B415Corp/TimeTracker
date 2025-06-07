@@ -1,13 +1,13 @@
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
 import ClientItem from "@/components/client-item";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@ui/card";
 import { useSearcV2Query } from "@/shared/api/search.service";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "@/components/ui/carousel";
+} from "@ui/carousel";
 import { useRef, useEffect, useState } from "react";
 import TaskCardMain from "@/features/tasks/task-cards/task-card-main.root";
 

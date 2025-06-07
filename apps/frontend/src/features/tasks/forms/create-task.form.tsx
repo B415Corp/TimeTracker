@@ -8,12 +8,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
+} from "@ui/form";
+import { Input } from "@ui/input";
+import { Button } from "@ui/button";
+import { DialogFooter } from "@ui/dialog";
 import { useCreateTaskMutation } from "@/shared/api/task.service";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@ui/textarea";
 
 // Схема валидации формы
 const createTaskSchema = z.object({

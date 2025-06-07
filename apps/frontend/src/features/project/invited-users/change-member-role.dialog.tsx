@@ -1,17 +1,17 @@
 import RoleBadge from "@/components/role-badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@ui/select";
 import {
   Form,
   FormControl,
@@ -19,7 +19,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@ui/form";
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

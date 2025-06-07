@@ -1,5 +1,5 @@
 import { CONTACTS_VIEW, ROUTES } from "@/app/router/routes.enum";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import { ContactRound, Handshake } from "lucide-react";
 import { useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";

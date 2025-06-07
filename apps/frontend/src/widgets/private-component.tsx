@@ -1,12 +1,12 @@
 import { ROUTES } from "@/app/router/routes.enum";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { LockKeyhole } from "lucide-react";

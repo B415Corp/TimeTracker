@@ -1,6 +1,6 @@
 import { ProjectMembers } from "@/shared/interfaces/project.interface";
 import UserAvatar from "@/components/user-avatar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { useState } from "react";
 import {
@@ -19,19 +19,19 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
+} from "@ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+} from "@ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@ui/sheet";
 import RemoveUserFromProjectDialog from "../remove-user-from-project/remove-user-from-project.dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@ui/card";
+import { Badge } from "@ui/badge";
 import InviteUserToProjectDialog from "../invite-user-to-project/invite-user-to-project.dialog";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@ui/separator";
 import RoleBadge from "@/components/role-badge";
 import PaymentType from "@/shared/ui/payment-type";
 import EditProjectMemberDialog from "../edit-project.member.dialog";

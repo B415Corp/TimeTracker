@@ -8,10 +8,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
+} from "@ui/form";
+import { Input } from "@ui/input";
+import { Button } from "@ui/button";
+import { DialogFooter } from "@ui/dialog";
 import { useCreateClientMutation } from "@/shared/api/client.service";
 
 // Схема валидации формы

@@ -1,19 +1,19 @@
 import { createContext, useContext, ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { TableCell, TableRow } from "@/components/ui/table";
+} from "@ui/dropdown-menu";
+import { TableCell, TableRow } from "@ui/table";
 import {
   useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
@@ -41,8 +41,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+} from "@ui/select";
+import { Badge } from "@ui/badge";
 import UpdateTaskForm from "../forms/update-task.form";
 import { Currency } from "@/shared/interfaces/currency.interface";
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";

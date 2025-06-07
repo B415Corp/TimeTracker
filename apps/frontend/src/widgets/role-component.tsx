@@ -1,11 +1,11 @@
 import RoleBadge from "@/components/role-badge";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 import { ShieldX } from "lucide-react";
 import { HTMLAttributes, useEffect, useState, useCallback } from "react";

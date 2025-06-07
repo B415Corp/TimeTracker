@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { ROUTES } from "@/app/router/routes.enum";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,20 +17,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@ui/sidebar";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import { Link } from "react-router-dom";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import UserAvatar from "./user-avatar";
 import { useGetNotificationsQuery } from "@/shared/api/notification.service";
-import { Badge } from "./ui/badge";
+import { Badge } from "@ui/badge";
 import { useDispatch } from "react-redux";
 import { toggle } from "@/features/notification/notification.slice";
 

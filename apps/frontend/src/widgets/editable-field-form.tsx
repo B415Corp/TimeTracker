@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/input";
+import { Input } from "@ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -9,7 +9,7 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
+} from "@ui/form";
 
 interface Props {
   value: string;

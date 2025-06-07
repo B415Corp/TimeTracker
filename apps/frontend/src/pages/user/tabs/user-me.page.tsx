@@ -1,14 +1,14 @@
 import { ROUTES } from "@/app/router/routes.enum";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+} from "@ui/form";
+import { Input } from "@ui/input";
+import { Separator } from "@ui/separator";
 import UserAvatar from "@/components/user-avatar";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import {

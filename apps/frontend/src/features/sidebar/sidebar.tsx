@@ -1,6 +1,6 @@
 import { CONTACTS_VIEW, ROUTES } from "@/app/router/routes.enum";
 import { NavUser } from "@/components/nav-user";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@ui/collapsible";
 import {
   SidebarHeader,
   SidebarContent,
@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+} from "@ui/sidebar";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import SearchWidget from "@/widgets/search.widget";
 import {

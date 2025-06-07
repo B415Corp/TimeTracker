@@ -1,9 +1,9 @@
 "use client";
 
 import type React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Checkbox } from "@ui/checkbox";
 import {
   LinkIcon,
   List,

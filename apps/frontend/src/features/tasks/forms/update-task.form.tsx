@@ -8,13 +8,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
+} from "@ui/form";
+import { Input } from "@ui/input";
+import { Button } from "@ui/button";
+import { DialogFooter } from "@ui/dialog";
 import { useUpdateTaskMutation } from "@/shared/api/task.service";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@ui/radio-group";
+import { Textarea } from "@ui/textarea";
 import { useGetCurrenciesQuery } from "@/shared/api/currency.service";
 import {
   Select,
@@ -22,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@ui/select";
 import { PAYMENT, UpdateTaskDto } from "@/shared/interfaces/task.interface";
 import { Currency } from "@/shared/interfaces/currency.interface";
 

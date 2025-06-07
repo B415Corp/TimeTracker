@@ -1,5 +1,5 @@
 // src/Tiptap.tsx
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@ui/card";
 import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 

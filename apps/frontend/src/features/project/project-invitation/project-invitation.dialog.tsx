@@ -4,9 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+} from "@ui/dialog";
+import { Button } from "@ui/button";
+import { Card, CardFooter, CardHeader, CardTitle } from "@ui/card";
 import RoleBadge from "@/components/role-badge";
 import UserAvatar from "@/components/user-avatar";
 import {
@@ -17,7 +17,7 @@ import {
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import { Bell } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@ui/badge";
 
 interface props {
   dialogIsOpen: boolean;

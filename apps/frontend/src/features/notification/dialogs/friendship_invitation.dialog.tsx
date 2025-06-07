@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import { useAcceptFriendshipMutation } from "@/shared/api/friendship.service";
 import { Friendship } from "@/shared/interfaces/friends.interface";
 import { useEffect, useState } from "react";

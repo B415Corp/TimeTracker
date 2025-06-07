@@ -49,7 +49,7 @@ interface ChildrenProps {
 }
 
 // Мокаем компоненты UI, чтобы упростить тестирование
-vi.mock('@/components/ui/form', () => ({
+vi.mock('@/ui/form', () => ({
   FormField: ({ render }: FormFieldProps) => render({ field: { onChange: vi.fn(), value: '', name: '' } }),
   FormItem: ({ children }: ChildrenProps) => <div>{children}</div>,
   FormLabel: ({ children }: ChildrenProps) => <label>{children}</label>,

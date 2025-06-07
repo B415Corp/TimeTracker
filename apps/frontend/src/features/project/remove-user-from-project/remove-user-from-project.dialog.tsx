@@ -3,8 +3,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@ui/dialog";
+import { Button } from "@ui/button";
 import { useDeleteRoleProjectSharedMutation } from "@/shared/api/projects-shared.service";
 
 interface props {

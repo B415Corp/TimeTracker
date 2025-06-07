@@ -1,6 +1,6 @@
 import { BlockType, BlockV2 } from "./note-editor-v2";
 import { ChangeEvent, KeyboardEvent } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@ui/input";
 
 export interface NoteBlockProps {
   block: BlockV2;

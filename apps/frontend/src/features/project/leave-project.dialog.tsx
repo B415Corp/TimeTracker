@@ -1,11 +1,11 @@
 import { ROUTES } from "@/app/router/routes.enum";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import { useLeaveProjectSharedMutation } from "@/shared/api/projects-shared.service";
 import { useLazyGetProjectsQuery } from "@/shared/api/projects.service";
 import { useNavigate } from "react-router-dom";

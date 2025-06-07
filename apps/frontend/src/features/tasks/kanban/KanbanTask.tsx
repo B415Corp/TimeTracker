@@ -1,12 +1,12 @@
 import { ROUTES } from "@/app/router/routes.enum";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardTitle,
-} from "@/components/ui/card";
+} from "@ui/card";
 
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
 import { Task } from "@/shared/interfaces/task.interface";

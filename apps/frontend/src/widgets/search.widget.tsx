@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLazySearcV2Query } from "@/shared/api/search.service";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Sheet,
   SheetContent,
@@ -11,11 +11,11 @@ import {
   SheetTrigger,
   SheetFooter,
   SheetClose,
-} from "@/components/ui/sheet";
+} from "@ui/sheet";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/dateUtils";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@ui/skeleton";
 import UserAvatar from "@/components/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";

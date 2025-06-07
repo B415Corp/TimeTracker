@@ -1,18 +1,18 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { TableCell } from "@/components/ui/table";
+} from "@ui/dropdown-menu";
+import { TableCell } from "@ui/table";
 import { MoreVerticalIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { useDeletelientsMutation } from "@/shared/api/client.service";

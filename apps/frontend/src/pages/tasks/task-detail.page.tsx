@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   useDeleteTaskMutation,
   useGetTaskByIdQuery,
@@ -19,7 +19,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import UpdateTaskForm from "@/features/tasks/forms/update-task.form";
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
 import {
@@ -28,8 +28,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
+} from "@ui/dropdown-menu";
+import { Separator } from "@ui/separator";
 import { useGetTimeLogLogsQuery } from "@/shared/api/time-log.service";
 import TaskSharedUsers from "@/features/tasks/shared-users/task-shared-users";
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";

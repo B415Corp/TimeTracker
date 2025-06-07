@@ -2,9 +2,9 @@ import { Friendship } from "@/shared/interfaces/friends.interface";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import UserAvatar from "@/components/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import { UserRoundCheck, UserRoundX } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@ui/separator";
 import {
   useAcceptFriendshipMutation,
   useDeclineFriendshipMutation,
@@ -13,7 +13,7 @@ import {
 import { FriendshipStatus } from "@/shared/enums/friendship.enum";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/app/router/routes.enum";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@ui/badge";
 
 function FriendTableRow({
   sender,

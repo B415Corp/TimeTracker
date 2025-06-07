@@ -3,7 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import EditProjectMemberForm from "./forms/edit-project-member.form";
 import { useGetProjectsSharedByMemberIdQuery } from "@/shared/api/projects-shared.service";
 

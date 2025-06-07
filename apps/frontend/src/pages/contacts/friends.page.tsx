@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@ui/table";
 import FriendTableRow from "@/features/contacts/friend-table-row";
 import { useGetFriendsQuery } from "@/shared/api/friendship.service";
 import SearchWidget from "@/widgets/search.widget";

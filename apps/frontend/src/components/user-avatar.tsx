@@ -1,5 +1,5 @@
 import { Loader } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
 import { getAvatarUrl } from "@/lib/get-avatar-url";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import {
@@ -7,7 +7,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@ui/tooltip";
 
 type sizes = "xxs" | "xs" | "small" | "large";
 interface Props {

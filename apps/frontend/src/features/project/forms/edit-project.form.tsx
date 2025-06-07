@@ -9,19 +9,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@ui/form";
+import { Input } from "@ui/input";
+import { Button } from "@ui/button";
 import { useGetClientsQuery } from "@/shared/api/client.service";
 import { useUpdateProjectMutation } from "@/shared/api/projects.service";
-import { DialogFooter } from "@/components/ui/dialog";
+import { DialogFooter } from "@ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@ui/select";
 import { X } from "lucide-react";
 
 // Схема валидации формы

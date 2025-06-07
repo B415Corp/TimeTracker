@@ -5,9 +5,9 @@ import {
 import UserAvatar from "../user-avatar";
 import { Loader } from "lucide-react";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
-import { Input } from "../ui/input";
-import { Separator } from "../ui/separator";
-import { Button } from "../ui/button";
+import { Input } from "@ui/input";
+import { Separator } from "@ui/separator";
+import { Button } from "@ui/button";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,7 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "../ui/form";
+} from "@ui/form";
 
 export function AccountTab() {
   const { data: userData } = useGetUserQuery();

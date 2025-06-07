@@ -1,14 +1,14 @@
 import { createContext, useContext, ReactNode } from "react";
 import { ROUTES } from "@/app/router/routes.enum";
 import RateItem from "@/components/rate-item";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@ui/card";
 import { useNavigate } from "react-router-dom";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
 

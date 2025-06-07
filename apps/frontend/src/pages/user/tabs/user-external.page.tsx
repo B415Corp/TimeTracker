@@ -1,6 +1,6 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
+import { Separator } from "@ui/separator";
 import {
   TableCaption,
   Table,
@@ -10,7 +10,7 @@ import {
   TableBody,
   TableCell,
   TableFooter,
-} from "@/components/ui/table";
+} from "@ui/table";
 import UserAvatar from "@/components/user-avatar";
 import {
   useGetFriendByIdQuery,

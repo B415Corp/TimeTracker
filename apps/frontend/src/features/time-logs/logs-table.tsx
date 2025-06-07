@@ -9,13 +9,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@ui/chart";
 import { PaginatedResponse } from "@/shared/interfaces/api.interface";
 import { TimeLog } from "@/shared/interfaces/time-log.interface";
 import { formatMilliseconds } from "@/lib/format-seconds";

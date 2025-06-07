@@ -3,14 +3,14 @@ import type React from "react";
 import { useState, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import { NoteBlock } from "./note-block";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ui/dropdown-menu";
 import {
   Text,
   Heading1,

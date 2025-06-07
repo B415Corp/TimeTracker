@@ -11,16 +11,16 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form";
+} from "@ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@ui/select";
+import { Input } from "@ui/input";
+import { Button } from "@ui/button";
 import { useLoginMutation } from "@/shared/api/auth.service";
 import { ROUTES } from "@/app/router/routes.enum";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";

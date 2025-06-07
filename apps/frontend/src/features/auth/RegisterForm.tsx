@@ -10,11 +10,11 @@ import {
   FormControl,
   FormMessage,
   Form,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@ui/form";
+import { Input } from "@ui/input";
+import { Button } from "@ui/button";
 import { Eye, EyeOff, Loader } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
 import { getAvatarUrl } from "@/lib/get-avatar-url";
 import {
   registerRequestSchema,

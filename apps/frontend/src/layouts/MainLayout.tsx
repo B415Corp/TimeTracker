@@ -1,4 +1,4 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@ui/sidebar";
 import React, { ReactNode } from "react";
 import { useGetCurrenciesQuery } from "@/shared/api/currency.service";
 import TaskFloatBarWidget from "@/widgets/task-float-bar.widget";
@@ -10,7 +10,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "@ui/sheet";
 import { RootState } from "@/app/store";
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "@/features/notification/notification.slice";

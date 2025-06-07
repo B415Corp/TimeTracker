@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@ui/table";
 import TaskCardTable from "@/features/tasks/task-cards/task-card-table.root";
 
 export function TasksListTablePage() {

@@ -5,15 +5,15 @@ import {
   TableBody,
   TableCell,
   Table,
-} from "@/components/ui/table";
+} from "@ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+} from "@ui/select";
+import { Button } from "@ui/button";
 import { useGetProjectsMeQuery } from "@/shared/api/projects.service";
 import {
   Dialog,
@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import CreateProjectForm from "@/features/project/forms/create-project.form";
 import { PanelTop } from "lucide-react";
 import React, { useEffect, useState } from "react";

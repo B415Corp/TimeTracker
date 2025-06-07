@@ -1,18 +1,18 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@ui/table";
 import ClientTableRow from "@/features/clients/client-table-row";
 import CreateClientForm from "@/features/clients/create-clients.form";
 import { useGetClientsQuery } from "@/shared/api/client.service";

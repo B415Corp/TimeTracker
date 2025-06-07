@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useLazySearcV2Query } from "@/shared/api/search.service";
 import { Search, X } from "lucide-react";
 import { formatDate } from "@/lib/dateUtils";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@ui/skeleton";
 import UserAvatar from "@/components/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 
 interface Props {
   searchLocationList: Array<"all" | "projects" | "tasks" | "clients" | "users">;

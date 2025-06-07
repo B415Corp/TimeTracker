@@ -1,12 +1,12 @@
 import { PlanCard } from "@/components/plan-card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-} from "@/components/ui/carousel";
+} from "@ui/carousel";
 import { useGetPlansQuery } from "@/shared/api/plans.service";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";

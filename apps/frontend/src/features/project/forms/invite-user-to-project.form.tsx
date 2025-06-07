@@ -9,20 +9,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@ui/select";
 import { z } from "zod";
 import RoleBadge from "@/components/role-badge";
-import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@ui/button";
+import { DialogFooter } from "@ui/dialog";
 import { useCreateProjectSharedMutation } from "@/shared/api/projects-shared.service";
-import { Input } from "@/components/ui/input";
+import { Input } from "@ui/input";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
 
 const schema = z.object({

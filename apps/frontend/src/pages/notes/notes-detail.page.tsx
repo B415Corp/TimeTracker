@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   ChevronLeft,
   Loader,
@@ -20,8 +20,8 @@ import {
   useEditNotesMutation,
   useGetNotesByIdQuery,
 } from "@/shared/api/notes.service";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@ui/input";
+import { Card, CardContent } from "@ui/card";
 
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";

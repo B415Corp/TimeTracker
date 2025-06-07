@@ -6,11 +6,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
-import { Badge } from "./ui/badge";
+} from "@ui/card";
+import { Badge } from "@ui/badge";
 import { SUBSCRIPTION_STATUS } from "@/shared/enums/sunscriptions.enum";
 import { Check } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@ui/button";
 
 export function PlanCard({ plan }: { plan: Plans }) {
   // Helper function to format billing period

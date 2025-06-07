@@ -1,6 +1,6 @@
 import { RootState } from "@/app/store";
 import "@/shared/types/window.types";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import { LoaderCircle, Play, Pause } from "lucide-react";
 import { createContext, ReactNode, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,7 +17,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@ui/tooltip";
 import { TIMELOGSTATUS } from "@/shared/enums/time-logs.enum";
 import {
   startTimer,

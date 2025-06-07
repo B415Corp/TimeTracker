@@ -5,7 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { NOTIFICATION_TYPE } from "@/shared/enums/notification-type.enum";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@ui/badge";
 import parseAndHighlight from "@/lib/parse-notification-message";
 import NotificationsDialog from "./notifications.dialog";
 import { NotificationIcon } from "./notification-icon.ui";

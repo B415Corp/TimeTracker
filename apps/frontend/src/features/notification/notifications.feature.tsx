@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@ui/button";
+import { Skeleton } from "@ui/skeleton";
 import {
   useGetNotificationsQuery,
   useReadAllNotificationsMutation,
@@ -7,7 +7,7 @@ import {
 import { Bell, CheckCheck } from "lucide-react";
 import { INotification } from "@/shared/interfaces/notifications.interface";
 import { NotificationCard } from "@/features/notification/notification-card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@ui/scroll-area";
 
 export default function NotificationsFeature() {
   const { data: rawNotifications, isLoading } = useGetNotificationsQuery();

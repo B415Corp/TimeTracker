@@ -105,7 +105,7 @@ export function cn(...inputs: ClassValue[]) {
 Пример использования компонента Button:
 
 ```tsx
-import { Button } from "@/components/ui/button"
+import { Button } from "@ui/button"
 
 export function MyComponent() {
   return (
@@ -122,9 +122,9 @@ export function MyComponent() {
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+import { Button } from "@ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@ui/form"
+import { Input } from "@ui/input"
 
 const formSchema = z.object({
   username: z.string().min(2, {

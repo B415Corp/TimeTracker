@@ -1,7 +1,7 @@
 import { Task, TaskStatusColumn } from "@/shared/interfaces/task.interface";
 import { AnimatePresence, motion } from "framer-motion";
 import KanbanTask from "./KanbanTask";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@ui/badge";
 import { convertToRgba } from "@/lib/convert-to-rgba";
 import { useRef } from "react";
 

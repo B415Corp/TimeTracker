@@ -1,22 +1,22 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import {
   Card,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ui/dropdown-menu";
 import { formatDate } from "@/lib/dateUtils";
 import {
   useCreateNotesMutation,

@@ -1,12 +1,12 @@
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
-import { Badge } from "./ui/badge";
+import { Badge } from "@ui/badge";
 import { BriefcaseBusiness, CircleCheck, Star, User } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@ui/tooltip";
 
 interface props {
   role: PROJECT_ROLE | undefined;

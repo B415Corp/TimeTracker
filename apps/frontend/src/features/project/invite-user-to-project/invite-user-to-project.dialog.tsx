@@ -3,7 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ui/dialog";
 import InviteUserToProjectForm from "../forms/invite-user-to-project.form";
 
 interface props {

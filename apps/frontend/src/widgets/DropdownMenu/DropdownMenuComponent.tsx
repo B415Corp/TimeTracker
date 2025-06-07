@@ -1,6 +1,6 @@
 import React from "react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@ui/dropdown-menu";
+import { Button } from "@ui/button";
 import { MoreVerticalIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 interface DropdownMenuComponentProps {

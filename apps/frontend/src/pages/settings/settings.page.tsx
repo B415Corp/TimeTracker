@@ -1,7 +1,7 @@
 import { AccountTab } from "@/components/settings-tab/account-tab";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Separator } from "@ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";
 
 export default function SettingsPage() {
   const tabsData = [

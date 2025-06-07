@@ -2,17 +2,17 @@ import { useState } from "react";
 import { TaskMember } from "@/shared/interfaces/task.interface";
 import UserAvatar from "@/components/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ui/button";
 import { Plus, Trash, UserRoundPlus } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@ui/scroll-area";
 import { useAssignUserToTaskMutation } from "@/shared/api/task.service";
 import { useGetUserQuery } from "@/shared/api/user.service";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@ui/badge";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@ui/popover";
 import { ProjectShared } from "@/shared/interfaces/project-shared.interface";
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 import RemoveUserFromTaskDialog from "../remove-user-from-task/remove-user-from-tasl.dialog";

@@ -3,8 +3,8 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+} from "@ui/popover";
+import { Button } from "@ui/button";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
 import { useNavigate } from "react-router-dom";
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";

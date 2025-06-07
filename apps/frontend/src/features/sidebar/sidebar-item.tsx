@@ -1,4 +1,4 @@
-import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { SidebarMenuItem, SidebarMenuButton } from "@ui/sidebar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import PrivateComponent from "@/widgets/private-component";
 import { HTMLAttributes } from "react";
