@@ -23,7 +23,4 @@ export const PlansSchema = z.object({
   currency: CurrencySchema,
 });
 
-export type Plans = z.infer<typeof PlansSchema>;
-
-// Интерфейсы для бизнес-сущности плана
-// ... содержимое из shared/interfaces/plans.interface.ts ... 
+export type Plans = z.infer<typeof PlansSchema>; 

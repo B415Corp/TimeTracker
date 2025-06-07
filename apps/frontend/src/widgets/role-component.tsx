@@ -1,4 +1,3 @@
-import RoleBadge from "@/shared/ui/base/role-badge";
 import { Badge } from "@ui/badge";
 import {
   Dialog,
@@ -9,6 +8,7 @@ import {
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 import { ShieldX } from "lucide-react";
 import { HTMLAttributes, useEffect, useState, useCallback } from "react";
+import RoleBadge from "@/entities/role/role-badge";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   roles: Array<PROJECT_ROLE>;

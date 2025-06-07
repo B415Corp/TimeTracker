@@ -1,13 +1,8 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "./baseQueryWithErrorHandling";
-import {
-  Client,
-  ClientSchema,
-  CreateClientDTO,
-  EditClientDTO,
-} from "../interfaces/client.interface";
 import { PaginatedResponse } from "../interfaces/api.interface";
 import { validatePaginatedResponse, validateWithSchema } from "@/lib/validator";
+import { Client, ClientSchema, CreateClientDTO, EditClientDTO } from "@/entities/client/client.interface";
 
 export const clientService = createApi({
   reducerPath: "client-service",

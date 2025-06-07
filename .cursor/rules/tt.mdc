@@ -38,4 +38,6 @@ alwaysApply: false
     - swagger документация - '/docs'
     - эндпоинты - '/api'
     - эндпоинты начинаются с версии '/v1' или '/v2'
+
+    нейминг должен быть по примеру hello-world.ts, hello-world.api.ts
     

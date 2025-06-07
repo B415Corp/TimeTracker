@@ -1,24 +1,14 @@
-import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
-import ClientItem from "@/shared/ui/base/client-item";
+import { ROUTES } from "@/app/router/routes.enum";
 import { Button } from "@ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/card";
 import { useSearcV2Query } from "@/shared/api/search.service";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AdvantageCard } from "@/shared/ui/advantage-card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@ui/carousel";
 import { useRef, useEffect, useState } from "react";
 import TaskCardMain from "@/features/tasks/task-cards/task-card-main.root";
+import { ClientItem } from "@/entities/client";
 
 const TASK_ADVANTAGES = [
   {
@@ -196,9 +186,7 @@ const HomePage: React.FC = () => {
                 <CardFooter>
                   <Button
                     onClick={() =>
-                      navigate(
-                        `/${ROUTES.PROJECTS}/${el?.project_id}`
-                      )
+                      navigate(`/${ROUTES.PROJECTS}/${el?.project_id}`)
                     }
                   >
                     Перейти

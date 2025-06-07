@@ -1,7 +1,7 @@
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
 import { CollapsibleContent } from "@ui/collapsible";
 import { SidebarMenuButton, SidebarMenuSub } from "@ui/sidebar";
-import { Project } from "@/shared/interfaces/project.interface";
+import { Project } from "@/entities/project/project.interface";
 import { ChartNoAxesGantt } from "lucide-react";
 import { Link } from "react-router-dom";
 

@@ -9,7 +9,7 @@ import {
   ProjectByIdSchema,
   ProjectSchema,
   UpdateProjectDTO,
-} from "../interfaces/project.interface";
+} from "../../entities/project/project.interface";
 import { validatePaginatedResponse, validateWithSchema } from "@/lib/validator";
 
 export const projectsService = createApi({

@@ -1,4 +1,3 @@
-import { PlanCard } from "@/shared/ui/base/plan-card";
 import { Button } from "@ui/button";
 import {
   Carousel,
@@ -10,6 +9,7 @@ import {
 import { useGetPlansQuery } from "@/shared/api/plans.service";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { PlanCard } from "@/entities/plan/plan-card";
 
 export default function PlansPage() {
   const { data: plans } = useGetPlansQuery();

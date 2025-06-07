@@ -7,8 +7,6 @@ import {
 } from "@ui/dialog";
 import { Button } from "@ui/button";
 import { Card, CardFooter, CardHeader, CardTitle } from "@ui/card";
-import RoleBadge from "@/shared/ui/base/role-badge";
-import UserAvatar from "@/shared/ui/base/user-avatar";
 import {
   useGetProjectsSharedInvationsQuery,
   useApproveProjectSharedInvationMutation,
@@ -18,6 +16,8 @@ import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import { Bell } from "lucide-react";
 import { Badge } from "@ui/badge";
+import RoleBadge from "@/entities/role/role-badge";
+import UserAvatar from "@/entities/user/UserAvatar";
 
 interface props {
   dialogIsOpen: boolean;

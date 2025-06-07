@@ -18,12 +18,12 @@ import {
   SelectValue,
 } from "@ui/select";
 import { z } from "zod";
-import RoleBadge from "@/shared/ui/base/role-badge";
 import { Button } from "@ui/button";
 import { DialogFooter } from "@ui/dialog";
 import { useCreateProjectSharedMutation } from "@/shared/api/projects-shared.service";
 import { Input } from "@ui/input";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
+import RoleBadge from "@/entities/role/role-badge";
 
 const schema = z.object({
   project_id: z.string().min(1, "Название задачи обязательно"),

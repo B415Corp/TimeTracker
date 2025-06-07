@@ -1,4 +1,4 @@
-import { ProjectMembers } from "@/shared/interfaces/project.interface";
+import { ProjectMembers } from "@/entities/project/project.interface";
 import UserAvatar from "@/shared/ui/base/user-avatar";
 import { Button } from "@ui/button";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
@@ -32,9 +32,9 @@ import { Card, CardContent } from "@ui/card";
 import { Badge } from "@ui/badge";
 import InviteUserToProjectDialog from "../invite-user-to-project/invite-user-to-project.dialog";
 import { Separator } from "@ui/separator";
-import RoleBadge from "@/shared/ui/base/role-badge";
 import PaymentType from "@/shared/ui/payment-type";
 import EditProjectMemberDialog from "../edit-project.member.dialog";
+import RoleBadge from "@/entities/role/role-badge";
 
 interface InvitedUsersProps {
   members: Array<ProjectMembers>;

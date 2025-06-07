@@ -5,8 +5,23 @@ import {
 import UserAvatar from "@ui/base/user-avatar";
 import { Loader } from "lucide-react";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
+import { Input } from "@ui/input";
 import { Separator } from "@ui/separator";
 import { Button } from "@ui/button";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  EditUserNameDTO,
+  EditUserNameSchema,
+} from "@/shared/interfaces/user.interface";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@ui/form";
 import { AccountNameForm } from "@/features/settings/forms/AccountNameForm";
 
 export function AccountTab() {

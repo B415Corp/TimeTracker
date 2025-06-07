@@ -1,6 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
 import { ROUTES } from "@/app/router/routes.enum";
-import RateItem from "@/shared/ui/base/rate-item";
 import { Button } from "@ui/button";
 import {
   Card,
@@ -11,6 +10,7 @@ import {
 } from "@ui/card";
 import { useNavigate } from "react-router-dom";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
+import RateItem from "@/entities/rate/rate-item";
 
 // Определяем тип значения контекста
 interface context {
@@ -64,7 +64,7 @@ function Body() {
   const { symbol, rate, payment_type } = useTaskCardMain();
   return (
     <CardContent>
-      <RateItem symbol={symbol} rate={rate} payment_type={payment_type} />
+      <RateItem value={symbol + rate} />
     </CardContent>
   );
 }

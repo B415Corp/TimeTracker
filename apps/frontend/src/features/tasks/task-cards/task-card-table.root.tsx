@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RateItem from "@/shared/ui/base/rate-item";
 import {
   Select,
   SelectContent,
@@ -48,6 +47,7 @@ import { Currency } from "@/shared/interfaces/currency.interface";
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
 import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
 import TaskSharedUsers from "../shared-users/task-shared-users";
+import RateItem from "@/entities/rate/rate-item";
 
 type dialogType = "edit" | "delete" | null;
 
@@ -189,11 +189,7 @@ function Rate() {
   const context = useContextRoot();
   return (
     <TableCell className="w-[1/6]">
-      <RateItem
-        symbol={context.symbol}
-        rate={context.rate}
-        payment_type={context.payment_type}
-      />
+      <RateItem value={context.symbol + context.rate} />
     </TableCell>
   );
 }

@@ -33,7 +33,7 @@ import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import ProjectInvitationDialog from "@/features/project/project-invitation/project-invitation.dialog";
 import OwnerUi from "@/shared/ui/owner.ui";
-import { GetPeojectMeDTO } from "@/shared/interfaces/project.interface";
+import { GetPeojectMeDTO } from "@/entities/project/project.interface";
 
 const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();

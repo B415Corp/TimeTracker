@@ -88,4 +88,4 @@ export function PlanCard({ plan }: { plan: Plans }) {
       </CardFooter>
     </Card>
   );
-}
+} 
