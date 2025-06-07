@@ -22,29 +22,12 @@ import {
   FormItem,
   FormMessage,
 } from "@ui/form";
+import { AccountNameForm } from "@/features/settings/forms/AccountNameForm";
 
 export function AccountTab() {
   const { data: userData } = useGetUserQuery();
   const { data: subscriptionData } = useGetSubscriptionsQuery();
   const [editName, { isLoading }] = useEditUserNameMutation();
-
-  const form = useForm({
-    resolver: zodResolver(EditUserNameSchema),
-    defaultValues: {
-      name: userData?.name || "",
-    },
-  });
-  const { isDirty } = form.formState;
-
-  function onSubmit(data: EditUserNameDTO) {
-    if (isDirty) {
-      editName(data);
-    }
-  }
-
-  useEffect(() => {
-    form.reset({ name: userData?.name || "" });
-  }, [userData, form]);
 
   if (!userData || !subscriptionData) {
     return <Loader className="animate-spin" />;
@@ -57,34 +40,17 @@ export function AccountTab() {
         ) : (
           <UserAvatar
             size="large"
-            name={form.watch("name")}
+            name={userData.name}
             planId={subscriptionData?.planId}
           />
         )}
-
         <div>
           <p className="text-xs font-light opacity-75">Имя</p>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl style={{ width: "100%" }}>
-                      <Input
-                        {...field}
-                        placeholder="Имя пользователя"
-                        className="rounded-lg"
-                        onBlur={form.handleSubmit(onSubmit)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
+          <AccountNameForm
+            initialName={userData.name}
+            isLoading={isLoading}
+            onSubmit={editName}
+          />
         </div>
       </div>
       <div>

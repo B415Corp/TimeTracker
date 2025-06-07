@@ -25,30 +25,13 @@ import { Loader, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useParams } from "react-router-dom";
+import { UserNameForm } from "@/features/user/forms/UserNameForm";
 
 export default function UserMePage() {
   const { id } = useParams<{ id: string }>();
   const { data: userData } = useGetUserByIdQuery(id || "", { skip: !id });
   const [editName, { isLoading }] = useEditUserNameMutation();
   const { data: subscriptionData } = useGetSubscriptionsQuery();
-
-  const form = useForm({
-    resolver: zodResolver(EditUserNameSchema),
-    defaultValues: {
-      name: userData?.name || "",
-    },
-  });
-  const { isDirty } = form.formState;
-
-  function onSubmit(data: EditUserNameDTO) {
-    if (isDirty) {
-      editName(data);
-    }
-  }
-
-  useEffect(() => {
-    form.reset({ name: userData?.name || "" });
-  }, [userData, form]);
 
   if (!userData || !subscriptionData) {
     return <Loader className="animate-spin" />;
@@ -62,32 +45,16 @@ export default function UserMePage() {
         ) : (
           <UserAvatar
             size="small"
-            name={form.watch("name")}
+            name={userData.name}
             planId={subscriptionData?.planId}
           />
         )}
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl style={{ width: "100%" }}>
-                    <Input
-                      {...field}
-                      placeholder="Имя пользователя"
-                      className="rounded-lg text-xl font-bold"
-                      onBlur={form.handleSubmit(onSubmit)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
+        <UserNameForm
+          initialName={userData.name}
+          isLoading={isLoading}
+          onSubmit={editName}
+          inputClassName="rounded-lg text-xl font-bold"
+        />
       </div>
       <div className="flex flex-col p-4 w-full gap-8">
         <div className="w-full flex flex-col">
