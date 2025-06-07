@@ -1,5 +1,5 @@
 import { SidebarMenuItem, SidebarMenuButton } from "@ui/sidebar";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import PrivateComponent from "@/widgets/private-component";
 import { HTMLAttributes } from "react";
 import { useLocation } from "react-router-dom";

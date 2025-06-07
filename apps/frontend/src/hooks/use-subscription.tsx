@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { SUBSCRIPTION } from "../shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 
 interface SubscriptionResult {

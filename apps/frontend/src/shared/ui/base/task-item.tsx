@@ -12,8 +12,8 @@ import {
 import { LoaderCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { startTimer, stopTimer } from "@/features/time/model/time.slice";
-import { TIMELOGSTATUS } from "@/shared/enums/time-logs.enum";
+import { startTimer, stopTimer } from "@/features/time";
+import { TIMELOGSTATUS } from "@/shared/enums";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import { PlayPauseButton } from "@/entities/play-pause";
 import { TimerComponent } from "@/entities/timer";

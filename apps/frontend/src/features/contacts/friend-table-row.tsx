@@ -1,6 +1,6 @@
 import { Friendship } from "@/entities/team/team.interface";
 import { useGetUserQuery } from "@/shared/api/user.service";
-import UserAvatar from "@/shared/ui/base/user-avatar";
+import { UserAvatar } from "@ui/base/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { Button } from "@ui/button";
 import { UserRoundCheck, UserRoundX } from "lucide-react";

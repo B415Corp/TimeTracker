@@ -13,7 +13,7 @@ import {
   Bell,
   Clock,
 } from "lucide-react";
-import { NOTIFICATION_TYPE } from "@/shared/enums/notification-type.enum";
+import { NOTIFICATION_TYPE } from "@/shared/enums";
 
 interface NotificationIconProps {
   type: NOTIFICATION_TYPE;

@@ -1,7 +1,7 @@
 import { Loader } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
 import { getAvatarUrl } from "@/lib/get-avatar-url";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import {
   Tooltip,
   TooltipContent,
@@ -17,7 +17,7 @@ interface Props {
   metaText?: string;
 }
 
-export default function UserAvatar({
+export function UserAvatar({
   name,
   planId,
   size = "small",

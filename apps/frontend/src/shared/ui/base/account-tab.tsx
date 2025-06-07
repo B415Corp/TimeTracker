@@ -2,12 +2,12 @@ import {
   useEditUserNameMutation,
   useGetUserQuery,
 } from "@/shared/api/user.service";
-import UserAvatar from "@ui/base/user-avatar";
 import { Loader } from "lucide-react";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import { Separator } from "@ui/separator";
 import { Button } from "@ui/button";
 import { AccountNameForm } from "@/features/settings/forms/AccountNameForm";
+import { UserAvatar } from "@/entities/user";
 
 export function AccountTab() {
   const { data: userData } = useGetUserQuery();

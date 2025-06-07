@@ -1,5 +1,5 @@
 import { ProjectMembers } from "@/entities/project/project.interface";
-import UserAvatar from "@/shared/ui/base/user-avatar";
+import { UserAvatar } from "@ui/base/user-avatar";
 import { Button } from "@ui/button";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { useState } from "react";

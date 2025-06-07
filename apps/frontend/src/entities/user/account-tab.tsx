@@ -2,7 +2,7 @@ import {
   useEditUserNameMutation,
   useGetUserQuery,
 } from "@/shared/api/user.service";
-import UserAvatar from "@ui/base/user-avatar";
+import { UserAvatar } from "@ui/base/user-avatar";
 import { Loader } from "lucide-react";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import { Input } from "@ui/input";

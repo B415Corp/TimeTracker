@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLazySearcV2Query } from "@/shared/api/search.service";
+import { useLazySearcV2Query } from "@/shared/api";
 import { Search, X } from "lucide-react";
 import { formatDate } from "@/lib/dateUtils";
 import { Skeleton } from "@ui/skeleton";
-import UserAvatar from "@/shared/ui/base/user-avatar";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { UserAvatar } from "@/entities/user";
 
 interface Props {
   searchLocationList: Array<"all" | "projects" | "tasks" | "clients" | "users">;

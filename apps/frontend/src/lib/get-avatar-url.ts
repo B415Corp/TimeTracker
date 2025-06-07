@@ -1,4 +1,4 @@
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 const variantByType = {
   [SUBSCRIPTION.FREE]: { mouth: "variant3" },
   [SUBSCRIPTION.BASIC]: { mouth: "variant1" },

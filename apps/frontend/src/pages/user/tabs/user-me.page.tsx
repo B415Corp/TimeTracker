@@ -1,29 +1,13 @@
 import { ROUTES } from "@/app/router/routes.enum";
 import { Button } from "@ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@ui/form";
-import { Input } from "@ui/input";
 import { Separator } from "@ui/separator";
-import UserAvatar from "@/shared/ui/base/user-avatar";
+import { UserAvatar } from "@ui/base/user-avatar";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import {
   useEditUserNameMutation,
   useGetUserByIdQuery,
 } from "@/shared/api/user.service";
-
-import {
-  EditUserNameDTO,
-  EditUserNameSchema,
-} from "@/shared/interfaces/user.interface";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, ShieldCheck, Sparkles } from "lucide-react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { Link, useParams } from "react-router-dom";
 import { UserNameForm } from "@/features/user/forms/UserNameForm";
 

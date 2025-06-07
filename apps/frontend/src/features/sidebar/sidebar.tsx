@@ -28,8 +28,8 @@ import {
 import { Link } from "react-router";
 import SidebarItemFeature from "./sidebar-item";
 import { useGetFriendshipMeQuery } from "@/shared/api/friendship.service";
-import UserAvatar from "@/shared/ui/base/user-avatar";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { UserAvatar } from "@/shared/ui/base/user-avatar";
+import { SUBSCRIPTION } from "@/shared/enums";
 import { useSearcV2Query } from "@/shared/api/search.service";
 
 export default function SidebarFeature() {

@@ -1,5 +1,5 @@
-import UserAvatar from "@/shared/ui/base/user-avatar";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { UserAvatar } from "@/shared/ui/base/user-avatar";
+import { SUBSCRIPTION } from "@/shared/enums";
 import React from "react";
 
 const parseAndHighlight = (text: string) => {

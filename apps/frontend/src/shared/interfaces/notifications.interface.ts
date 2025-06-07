@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { NOTIFICATION_TYPE } from "../enums/notification-type.enum";
+import { NOTIFICATION_TYPE } from "@/shared/enums";
 
 export const notificationsSchema = z.object({
   id: z.string(),

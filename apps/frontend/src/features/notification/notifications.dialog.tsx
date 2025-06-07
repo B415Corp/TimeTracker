@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@ui/dialog";
-import { NOTIFICATION_TYPE } from "@/shared/enums/notification-type.enum";
+import { NOTIFICATION_TYPE } from "@/shared/enums";
 import { JSX } from "react";
 import FriendshipInvitationDialog from "./dialogs/friendship_invitation.dialog";
 

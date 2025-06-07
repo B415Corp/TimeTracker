@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../app/router/routes.enum";
+import { ROUTES } from "@/shared/enums";
 
 const NoAccessPage: React.FC = () => {
   const navigate = useNavigate();

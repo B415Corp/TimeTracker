@@ -1,4 +1,4 @@
-import { ROUTES } from "@/app/router/routes.enum";
+import { ROUTES } from "@/shared/enums";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
 import {
@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@ui/dialog";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import { LockKeyhole } from "lucide-react";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { Link } from "react-router-dom";

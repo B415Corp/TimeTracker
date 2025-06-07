@@ -40,7 +40,7 @@ import InvitedUsers from "@/features/project/invited-users/invited-users";
 import LeaveProjectDialog from "@/features/project/leave-project.dialog";
 import EditProjectForm from "@/features/project/forms/edit-project.form";
 import RoleComponent from "@/widgets/role-component";
-import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
+import { PROJECT_ROLE, SUBSCRIPTION } from "@/shared/enums";
 import CreateTaskForm from "@/features/tasks/forms/create-task.form";
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
 import { useNavigate, useParams } from "react-router-dom";
@@ -48,8 +48,7 @@ import { TasksListBoardPage } from "@/pages/tasks/tasks-list-board.page";
 import { TasksListTablePage } from "@/pages/tasks/tasks-list-table.page";
 import { Separator } from "@radix-ui/react-separator";
 import { User } from "@/shared/interfaces/user.interface";
-import UserAvatar from "@/shared/ui/base/user-avatar";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { UserAvatar } from "@ui/base/user-avatar";
 import { formatMilliseconds } from "@/lib/format-seconds";
 import RoleBadge from "@/entities/role/role-badge";
 

@@ -3,7 +3,7 @@ import { useReadNotificationsMutation } from "@/shared/api/notification.service"
 import { INotification } from "@/shared/interfaces/notifications.interface";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { NOTIFICATION_TYPE } from "@/shared/enums/notification-type.enum";
+import { NOTIFICATION_TYPE } from "@/shared/enums";
 import { useState } from "react";
 import { Badge } from "@ui/badge";
 import parseAndHighlight from "@/lib/parse-notification-message";

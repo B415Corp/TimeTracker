@@ -23,7 +23,7 @@ import {
   useDeleteTaskMutation,
   useUpdateTaskMutation,
 } from "@/shared/api/task.service";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import { Task } from "@/shared/interfaces/task.interface";
 import PrivateComponent from "@/widgets/private-component";
 import {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLazySearcV2Query } from "@/shared/api/search.service";
+import { useLazySearcV2Query } from "@/shared/api";
 import { Button } from "@ui/button";
 import {
   Sheet,
@@ -16,9 +16,9 @@ import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/dateUtils";
 import { Skeleton } from "@ui/skeleton";
-import UserAvatar from "@/shared/ui/base/user-avatar";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
-import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
+import { UserAvatar } from "@/shared/ui/base";
+import { SUBSCRIPTION } from "@/shared/enums";
+import { PROJECT_ROLE } from "@/shared/enums";
 
 interface props {
   searchLocationList: Array<"all" | "projects" | "tasks" | "clients" | "users">;

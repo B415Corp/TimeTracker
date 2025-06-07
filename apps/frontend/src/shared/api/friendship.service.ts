@@ -7,7 +7,7 @@ import {
   FriendshipMe,
 } from "@/entities/team/team.interface";
 import { PaginatedResponse } from "../interfaces/api.interface";
-import { FriendshipStatus } from "../enums/friendship.enum";
+import { FriendshipStatus } from "@/shared/enums";
 import { validatePaginatedResponse, validateWithSchema } from "@/lib/validator";
 import { z } from "zod";
 

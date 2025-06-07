@@ -4,7 +4,7 @@ import {
   Subscriptions,
   SubscriptionsSchema,
 } from "../interfaces/subscriptions.interface";
-import { SUBSCRIPTION } from "../enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import {validateWithSchema} from "@/lib/validator";
 
 export const subscriptionsService = createApi({

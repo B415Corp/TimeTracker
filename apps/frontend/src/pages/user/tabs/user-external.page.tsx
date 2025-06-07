@@ -11,13 +11,13 @@ import {
   TableCell,
   TableFooter,
 } from "@ui/table";
-import UserAvatar from "@/shared/ui/base/user-avatar";
+import { UserAvatar } from "@ui/base/user-avatar";
 import {
   useGetFriendByIdQuery,
   useRequestFriendshipMutation,
 } from "@/shared/api/friendship.service";
 import { useGetUserByIdQuery } from "@/shared/api/user.service";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import { FolderGit2, Loader, SquareCheck } from "lucide-react";
 import { useParams } from "react-router-dom";
 

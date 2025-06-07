@@ -18,7 +18,7 @@ import {
   useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
 } from "@/shared/api/task.service";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import {
   PAYMENT,
   Task,

@@ -18,7 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@ui/tooltip";
-import { TIMELOGSTATUS } from "@/shared/enums/time-logs.enum";
+import { TIMELOGSTATUS } from "@/shared/enums";
 import {
   startTimer,
   stopTimer,

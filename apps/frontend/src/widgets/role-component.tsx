@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@ui/dialog";
-import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
+import { PROJECT_ROLE } from "@/shared/enums";
 import { ShieldX } from "lucide-react";
 import { HTMLAttributes, useEffect, useState, useCallback } from "react";
 import RoleBadge from "@/entities/role/role-badge";

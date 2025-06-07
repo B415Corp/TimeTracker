@@ -12,7 +12,7 @@ import {
   useApproveProjectSharedInvationMutation,
   useDeleteRoleProjectSharedMutation,
 } from "@/shared/api/projects-shared.service";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { SUBSCRIPTION } from "@/shared/enums";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import { Bell } from "lucide-react";
 import { Badge } from "@ui/badge";
