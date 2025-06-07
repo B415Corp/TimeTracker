@@ -23,7 +23,7 @@ import {
   startTimer,
   stopTimer,
 } from "../time/model/time.slice";
-import { TimeLog } from "@/shared/interfaces/time-log.interface";
+import { TimeLog } from "@/entities/timer/timer.interface";
 import { createSelector } from "reselect";
 
 // Определяем тип значения контекста

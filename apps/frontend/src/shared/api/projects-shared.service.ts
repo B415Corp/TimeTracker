@@ -11,7 +11,7 @@ import {
   ProjectSharedDeleteDTO,
   ProjectSharedPatchDTO,
   ProjectSharedSchema,
-} from "../interfaces/project-shared.interface";
+} from "@/entities/role/role.interface";
 import { validateWithSchema } from "@/lib/validator";
 import { z } from "zod";
 

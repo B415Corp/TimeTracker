@@ -1,5 +1,8 @@
+// Интерфейсы для бизнес-сущности команды/друзей
+// ... содержимое из shared/interfaces/friends.interface.ts ... 
+
 import { z } from "zod";
-import { FriendshipStatus } from "../enums/friendship.enum";
+import { FriendshipStatus } from "@/shared/enums/friendship.enum";
 
 export const FriendSchema = z.object({
   user_id: z.string(),
@@ -47,4 +50,4 @@ export const FriendshipMeSchema = z.object({
 export type Friend = z.infer<typeof FriendSchema>;
 export type Friendship = z.infer<typeof FriendshipSchema>;
 export type FriendshipPending = z.infer<typeof FriendshipPendingSchema>;
-export type FriendshipMe = z.infer<typeof FriendshipMeSchema>;
+export type FriendshipMe = z.infer<typeof FriendshipMeSchema>; 

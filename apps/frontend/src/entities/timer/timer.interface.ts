@@ -1,7 +1,10 @@
+// Интерфейсы для бизнес-сущности таймера
+// ... содержимое из shared/interfaces/time-log.interface.ts ... 
+
 import { z } from "zod";
-import { CurrencySchema } from "./currency.interface";
-import { PAYMENT } from "./task.interface";
-import { TIMELOGSTATUS } from "../enums/time-logs.enum";
+import { CurrencySchema } from "@/shared/interfaces/currency.interface";
+import { PAYMENT } from "@/shared/interfaces/task.interface";
+import { TIMELOGSTATUS } from "@/shared/enums/time-logs.enum";
 
 const TIMELOGSTATUSSchema = z.nativeEnum(TIMELOGSTATUS);
 
@@ -56,4 +59,4 @@ export const LatestLogSchema = z.object({
 // Типы (интерфейсы) внизу
 
 export type TimeLog = z.infer<typeof TimeLogSchema>;
-export type LatestLog = z.infer<typeof LatestLogSchema>;
+export type LatestLog = z.infer<typeof LatestLogSchema>; 

@@ -7,7 +7,7 @@ import {
   DialogTrigger,
 } from "@ui/dialog";
 import { useAcceptFriendshipMutation } from "@/shared/api/friendship.service";
-import { Friendship } from "@/shared/interfaces/friends.interface";
+import { Friendship } from "@/entities/team/team.interface";
 import { useEffect, useState } from "react";
 
 interface props {

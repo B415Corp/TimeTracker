@@ -1,4 +1,4 @@
-import { Plans } from "@/shared/interfaces/plans.interface";
+import { Plans } from "@/entities/plan/plan.interface";
 import {
   Card,
   CardContent,

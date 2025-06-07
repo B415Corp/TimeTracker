@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { SUBSCRIPTION } from "../enums/sunscriptions.enum";
-import { CurrencySchema } from "./currency.interface";
+import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { CurrencySchema } from "@/shared/interfaces/currency.interface";
 
 // Схема для features внутри Plans
 const PlansFeaturesSchema = z.object({
@@ -24,3 +24,6 @@ export const PlansSchema = z.object({
 });
 
 export type Plans = z.infer<typeof PlansSchema>;
+
+// Интерфейсы для бизнес-сущности плана
+// ... содержимое из shared/interfaces/plans.interface.ts ... 

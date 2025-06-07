@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "./baseQueryWithErrorHandling";
-import { Plans, PlansSchema } from "../interfaces/plans.interface";
+import { Plans, PlansSchema } from "@/entities/plan/plan.interface";
 import { validateWithSchema } from "@/lib/validator";
 import { z } from "zod";
 

@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@ui/popover";
-import { ProjectShared } from "@/shared/interfaces/project-shared.interface";
+import { ProjectShared } from "@/entities/role/role.interface";
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 import RemoveUserFromTaskDialog from "../remove-user-from-task/remove-user-from-tasl.dialog";
 

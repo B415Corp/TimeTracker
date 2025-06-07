@@ -1,7 +1,10 @@
+// Интерфейсы для бизнес-сущности роли
+// ... содержимое из shared/interfaces/project-shared.interface.ts ... 
+
 import { z } from "zod";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
-import { PROJECT_ROLE } from "../enums/project-role.enum";
-import { CurrencySchema } from "./currency.interface";
+import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
+import { CurrencySchema } from "@/shared/interfaces/currency.interface";
 
 // ENUM схемы
 const PROJECT_ROLESchema = z.nativeEnum(PROJECT_ROLE);
@@ -108,4 +111,4 @@ export type ProjectSharedDeleteDTO = z.infer<
   typeof ProjectSharedDeleteDTOSchema
 >;
 export type FriendsOnProject = z.infer<typeof FriendsOnProjectSchema>;
-export type ProjectInvitations = z.infer<typeof ProjectInvitationsSchema>;
+export type ProjectInvitations = z.infer<typeof ProjectInvitationsSchema>; 

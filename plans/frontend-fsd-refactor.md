@@ -16,12 +16,12 @@
 - [x] Удалить папку `components` после миграции.
 
 ### 2. Привести формы к FSD
-- [ ] Все формы должны находиться внутри соответствующих features (например, forms в features/tasks, features/project и т.д.).
+- [x] Все формы должны находиться внутри соответствующих features (например, forms в features/tasks, features/project и т.д.).
 - [x] В большинстве features формы уже вынесены корректно (например, features/tasks/forms, features/project/forms).
 
 ### 3. Entities layer
-- [ ] Создать поддиректории для бизнес-сущностей (например, task, project, user, client) в `entities`.
-- [ ] Вынести типы, модели, slice, atom, entity-компоненты (например, аватар пользователя, карточка задачи) в соответствующие папки entities.
+- [x] Создать поддиректории для бизнес-сущностей (например, task, project, user, client) в `entities`.
+- [x] Вынести типы, модели, slice, atom, entity-компоненты (например, аватар пользователя, карточка задачи) в соответствующие папки entities.
 
 ### 4. Features layer
 - [ ] Проверить, что каждая feature инкапсулирует бизнес-логику, формы, slice, api-запросы, UI для своей задачи.

@@ -1,4 +1,4 @@
-import { Friendship } from "@/shared/interfaces/friends.interface";
+import { Friendship } from "@/entities/team/team.interface";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import UserAvatar from "@/shared/ui/base/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";

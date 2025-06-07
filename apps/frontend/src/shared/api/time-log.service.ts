@@ -1,13 +1,14 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "./baseQueryWithErrorHandling";
 import {
-  LatestLog,
-  LatestLogSchema,
   TimeLog,
   TimeLogSchema,
-} from "../interfaces/time-log.interface";
+  LatestLog,
+  LatestLogSchema,
+} from "@/entities/timer/timer.interface";
 import { PaginatedResponse } from "../interfaces/api.interface";
 import { validateWithSchema } from "@/lib/validator";
+import { TimeLog as NewTimeLog, LatestLog as NewLatestLog } from "@/entities/timer/timer.interface";
 
 export const timeLogService = createApi({
   reducerPath: "time-log-service",

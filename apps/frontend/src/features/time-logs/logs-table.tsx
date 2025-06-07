@@ -17,7 +17,7 @@ import {
   ChartTooltipContent,
 } from "@ui/chart";
 import { PaginatedResponse } from "@/shared/interfaces/api.interface";
-import { TimeLog } from "@/shared/interfaces/time-log.interface";
+import { TimeLog } from "@/entities/timer/timer.interface";
 import { formatMilliseconds } from "@/lib/format-seconds";
 
 interface props {

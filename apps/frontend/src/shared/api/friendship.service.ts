@@ -1,16 +1,14 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "./baseQueryWithErrorHandling";
 import {
+  FriendshipSchema,
   Friendship,
-  FriendshipMe,
-  FriendshipMeSchema,
   FriendshipPending,
-  FriendshipPendingSchema,
-} from "../interfaces/friends.interface";
+  FriendshipMe,
+} from "@/entities/team/team.interface";
 import { PaginatedResponse } from "../interfaces/api.interface";
 import { FriendshipStatus } from "../enums/friendship.enum";
 import { validatePaginatedResponse, validateWithSchema } from "@/lib/validator";
-import { FriendshipSchema } from "../interfaces/friends.interface";
 import { z } from "zod";
 
 export const friendshipService = createApi({
@@ -67,7 +65,7 @@ export const friendshipService = createApi({
       providesTags: ["Friend-me-service"],
       transformResponse: (response: { data: Array<FriendshipMe> }) => {
         return validateWithSchema<Array<FriendshipMe>>(
-          z.array(FriendshipMeSchema),
+          z.array(FriendshipSchema),
           response.data,
           "getFriendshipMe"
         );
@@ -81,7 +79,7 @@ export const friendshipService = createApi({
       providesTags: ["Friend-pending-service"],
       transformResponse: (response: { data: Array<FriendshipPending> }) => {
         return validateWithSchema<Array<FriendshipPending>>(
-          z.array(FriendshipPendingSchema),
+          z.array(FriendshipSchema),
           response.data,
           "getFriendshipMe"
         );
