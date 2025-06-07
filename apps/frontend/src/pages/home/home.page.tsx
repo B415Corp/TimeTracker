@@ -146,20 +146,19 @@ const HomePage: React.FC = () => {
               <AdvantageCarousel items={TASK_ADVANTAGES} />
             )}
             {tasksData?.tasks?.map((el) => (
-              <>
-                <TaskCardMain.Root
-                  project_id={el.project_id || ""}
-                  task_id={el.task_id || ""}
-                  name={el.name || ""}
-                  symbol={el.currency.symbol}
-                  rate={Number(el.rate) || 0}
-                  payment_type={el.payment_type}
-                >
-                  <TaskCardMain.Header />
-                  <TaskCardMain.Body />
-                  <TaskCardMain.Footer />
-                </TaskCardMain.Root>
-              </>
+              <TaskCardMain.Root
+                key={el.task_id || el.name}
+                project_id={el.project_id || ""}
+                task_id={el.task_id || ""}
+                name={el.name || ""}
+                symbol={el.currency.symbol}
+                rate={Number(el.rate) || 0}
+                payment_type={el.payment_type}
+              >
+                <TaskCardMain.Header />
+                <TaskCardMain.Body />
+                <TaskCardMain.Footer />
+              </TaskCardMain.Root>
             ))}
           </div>
         </div>
