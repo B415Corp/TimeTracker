@@ -1,18 +1,10 @@
-import React from "react";
-import ProjectDetail from "./project-detail/project-detai.root";
+import { useParams } from "react-router-dom";
+import { ProjectDetailFeature } from "@/features/project/ProjectDetailFeature";
 
 const ProjectDetailPage: React.FC = () => {
-  console.log("ProjectDetailPage / re-render");
-
-  return (
-    <ProjectDetail.Root>
-      <ProjectDetail.Header.Root>
-        <ProjectDetail.Header.Top />
-        <ProjectDetail.Header.Bottom />
-      </ProjectDetail.Header.Root>
-      <ProjectDetail.ViewSection />
-    </ProjectDetail.Root>
-  );
+  const { id } = useParams<{ id: string }>();
+  if (!id) return null;
+  return <ProjectDetailFeature projectId={id} />;
 };
 
 export default ProjectDetailPage;
