@@ -91,7 +91,7 @@ export default function SidebarFeature() {
                       </SidebarMenuButton>
                     </SidebarMenuSubItem>
                     {projects?.slice(0, 5)?.map((_el) => (
-                      <SidebarMenuItem>
+                      <SidebarMenuItem key={_el.project_id}>
                         <SidebarMenuButton>
                           <Link
                             to={`/${ROUTES.PROJECTS}/${_el.project_id}`}
@@ -126,7 +126,7 @@ export default function SidebarFeature() {
                       </SidebarMenuButton>
                     </SidebarMenuSubItem>
                     {friends?.slice(0, 5)?.map((friend) => (
-                      <SidebarMenuItem>
+                      <SidebarMenuItem key={friend?.friend?.user_id}>
                         <SidebarMenuButton>
                           <Link
                             to={`/${ROUTES.USER}/${friend?.friend?.user_id}`}

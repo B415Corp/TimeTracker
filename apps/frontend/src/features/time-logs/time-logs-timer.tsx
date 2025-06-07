@@ -24,6 +24,7 @@ import {
   stopTimer,
 } from "../time/model/time.slice";
 import { TimeLog } from "@/shared/interfaces/time-log.interface";
+import { createSelector } from "reselect";
 
 // Определяем тип значения контекста
 interface ITimeLogsTimerContext {
@@ -121,13 +122,21 @@ const DEFAULT_TIMER = {
   status: TimerStatus.IDLE,
 };
 
+// Мемоизированный селектор для таймера задачи
+const selectTimerByTaskId = createSelector(
+  [
+    (state: RootState) => state.time.timers,
+    (_: RootState, task_id: string) => task_id,
+  ],
+  (timers, task_id) => timers[task_id] || DEFAULT_TIMER
+);
+
 function TimeUI({ fallbackTime = 0 }: { fallbackTime?: number }) {
   const context = useContext(TimeLogsTimerContext);
 
   // Получаем данные таймера и глобальный тик из redux
   const { accumulated, startTime, status } = useSelector(
-    (state: RootState) =>
-      state.time.timers[context?.task_id as string] || DEFAULT_TIMER
+    (state: RootState) => selectTimerByTaskId(state, context?.task_id as string)
   );
   // Подписка на глобальный тик для форс-обновления компонента
   useSelector((state: RootState) => state.time.tick);
@@ -164,8 +173,7 @@ function TimerFeature() {
 
   // Получаем данные таймера из redux
   const { accumulated, startTime, status } = useSelector(
-    (state: RootState) =>
-      state.time.timers[task_id] || { accumulated: 0, startTime: null, status: TimerStatus.IDLE }
+    (state: RootState) => selectTimerByTaskId(state, task_id)
   );
   // Подписка на глобальный тик для обновления title
   useSelector((state: RootState) => state.time.tick);
