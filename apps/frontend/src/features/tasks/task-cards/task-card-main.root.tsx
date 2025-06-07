@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode } from "react";
 import { ROUTES } from "@/app/router/routes.enum";
-import RateItem from "@/components/rate-item";
+import RateItem from "@/shared/ui/base/rate-item";
 import { Button } from "@ui/button";
 import {
   Card,

@@ -4,7 +4,7 @@ import { useLazySearcV2Query } from "@/shared/api/search.service";
 import { Search, X } from "lucide-react";
 import { formatDate } from "@/lib/dateUtils";
 import { Skeleton } from "@ui/skeleton";
-import UserAvatar from "@/components/user-avatar";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 

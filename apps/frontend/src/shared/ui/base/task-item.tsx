@@ -10,7 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@ui/tooltip";
-import TimerComponent from "./timer";
+import TimerComponent from "../shared/ui/base/timer";
 import { LoaderCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";

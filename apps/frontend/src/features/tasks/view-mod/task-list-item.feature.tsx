@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RateItem from "@/components/rate-item";
+import RateItem from "@/shared/ui/base/rate-item";
 import UpdateTaskForm from "../forms/update-task.form";
 import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
 

@@ -28,7 +28,7 @@ import { useGetUserQuery } from "@/shared/api/user.service";
 import { Link } from "react-router-dom";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
-import UserAvatar from "./user-avatar";
+import UserAvatar from "@ui/base/user-avatar";
 import { useGetNotificationsQuery } from "@/shared/api/notification.service";
 import { Badge } from "@ui/badge";
 import { useDispatch } from "react-redux";

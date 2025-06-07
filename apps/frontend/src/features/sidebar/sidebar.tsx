@@ -1,5 +1,5 @@
 import { CONTACTS_VIEW, ROUTES } from "@/app/router/routes.enum";
-import { NavUser } from "@/components/nav-user";
+import { NavUser } from "@ui/base/nav-user";
 import { Collapsible, CollapsibleContent } from "@ui/collapsible";
 import {
   SidebarHeader,
@@ -28,7 +28,7 @@ import {
 import { Link } from "react-router";
 import SidebarItemFeature from "./sidebar-item";
 import { useGetFriendshipMeQuery } from "@/shared/api/friendship.service";
-import UserAvatar from "@/components/user-avatar";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { useSearcV2Query } from "@/shared/api/search.service";
 

@@ -28,7 +28,7 @@ import React, { useEffect, useState } from "react";
 import { formatDate } from "@/lib/dateUtils";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/app/router/routes.enum";
-import UserAvatar from "@/components/user-avatar";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import ProjectInvitationDialog from "@/features/project/project-invitation/project-invitation.dialog";

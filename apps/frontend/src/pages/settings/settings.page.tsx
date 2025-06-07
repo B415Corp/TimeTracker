@@ -1,4 +1,4 @@
-import { AccountTab } from "@/components/settings-tab/account-tab";
+import { AccountTab } from "@ui/base/account-tab";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 import { Separator } from "@ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";

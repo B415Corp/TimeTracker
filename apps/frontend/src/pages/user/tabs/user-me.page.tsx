@@ -9,7 +9,7 @@ import {
 } from "@ui/form";
 import { Input } from "@ui/input";
 import { Separator } from "@ui/separator";
-import UserAvatar from "@/components/user-avatar";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import {
   useEditUserNameMutation,

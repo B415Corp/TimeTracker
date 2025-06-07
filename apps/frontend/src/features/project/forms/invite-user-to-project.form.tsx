@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@ui/select";
 import { z } from "zod";
-import RoleBadge from "@/components/role-badge";
+import RoleBadge from "@/shared/ui/base/role-badge";
 import { Button } from "@ui/button";
 import { DialogFooter } from "@ui/dialog";
 import { useCreateProjectSharedMutation } from "@/shared/api/projects-shared.service";

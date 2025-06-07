@@ -1,4 +1,4 @@
-import { PlanCard } from "@/components/plan-card";
+import { PlanCard } from "@/shared/ui/base/plan-card";
 import { Button } from "@ui/button";
 import {
   Carousel,

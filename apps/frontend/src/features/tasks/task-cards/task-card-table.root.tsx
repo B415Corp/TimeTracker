@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RateItem from "@/components/rate-item";
+import RateItem from "@/shared/ui/base/rate-item";
 import {
   Select,
   SelectContent,

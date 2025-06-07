@@ -7,8 +7,8 @@ import {
 } from "@ui/dialog";
 import { Button } from "@ui/button";
 import { Card, CardFooter, CardHeader, CardTitle } from "@ui/card";
-import RoleBadge from "@/components/role-badge";
-import UserAvatar from "@/components/user-avatar";
+import RoleBadge from "@/shared/ui/base/role-badge";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import {
   useGetProjectsSharedInvationsQuery,
   useApproveProjectSharedInvationMutation,

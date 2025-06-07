@@ -11,7 +11,7 @@ import {
   TableCell,
   TableFooter,
 } from "@ui/table";
-import UserAvatar from "@/components/user-avatar";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import {
   useGetFriendByIdQuery,
   useRequestFriendshipMutation,

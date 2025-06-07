@@ -48,8 +48,8 @@ import { TasksListBoardPage } from "@/pages/tasks/tasks-list-board.page";
 import { TasksListTablePage } from "@/pages/tasks/tasks-list-table.page";
 import { Separator } from "@radix-ui/react-separator";
 import { User } from "@/shared/interfaces/user.interface";
-import RoleBadge from "@/components/role-badge";
-import UserAvatar from "@/components/user-avatar";
+import RoleBadge from "@/shared/ui/base/role-badge";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { formatMilliseconds } from "@/lib/format-seconds";
 

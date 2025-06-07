@@ -1,4 +1,4 @@
-import RoleBadge from "@/components/role-badge";
+import RoleBadge from "@/shared/ui/base/role-badge";
 import { Button } from "@ui/button";
 import {
   Popover,

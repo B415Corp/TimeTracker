@@ -1,4 +1,4 @@
-import RoleBadge from "@/components/role-badge";
+import RoleBadge from "@/shared/ui/base/role-badge";
 import { Badge } from "@ui/badge";
 import {
   Dialog,

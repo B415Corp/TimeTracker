@@ -16,7 +16,7 @@ import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/dateUtils";
 import { Skeleton } from "@ui/skeleton";
-import UserAvatar from "@/components/user-avatar";
+import UserAvatar from "@/shared/ui/base/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import { PROJECT_ROLE } from "@/shared/enums/project-role.enum";
 

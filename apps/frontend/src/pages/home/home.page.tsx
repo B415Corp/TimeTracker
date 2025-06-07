@@ -1,5 +1,5 @@
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
-import ClientItem from "@/components/client-item";
+import ClientItem from "@/shared/ui/base/client-item";
 import { Button } from "@ui/button";
 import {
   Card,
@@ -11,7 +11,7 @@ import {
 import { useSearcV2Query } from "@/shared/api/search.service";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AdvantageCard } from "@/shared/ui/AdvantageCard";
+import { AdvantageCard } from "@/shared/ui/advantage-card";
 import {
   Carousel,
   CarouselContent,
