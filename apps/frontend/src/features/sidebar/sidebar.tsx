@@ -147,15 +147,6 @@ export default function SidebarFeature() {
               </SidebarMenuItem>
 
               <SidebarItemFeature
-                tooltip={"Заметки"}
-                pathname={`/${ROUTES.NOTES}`}
-              >
-                <Link to={`/${ROUTES.NOTES}`}>
-                  <NotebookPen className="h-4 w-4" />
-                  <span>Заметки</span>
-                </Link>
-              </SidebarItemFeature>
-              <SidebarItemFeature
                 tooltip={"Счета"}
                 pathname={`/${ROUTES.BILLING}`}
               >

@@ -10,7 +10,6 @@ import {
   HomePage,
   LoginPage,
   NotesDetailPage,
-  NotesPage,
   PlansPage,
   ProjectDetailPage,
   ProjectsPage,
@@ -176,20 +175,6 @@ const router = createBrowserRouter(
               ]}
             >
               <SettingsPage />
-            </PrivateRoute>
-          ),
-        },
-        {
-          path: ROUTES.NOTES,
-          element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
-              <NotesPage />
             </PrivateRoute>
           ),
         },
