@@ -1,5 +1,5 @@
 import { CONTACTS_VIEW, ROUTES } from "@/app/router/routes.enum";
-import { NavUser } from "@ui/base/nav-user";
+import { NavUser } from "@/entities/user/nav-user";
 import { Collapsible, CollapsibleContent } from "@ui/collapsible";
 import {
   SidebarHeader,
