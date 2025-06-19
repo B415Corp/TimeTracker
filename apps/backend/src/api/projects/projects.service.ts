@@ -210,6 +210,19 @@ export class ProjectsService {
     // Получаем проекты
     const [projects, total] = await qb.getManyAndCount();
 
+    // Добавляем информацию о потраченном времени для каждого проекта
+    for (const project of projects) {
+      try {
+        const duration = await this.timeLogsService.getTotalDurationByProject(
+          project.project_id
+        );
+        project.projectDuration = duration;
+      } catch (e) {
+        // В случае ошибки оставляем значение duration 0
+        project.projectDuration = 0;
+      }
+    }
+
     // Сортируем участников каждого проекта в нужном порядке
     projects.forEach((project) => {
       project.members.sort((a, b) => {

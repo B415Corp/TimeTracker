@@ -13,3 +13,16 @@ export const formatDate = (dateString: string): string => {
 
   return `${day}.${month}.${year}`;
 };
+
+export const formatDurationToHours = (durationMs?: number): string => {
+  if (!durationMs || isNaN(durationMs)) return "00:00:00";
+
+  const totalSeconds = Math.floor(durationMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (num: number): string => num.toString().padStart(2, "0");
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+};

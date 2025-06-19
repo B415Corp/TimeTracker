@@ -44,6 +44,7 @@ export const ProjectSchema = z.object({
   updated_at: z.string().optional(),
   client: ClientSchema.nullable(),
   members: z.array(ProjectMembersSchema),
+  projectDuration: z.number().optional(),
 });
 
 // CreateProjectDTOSchema

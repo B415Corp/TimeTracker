@@ -97,4 +97,11 @@ export class Project {
 
   @OneToOne(() => TaskStatusColumn, (taskStatus) => taskStatus.project)
   taskStatus: TaskStatusColumn;
+
+  @ApiProperty({
+    type: Number,
+    required: false,
+    description: 'Total time spent on the project in milliseconds',
+  })
+  projectDuration?: number;
 }

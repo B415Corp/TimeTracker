@@ -23,9 +23,9 @@ import {
   DialogTrigger,
 } from "@ui/dialog";
 import CreateProjectForm from "./forms/create-project.form";
-import { PanelTop } from "lucide-react";
+import { PanelTop, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { formatDate } from "@/lib/dateUtils";
+import { formatDate, formatDurationToHours } from "@/lib/dateUtils";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/app/router/routes.enum";
 import { UserAvatar } from "@ui/base/user-avatar";
@@ -33,7 +33,8 @@ import { PROJECT_ROLE } from "@/shared/enums";
 import { useGetUserQuery } from "@/shared/api/user.service";
 import ProjectInvitationDialog from "./project-invitation/project-invitation.dialog";
 import OwnerUi from "@/shared/ui/owner.ui";
-import { GetPeojectMeDTO } from "@/entities/project/project.interface";
+import { GetPeojectMeDTO, Project } from "@/entities/project/project.interface";
+import SelectClientForm from "./forms/select-client.form";
 
 /**
  * Feature-компонент: список проектов с бизнес-логикой и работой с API
@@ -53,6 +54,8 @@ export function ProjectsListFeature() {
   const [dialogIsOpen, setDialogIsOpen] = useState<
     "create" | "invitations" | null
   >(null);
+  const [clientDialogProject, setClientDialogProject] =
+    useState<Project | null>(null);
 
   useEffect(() => {
     refetchProjects();
@@ -201,6 +204,7 @@ export function ProjectsListFeature() {
                 <TableHead className="w-1/6">Пользователи</TableHead>
                 <TableHead className="w-1/6">Клиент</TableHead>
                 <TableHead className="w-1/6">Дата</TableHead>
+                <TableHead className="w-1/6">Время</TableHead>
                 <TableHead className="w-1/6">Владелец</TableHead>
                 <TableHead className="w-1/6">Действия</TableHead>
               </TableRow>
@@ -210,7 +214,9 @@ export function ProjectsListFeature() {
                 <TableRow
                   key={project.project_id}
                   className="hover:bg-accent cursor-pointer"
-                  onClick={() => navigate(`/${ROUTES.PROJECTS}/${project.project_id}`)}
+                  onClick={() =>
+                    navigate(`/${ROUTES.PROJECTS}/${project.project_id}`)
+                  }
                 >
                   <TableCell>{project.name}</TableCell>
                   <TableCell>
@@ -218,16 +224,39 @@ export function ProjectsListFeature() {
                       <UserAvatar
                         key={member.user.user_id}
                         name={member.user.name}
-                        planId={member.user.subscriptions?.[0]?.planId || 'free'}
-                        size="small"
+                        planId={
+                          member.user.subscriptions?.[0]?.planId || "free"
+                        }
+                        size="xs"
                       />
                     ))}
                   </TableCell>
-                  <TableCell>{project?.client?.name}</TableCell>
+                  <TableCell>
+                    {project?.client?.name ? (
+                      project.client.name
+                    ) : (
+                      <Button
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setClientDialogProject(project);
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span className="text-xs">Добавить клиента</span>
+                      </Button>
+                    )}
+                  </TableCell>
                   <TableCell>{formatDate(project.created_at)}</TableCell>
                   <TableCell>
+                    {formatDurationToHours(project.projectDuration)}
+                  </TableCell>
+                  <TableCell>
                     {project.members.map((member) => (
-                      <OwnerUi key={member.user.user_id} isOwner={userMe?.user_id === member.user.user_id} />
+                      <OwnerUi
+                        key={member.user.user_id}
+                        isOwner={userMe?.user_id === member.user.user_id}
+                      />
                     ))}
                   </TableCell>
                   <TableCell>
@@ -284,6 +313,26 @@ export function ProjectsListFeature() {
           </div>
         )}
       </div>
+      {/* Dialog for selecting client */}
+      <Dialog
+        open={Boolean(clientDialogProject)}
+        onOpenChange={(open) => {
+          if (!open) setClientDialogProject(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Выбрать клиента</DialogTitle>
+          </DialogHeader>
+          {clientDialogProject && (
+            <SelectClientForm
+              projectId={clientDialogProject.project_id}
+              onSuccess={() => refetchProjects()}
+              onClose={() => setClientDialogProject(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
-} 
+}
