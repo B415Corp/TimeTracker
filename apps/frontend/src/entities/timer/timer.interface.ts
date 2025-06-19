@@ -5,6 +5,7 @@ import { z } from "zod";
 import { CurrencySchema } from "@/shared/interfaces/currency.interface";
 import { PAYMENT } from "@/shared/interfaces/task.interface";
 import { TIMELOGSTATUS } from "@/shared/enums/time-logs.enum";
+import { UserSchema } from "@/shared/interfaces/user.interface";
 
 const TIMELOGSTATUSSchema = z.nativeEnum(TIMELOGSTATUS);
 
@@ -14,6 +15,7 @@ export const TimeLogSchema = z.union([
     log_id: z.string(),
     task_id: z.string(),
     user_id: z.string(),
+    user: UserSchema.optional(),
     start_time: z.string(),
     end_time: z.string(),
     status: TIMELOGSTATUSSchema,

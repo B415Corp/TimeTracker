@@ -47,10 +47,10 @@ export const timeLogService = createApi({
     }),
     getTimeLogLogs: builder.query<
       PaginatedResponse<TimeLog>,
-      { task_id: string }
+      { task_id: string; page?: number; limit?: number }
     >({
-      query: ({ task_id: id }) => ({
-        url: `time-logs/${id}/logs`,
+      query: ({ task_id: id, page = 1, limit = 10 }) => ({
+        url: `time-logs/${id}/logs?page=${page}&limit=${limit}`,
         method: "GET",
       }),
       // transformResponse: (response: { data: PaginatedResponse<TimeLog> }) =>
@@ -116,6 +116,55 @@ export const timeLogService = createApi({
         "time-log-service-lates-task",
       ],
     }),
+    postTimeLogManual: builder.mutation<
+      TimeLog,
+      { task_id: string; duration: number }
+    >({
+      query: ({ task_id, duration }) => ({
+        url: `time-logs/${task_id}/manual`,
+        method: "POST",
+        body: { duration },
+      }),
+      transformResponse: (response: { data: TimeLog }) => {
+        return validateWithSchema<TimeLog>(
+          TimeLogSchema,
+          response.data,
+          "postTimeLogManual"
+        );
+      },
+      invalidatesTags: [
+        "time-log-service",
+        "time-log-service-logs",
+        "time-log-service-list",
+        "time-log-service-latest",
+        "time-log-service-lates-task",
+      ],
+    }),
+    updateTimeLog: builder.mutation<TimeLog, { log_id: string; data: Partial<{ start_time: string; end_time: string; duration: number }> }>(
+      {
+        query: ({ log_id, data }) => ({
+          url: `time-logs/log/${log_id}`,
+          method: 'PATCH',
+          body: data,
+        }),
+        invalidatesTags: [
+          'time-log-service',
+          'time-log-service-logs',
+          'time-log-service-lates-task',
+        ],
+      }),
+    deleteTimeLog: builder.mutation<{ success: boolean }, { log_id: string }>(
+      {
+        query: ({ log_id }) => ({
+          url: `time-logs/log/${log_id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: [
+          'time-log-service',
+          'time-log-service-logs',
+          'time-log-service-lates-task',
+        ],
+      }),
   }),
 });
 
@@ -126,4 +175,7 @@ export const {
   usePostTimeLogStartMutation,
   usePostTimeLogStopMutation,
   useGetTimeLogLatestTaskQuery,
+  usePostTimeLogManualMutation,
+  useUpdateTimeLogMutation,
+  useDeleteTimeLogMutation,
 } = timeLogService;

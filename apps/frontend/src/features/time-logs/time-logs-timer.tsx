@@ -1,8 +1,14 @@
 import { RootState } from "@/app/store";
 import "@/shared/types/window.types";
 import { Button } from "@ui/button";
-import { LoaderCircle, Play, Pause } from "lucide-react";
-import { createContext, ReactNode, useContext, useEffect } from "react";
+import { LoaderCircle, Play, Pause, PlusIcon } from "lucide-react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { TimerStatus } from "../time/model/types";
 import { formatMilliseconds } from "@/lib/format-seconds";
@@ -19,12 +25,10 @@ import {
   TooltipTrigger,
 } from "@ui/tooltip";
 import { TIMELOGSTATUS } from "@/shared/enums";
-import {
-  startTimer,
-  stopTimer,
-} from "../time/model/time.slice";
+import { startTimer, stopTimer } from "../time/model/time.slice";
 import { TimeLog } from "@/entities/timer/timer.interface";
 import { createSelector } from "reselect";
+import ManualTimeLogDialog from "./manual-time-log.dialog";
 
 // Определяем тип значения контекста
 interface ITimeLogsTimerContext {
@@ -48,6 +52,7 @@ interface ITimeLogsTimerProviderProps {
   isReverse?: boolean;
   variant: "button" | "icon";
   showTime?: boolean;
+  allowManual?: boolean;
 }
 
 function TimeLogsTimerRoot({
@@ -104,6 +109,9 @@ function TimeLogsTimerRoot({
     logToggleHandler: logToggleHandler,
   };
 
+  const [manualDialogOpen, setManualDialogOpen] = useState<boolean>(false);
+  const allowManual = props.allowManual !== false;
+
   return (
     <TimeLogsTimerContext.Provider value={contextProps}>
       <div
@@ -135,8 +143,8 @@ function TimeUI({ fallbackTime = 0 }: { fallbackTime?: number }) {
   const context = useContext(TimeLogsTimerContext);
 
   // Получаем данные таймера и глобальный тик из redux
-  const { accumulated, startTime, status } = useSelector(
-    (state: RootState) => selectTimerByTaskId(state, context?.task_id as string)
+  const { accumulated, startTime, status } = useSelector((state: RootState) =>
+    selectTimerByTaskId(state, context?.task_id as string)
   );
   // Подписка на глобальный тик для форс-обновления компонента
   useSelector((state: RootState) => state.time.tick);
@@ -172,15 +180,16 @@ function TimerFeature() {
   const task_id = context?.task_id || "";
 
   // Получаем данные таймера из redux
-  const { accumulated, startTime, status } = useSelector(
-    (state: RootState) => selectTimerByTaskId(state, task_id)
+  const { accumulated, startTime, status } = useSelector((state: RootState) =>
+    selectTimerByTaskId(state, task_id)
   );
   // Подписка на глобальный тик для обновления title
   useSelector((state: RootState) => state.time.tick);
 
   // Смена favicon при активном таймере
   useEffect(() => {
-    const faviconEl = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    const faviconEl =
+      document.querySelector<HTMLLinkElement>('link[rel="icon"]');
     if (!faviconEl) return;
 
     // Сохраняем стандартный favicon при первом рендере

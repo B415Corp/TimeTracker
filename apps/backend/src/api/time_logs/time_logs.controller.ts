@@ -6,6 +6,8 @@ import {
   Post,
   Query,
   UseGuards,
+  Body,
+  Delete,
 } from '@nestjs/common';
 import { TimeLogsService } from './time_logs.service';
 import {
@@ -31,6 +33,8 @@ import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/guards/roles.decorator';
 import { SubscriptionGuard } from 'src/guards/subscription.guard';
+import { CreateManualTimeLogDto } from './dto/create-manual-time-log.dto';
+import { UpdateTimeLogDto } from './dto/update-time-log.dto';
 // import { Subscription } from 'src/decorators/subscription.decorator';
 // import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 
@@ -144,5 +148,39 @@ export class TimeLogsController {
       user.user_id,
       paginationQuery
     );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create manual time-log with fixed duration' })
+  @ApiResponse({ status: 201, type: TimeLog })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.EXECUTOR], 'project')
+  @Post(':task_id/manual')
+  async createManual(
+    @Param('task_id') task_id: string,
+    @GetUser() user: User,
+    @Body() dto: CreateManualTimeLogDto
+  ) {
+    return this.timeLogsService.createManualLog(task_id, user.user_id, dto.duration);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard, SubscriptionGuard)
+  @Roles([PROJECT_ROLE.OWNER], 'project')
+  @Patch('/log/:log_id')
+  async updateLog(
+    @Param('log_id') log_id: string,
+    @Body() dto: UpdateTimeLogDto,
+  ) {
+    return this.timeLogsService.updateManualLog(log_id, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard, SubscriptionGuard)
+  @Roles([PROJECT_ROLE.OWNER], 'project')
+  @Delete('/log/:log_id')
+  async deleteLog(@Param('log_id') log_id: string) {
+    await this.timeLogsService.remove(log_id);
+    return { success: true };
   }
 }

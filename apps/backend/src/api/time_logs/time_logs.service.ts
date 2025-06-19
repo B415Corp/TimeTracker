@@ -159,6 +159,7 @@ export class TimeLogsService {
 
     const [projects, total] = await this.timeLogRepository.findAndCount({
       where: { task_id, user_id },
+      relations: ['user'],
       skip,
       take: limit,
       order: { created_at: 'DESC' },
@@ -366,5 +367,66 @@ export class TimeLogsService {
       first_log: result[0]?.first_log ? new Date(result[0]?.first_log) : null,
       last_log: result[0]?.last_log ? new Date(result[0]?.last_log) : null,
     };
+  }
+
+  /**
+   * Создание фиксированного (ручного) лога с уже известной длительностью.
+   * start_time вычисляется как end_time - duration, статус сразу устанавливается «completed».
+   * @param task_id string
+   * @param user_id string
+   * @param duration number Длительность в миллисекундах
+   */
+  async createManualLog(
+    task_id: string,
+    user_id: string,
+    duration: number
+  ): Promise<TimeLog> {
+    if (!task_id || !user_id) {
+      throw new BadRequestException(ErrorMessages.TASK_AND_USER_ID_REQUIRED);
+    }
+
+    if (!duration || duration <= 0) {
+      throw new BadRequestException('Duration must be a positive number');
+    }
+
+    const now = new Date();
+    const start_time = new Date(now.getTime() - duration);
+
+    const time_log = this.timeLogRepository.create({
+      task_id,
+      user_id,
+      start_time,
+      end_time: now,
+      duration,
+      status: 'completed',
+    });
+
+    return this.timeLogRepository.save(time_log);
+  }
+
+  async updateManualLog(log_id: string, dto: Partial<{ start_time: string; end_time: string; duration: number }>): Promise<TimeLog> {
+    const log = await this.timeLogRepository.findOne({ where: { log_id } });
+    if (!log) {
+      throw new NotFoundException(ErrorMessages.TIME_LOG_NOT_FOUND(log_id));
+    }
+    if (dto.start_time) {
+      log.start_time = new Date(dto.start_time);
+    }
+    if (dto.end_time) {
+      log.end_time = new Date(dto.end_time);
+    }
+    if (dto.duration !== undefined) {
+      log.duration = dto.duration;
+      if (!dto.end_time && dto.start_time) {
+        log.end_time = new Date(new Date(dto.start_time).getTime() + dto.duration);
+      }
+      if (!dto.end_time && !dto.start_time) {
+        // recalculating end based on existing start_time
+        log.end_time = new Date(new Date(log.start_time).getTime() + dto.duration);
+      }
+    } else if (log.start_time && log.end_time) {
+      log.duration = log.end_time.getTime() - log.start_time.getTime();
+    }
+    return this.timeLogRepository.save(log);
   }
 }

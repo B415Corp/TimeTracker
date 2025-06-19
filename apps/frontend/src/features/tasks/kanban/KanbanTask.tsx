@@ -133,6 +133,7 @@ export default function KanbanTask({
                   task_id={task.task_id}
                   variant="icon"
                   showTime
+                  allowManual={false}
                 />
                 <Button
                   onClickCapture={() => {
