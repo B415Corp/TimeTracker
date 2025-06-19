@@ -12,13 +12,12 @@ import UpdateTaskForm from "./forms/update-task.form";
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@ui/dropdown-menu";
 import { Separator } from "@ui/separator";
-import { useGetTimeLogLogsQuery, usePostTimeLogManualMutation } from "@/shared/api/time-log.service";
+import { useGetTimeLogLogsQuery } from "@/shared/api/time-log.service";
 import TaskSharedUsers from "./shared-users/task-shared-users";
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
 import { LogsTable } from "../time-logs/logs-table";
 import TimeLogsTimer from "../time-logs/time-logs-timer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@ui/tabs";
-import { Input } from "@ui/input";
 import { formatMilliseconds } from "@/lib/format-seconds";
 
 /**
@@ -42,35 +41,8 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
 
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState<boolean>(false);
-  const [durationInput, setDurationInput] = useState<string>("00:00:00");
-  const [isDirty, setIsDirty] = useState<boolean>(false);
 
-  const [createManualLog] = usePostTimeLogManualMutation();
-
-  // Считаем общее затраченное время по логам
-  const totalDurationMs =
-    timeLogs?.data?.reduce((acc, log) => acc + Number(log?.duration || 0), 0) || 0;
-
-  // Сохраняем общее время в строковом формате
-  useEffect(() => {
-    const d = formatMilliseconds(totalDurationMs);
-    setDurationInput(`${d.hours}:${d.minutes}:${d.seconds}`);
-  }, [totalDurationMs]);
-
-  function parseHHMMSSToMs(value: string): number {
-    const parts = value.split(":").map((p) => parseInt(p));
-    if (parts.length !== 3) return 0;
-    const [h, m, s] = parts;
-    return ((h || 0) * 3600 + (m || 0) * 60 + (s || 0)) * 1000;
-  }
-
-  async function saveDuration() {
-    const durationMs = parseHHMMSSToMs(durationInput);
-    if (durationMs > 0) {
-      await createManualLog({ task_id: taskId, duration: durationMs });
-    }
-    setIsDirty(false);
-  }
+  const totalDurationMs = timeLogs?.data?.reduce((acc, log) => acc + Number(log?.duration || 0), 0) || 0;
 
   if (!task) return null;
 
@@ -212,29 +184,14 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
                 <p className="text-muted-foreground">Раздел в разработке</p>
               </TabsContent>
               <TabsContent value="time" className="flex flex-col gap-4 overflow-auto p-4">
-                {/* Редактируемое общее время */}
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={durationInput}
-                    onChange={(e) => {
-                      setDurationInput(e.target.value);
-                      setIsDirty(true);
-                    }}
-                    onBlur={() => {
-                      if (isDirty) saveDuration();
-                    }}
-                    className="w-32 text-center font-mono"
-                  />
-                  {isDirty && (
-                    <Button size="sm" onClick={saveDuration}>Сохранить</Button>
-                  )}
-                </div>
+                <p className="text-sm">Общее время: {formatMilliseconds(totalDurationMs).hours}:{formatMilliseconds(totalDurationMs).minutes}:{formatMilliseconds(totalDurationMs).seconds}</p>
                 {/* Таблица логов */}
                 <div className="overflow-auto">
                   {timeLogs && (
                     <LogsTable
                       logs={timeLogs}
                       onPageChange={(p) => setPage(p)}
+                      canEdit={true}
                     />
                   )}
                 </div>

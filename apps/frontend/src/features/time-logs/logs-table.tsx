@@ -12,10 +12,17 @@ import {
   TableCell,
   TableCaption,
 } from "@ui/table";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { PencilIcon, TrashIcon, MoreVerticalIcon } from "lucide-react";
 import { useDeleteTimeLogMutation } from "@/shared/api/time-log.service";
 import EditTimeLogDialog from "./edit-time-log.dialog";
 import { useState } from "react";
+import { Button } from "@ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@ui/dropdown-menu";
 
 interface Props {
   logs: PaginatedResponse<TimeLog>;
@@ -47,6 +54,8 @@ export function LogsTable({ logs, onPageChange, canEdit }: Props) {
         </TableHeader>
         <TableBody>
           {data.map((log) => {
+            if (!log) return null;
+
             const start = new Date(log.start_time).toLocaleString();
             const end = new Date(log.end_time).toLocaleString();
             const durationObj = formatMilliseconds(Number(log.duration));
@@ -59,13 +68,25 @@ export function LogsTable({ logs, onPageChange, canEdit }: Props) {
                 <TableCell>{duration}</TableCell>
                 <TableCell>{userDisplay}</TableCell>
                 {canEdit && (
-                  <TableCell className="flex gap-2">
-                    <button onClick={() => setEditingLog(log)}>
-                      <PencilIcon className="size-4" />
-                    </button>
-                    <button onClick={() => deleteLog({ log_id: log.log_id })}>
-                      <TrashIcon className="size-4" />
-                    </button>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-6">
+                          <MoreVerticalIcon className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setEditingLog(log)}>
+                          <PencilIcon className="mr-2 size-4" /> Редактировать
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => deleteLog({ log_id: log.log_id })}
+                        >
+                          <TrashIcon className="mr-2 size-4" /> Удалить
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 )}
               </TableRow>
@@ -73,7 +94,10 @@ export function LogsTable({ logs, onPageChange, canEdit }: Props) {
           })}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={totalCols} className="text-center text-muted-foreground">
+              <TableCell
+                colSpan={totalCols}
+                className="text-center text-muted-foreground"
+              >
                 Нет данных
               </TableCell>
             </TableRow>
