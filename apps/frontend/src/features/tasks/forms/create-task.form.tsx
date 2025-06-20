@@ -13,7 +13,6 @@ import { Input } from "@ui/input";
 import { Button } from "@ui/button";
 import { DialogFooter } from "@ui/dialog";
 import { useCreateTaskMutation } from "@/shared/api/task.service";
-import { Textarea } from "@ui/textarea";
 import { DateRangePicker } from "@ui/date-range-picker";
 import React from "react";
 import { TiptapEditor } from "@/entities/tiptap/TiptapEditor";
@@ -22,7 +21,7 @@ import { TiptapEditor } from "@/entities/tiptap/TiptapEditor";
 const createTaskSchema = z.object({
   name: z.string().min(1, "Название задачи обязательно"),
   project_id: z.string().min(1, "Проект обязателен"),
-  description: z.string().min(1, "Описание обязательно"), // Убрали .optional()
+  // description removed
   is_paid: z.boolean().default(false),
   order: z.number().int().min(0, "Порядок должен быть неотрицательным"),
   tag_ids: z.array(z.string()).default([]),
@@ -54,7 +53,6 @@ function CreateTaskForm({
     defaultValues: {
       name: "",
       project_id: projectId,
-      description: "",
       is_paid: false,
       order: 0,
       tag_ids: [],
@@ -102,24 +100,6 @@ function CreateTaskForm({
 
         <FormField
           control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Описание</FormLabel>
-              <FormControl>
-                <Textarea
-                  className="max-h-32"
-                  placeholder="Детальное описание задачи..."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="dateRange"
           render={({ field }) => (
             <FormItem>
@@ -145,10 +125,12 @@ function CreateTaskForm({
             <FormItem>
               <FormLabel>Заметка</FormLabel>
               <FormControl>
-                <TiptapEditor
-                  initialContent={field.value || ""}
-                  onChange={(content) => field.onChange(content)}
-                />
+                <div className="border border-gray-700 rounded-md p-3 min-h-48">
+                  <TiptapEditor
+                    initialContent={field.value || ""}
+                    onChange={(content) => field.onChange(content)}
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

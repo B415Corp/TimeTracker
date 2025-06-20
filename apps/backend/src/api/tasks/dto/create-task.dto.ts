@@ -11,9 +11,6 @@ export class CreateTaskDto {
   project_id: string;
 
   @ApiProperty()
-  description: string;
-
-  @ApiProperty()
   is_paid: boolean;
 
   @ApiProperty({

@@ -9,6 +9,7 @@ import ListItem from '@tiptap/extension-list-item';
 import Heading from '@tiptap/extension-heading';
 import Code from '@tiptap/extension-code';
 import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
 import { Button } from '@ui/button';
 import { Bold as BoldIcon, Italic as ItalicIcon, List, ListOrdered, Heading1, Heading2, Code2, Link2Icon } from 'lucide-react';
 
@@ -27,6 +28,7 @@ export const TiptapEditor: React.FC<{
       Heading.configure({ levels: [1, 2] }),
       Code,
       Link.configure({ openOnClick: false }),
+      Placeholder.configure({ placeholder: 'Введите текст...' }),
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {
@@ -46,7 +48,7 @@ export const TiptapEditor: React.FC<{
     <div className="flex flex-col gap-2">
       {/* Toolbar */}
       {editor && (
-        <div className="flex flex-wrap gap-1 bg-muted/50 p-2 rounded-md border border-border">
+        <div className="flex flex-wrap gap-1 rounded-md">
           <Button size="icon" variant={editor.isActive('bold') ? 'default' : 'ghost'} onClick={() => editor.chain().focus().toggleBold().run()}><BoldIcon className="w-4 h-4"/></Button>
           <Button size="icon" variant={editor.isActive('italic') ? 'default' : 'ghost'} onClick={() => editor.chain().focus().toggleItalic().run()}><ItalicIcon className="w-4 h-4"/></Button>
           <Button size="icon" variant={editor.isActive('code') ? 'default' : 'ghost'} onClick={() => editor.chain().focus().toggleCode().run()}><Code2 className="w-4 h-4"/></Button>

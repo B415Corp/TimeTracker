@@ -5,12 +5,6 @@ export class UpdateTaskDto {
   @ApiProperty({ required: false })
   name?: string;
 
-  @ApiProperty({ required: false })
-  description?: string;
-
-  @ApiProperty({ required: false })
-  is_paid?: boolean;
-
   @ApiProperty({
     enum: ['fixed', 'hourly'],
     example: 'hourly',

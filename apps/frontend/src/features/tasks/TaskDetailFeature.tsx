@@ -3,14 +3,27 @@ import {
   useDeleteTaskMutation,
   useGetTaskByIdQuery,
 } from "@/shared/api/task.service";
-import { CalendarDays, ChevronLeft, HandCoins, MoreVerticalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronLeft,
+  HandCoins,
+  MoreVerticalIcon,
+  PencilIcon,
+  TrashIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "@/lib/dateUtils";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@ui/dialog";
 import UpdateTaskForm from "./forms/update-task.form";
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@ui/dropdown-menu";
 import { Separator } from "@ui/separator";
 import { useGetTimeLogLogsQuery } from "@/shared/api/time-log.service";
 import TaskSharedUsers from "./shared-users/task-shared-users";
@@ -43,7 +56,9 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState<boolean>(false);
 
-  const totalDurationMs = timeLogs?.data?.reduce((acc, log) => acc + Number(log?.duration || 0), 0) || 0;
+  const totalDurationMs =
+    timeLogs?.data?.reduce((acc, log) => acc + Number(log?.duration || 0), 0) ||
+    0;
 
   if (!task) return null;
 
@@ -72,7 +87,10 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
         </DialogContent>
       </Dialog>
       {/* Диалог удаления */}
-      <Dialog open={taskToDelete !== null} onOpenChange={() => setTaskToDelete(null)}>
+      <Dialog
+        open={taskToDelete !== null}
+        onOpenChange={() => setTaskToDelete(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Подтверждение удаления</DialogTitle>
@@ -113,11 +131,14 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
                     </Button>
                     <div className="flex gap-4 text-xl font-bold items-center">
                       <TimeLogsTimer.Root
-                        task_id={task?.task_id || ''}
+                        task_id={task?.task_id || ""}
                         variant="icon"
                         showTime={true}
                       />
-                      <Separator orientation="vertical" className="border-1 min-h-5" />
+                      <Separator
+                        orientation="vertical"
+                        className="border-1 min-h-5"
+                      />
                       <p className="uppercase">{task?.name}</p>
                       <div className="flex justify-end">
                         <DropdownMenu>
@@ -132,7 +153,9 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem onClick={() => setEditDialogIsOpen(true)}>
+                            <DropdownMenuItem
+                              onClick={() => setEditDialogIsOpen(true)}
+                            >
                               <PencilIcon className="mr-2 size-4" />
                               <span>Редактировать</span>
                             </DropdownMenuItem>
@@ -181,11 +204,18 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
                 <TabsTrigger value="notes">Заметки</TabsTrigger>
                 <TabsTrigger value="time">Время</TabsTrigger>
               </TabsList>
-              <TabsContent value="notes" className="p-4">
+              <TabsContent value="notes">
                 <TaskNoteSection taskId={taskId} />
               </TabsContent>
-              <TabsContent value="time" className="flex flex-col gap-4 overflow-auto p-4">
-                <p className="text-sm">Общее время: {formatMilliseconds(totalDurationMs).hours}:{formatMilliseconds(totalDurationMs).minutes}:{formatMilliseconds(totalDurationMs).seconds}</p>
+              <TabsContent
+                value="time"
+                className="flex flex-col gap-4 overflow-auto p-4"
+              >
+                <p className="text-sm">
+                  Общее время: {formatMilliseconds(totalDurationMs).hours}:
+                  {formatMilliseconds(totalDurationMs).minutes}:
+                  {formatMilliseconds(totalDurationMs).seconds}
+                </p>
                 {/* Таблица логов */}
                 <div className="overflow-auto">
                   {timeLogs && (
@@ -203,4 +233,4 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
       </div>
     </>
   );
-} 
+}
