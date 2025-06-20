@@ -91,7 +91,7 @@ export class TasksService {
     });
 
     // Сохраняем задачу
-    const savedTask = await this.taskRepository.save(task);
+    const savedTask = (await this.taskRepository.save(task)) as unknown as Task;
 
     // Создаем связь между задачей и пользователем
     const taskMember = this.taskMemberRepository.create({
@@ -340,6 +340,7 @@ export class TasksService {
       .leftJoinAndSelect('task.taskMembers', 'taskMembers')
       .leftJoinAndSelect('taskMembers.user', 'taskMemberUser')
       .leftJoinAndSelect('taskStatus.taskStatusColumn', 'taskStatusColumn')
+      .leftJoinAndSelect('task.note', 'taskNote')
       .where('task.user_id = :userId', { userId })
       .orderBy('task.created_at', 'DESC')
       .take(maxResults)
@@ -351,7 +352,7 @@ export class TasksService {
           qb.where('task.name ILIKE :searchTerm', {
             searchTerm: `%${searchTerm}%`,
           })
-            .orWhere('task.description ILIKE :searchTerm', {
+            .orWhere('taskNote.content ILIKE :searchTerm', {
               searchTerm: `%${searchTerm}%`,
             })
             .orWhere('project.name ILIKE :searchTerm', {

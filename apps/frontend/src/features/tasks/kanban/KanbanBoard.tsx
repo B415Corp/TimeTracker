@@ -42,7 +42,7 @@ export function KanbanBoard({ initialColumns, initialTasks }: props) {
   const handleDragEnd = (columnId?: string, position?: number) => {
     // Если не было дропа в колонку — просто сбросить состояние
     const targetColumnId = columnId ?? hoverState.columnId;
-    const targetPosition = position ?? hoverState.position;
+    let targetPosition = position ?? hoverState.position;
 
     if (!draggedTask || !targetColumnId) {
       setDraggedTask(null);
@@ -55,6 +55,23 @@ export function KanbanBoard({ initialColumns, initialTasks }: props) {
 
     // Гарантируем, что targetColumnId — string
     const safeTargetColumnId = targetColumnId!;
+
+    // Корректировка индекса при перетаскивании внутри одной и той же колонки
+    const sourceColumnId = draggedTask.taskStatus.taskStatusColumn.id;
+    if (safeTargetColumnId === sourceColumnId && targetPosition != null) {
+      // Список задач в исходной колонке, отсортированный по order
+      const sourceTasksSorted = tasks
+        .filter((t) => t.taskStatus.taskStatusColumn.id === sourceColumnId)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      const currentIndex = sourceTasksSorted.findIndex(
+        (t) => t.task_id === draggedTask.task_id
+      );
+
+      if (currentIndex !== -1 && currentIndex < targetPosition) {
+        targetPosition -= 1; // После удаления индекс сдвигается на один вверх
+      }
+    }
 
     // Обновляем статус задачи
     const updatedTask = {
