@@ -165,11 +165,11 @@ export class TimeLogsService {
       order: { created_at: 'DESC' },
     });
 
-    if (!projects.length) {
-      throw new NotFoundException(
-        `Временные отметки для задачи с ID "${task_id}" не найдены.`
-      );
-    }
+    // if (!projects.length) {
+    //   throw new NotFoundException(
+    //     `Временные отметки для задачи с ID "${task_id}" не найдены.`
+    //   );
+    // }
 
     return [projects, total];
   }
