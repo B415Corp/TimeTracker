@@ -97,7 +97,6 @@ export class ProjectsService {
         client: {
           client_id: true,
           name: true,
-          contact_info: true,
         },
         members: {
           member_id: true,

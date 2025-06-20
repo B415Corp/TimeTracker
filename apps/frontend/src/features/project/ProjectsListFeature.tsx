@@ -35,6 +35,7 @@ import ProjectInvitationDialog from "./project-invitation/project-invitation.dia
 import OwnerUi from "@/shared/ui/owner.ui";
 import { GetPeojectMeDTO, Project } from "@/entities/project/project.interface";
 import SelectClientForm from "./forms/select-client.form";
+import { ClientAvatar } from "@/shared/ui/base/client-avatar";
 
 /**
  * Feature-компонент: список проектов с бизнес-логикой и работой с API
@@ -233,7 +234,10 @@ export function ProjectsListFeature() {
                   </TableCell>
                   <TableCell>
                     {project?.client?.name ? (
-                      project.client.name
+                      <div className="flex items-center gap-2">
+                        <ClientAvatar name={project.client.name} size="xs" />
+                        {project.client.name}
+                      </div>
                     ) : (
                       <Button
                         variant="outline"

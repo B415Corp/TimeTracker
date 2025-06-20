@@ -15,7 +15,7 @@ import { Input } from "@ui/input";
 import { Button } from "@ui/button";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
-import { getAvatarUrl } from "@/lib/get-avatar-url";
+import { getUserAvatarUrl } from "@/lib/get-avatar-url";
 import {
   registerRequestSchema,
   RegisterRequest,
@@ -138,7 +138,7 @@ const RegisterForm: React.FC = () => {
                   />
                   <Avatar className="h-6 w-6 rounded-lg absolute left-2 top-1/2 -translate-y-1/2">
                     <AvatarImage
-                      src={getAvatarUrl(form.watch("name"))}
+                      src={getUserAvatarUrl(form.watch("name"))}
                       alt="avatar"
                     />
                     <AvatarFallback className="rounded-lg">

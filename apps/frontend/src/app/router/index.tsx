@@ -20,6 +20,7 @@ import {
 import ContactsPage from "@/pages/contacts/contacts.page";
 import ClientsPage from "@/pages/contacts/clients.page";
 import FriendsPage from "@/pages/contacts/friends.page";
+import ClientDetailPage from "@/pages/clients/client-detail.page";
 
 const router = createBrowserRouter(
   [
@@ -160,6 +161,20 @@ const router = createBrowserRouter(
               ]}
             >
               <SettingsPage />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: ROUTES.CLIENTS + "/:id",
+          element: (
+            <PrivateRoute
+              roles={[
+                SUBSCRIPTION.BASIC,
+                SUBSCRIPTION.FREE,
+                SUBSCRIPTION.PREMIUM,
+              ]}
+            >
+              <ClientDetailPage />
             </PrivateRoute>
           ),
         },

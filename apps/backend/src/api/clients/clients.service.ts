@@ -46,7 +46,7 @@ export class ClientsService {
       select: {
         client_id: true,
         name: true,
-        contact_info: true,
+        additional_fields: true,
       },
     });
 
@@ -95,9 +95,9 @@ export class ClientsService {
       select: {
         client_id: true,
         name: true,
-        contact_info: true,
         created_at: true,
         updated_at: true,
+        additional_fields: true,
       },
     });
   }

@@ -3,7 +3,7 @@
 
 import { Loader } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
-import { getAvatarUrl } from "@/lib/get-avatar-url";
+import { getUserAvatarUrl } from "@/lib/get-avatar-url";
 import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
 import {
   Tooltip,
@@ -49,7 +49,7 @@ export function UserAvatar({
             <Avatar
               className={`${setSize(size)} rounded-full ${planId === SUBSCRIPTION.BASIC && "ring-2 ring-emerald-600"} ${planId === SUBSCRIPTION.PREMIUM && "ring-2 ring-purple-600"}`}
             >
-              <AvatarImage src={getAvatarUrl(name, planId)} alt={name} />
+              <AvatarImage src={getUserAvatarUrl(name, planId)} alt={name} />
               <AvatarFallback className="rounded-full">
                 <Loader className="animate-spin" />
               </AvatarFallback>

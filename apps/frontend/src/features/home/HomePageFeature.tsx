@@ -120,7 +120,6 @@ export function HomePageFeature() {
                 <CardContent>
                   <ClientItem
                     name={el?.client?.name || ""}
-                    contact_info={el?.client?.contact_info || ""}
                   />
                 </CardContent>
                 <CardFooter>

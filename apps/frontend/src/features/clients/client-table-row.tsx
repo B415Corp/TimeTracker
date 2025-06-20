@@ -17,7 +17,8 @@ import { MoreVerticalIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { useDeletelientsMutation } from "@/shared/api/client.service";
 import UpdateClientForm from "@/features/clients/update-clients.form";
-import { Client } from "@/shared/interfaces/client.interface";
+import { Client } from "@/entities/client/client.interface";
+import ClientItem from "@/entities/client/client-item";
 
 export default function ClientTableRow(client: Client) {
   const [deleteClient] = useDeletelientsMutation();
@@ -36,7 +37,7 @@ export default function ClientTableRow(client: Client) {
               <UpdateClientForm
                 onSuccess={() => setEditDialogIsOpen(false)}
                 onClose={() => setEditDialogIsOpen(false)}
-                defaults={client}
+                defaults={{ ...client, additional_fields: client.additional_fields ?? undefined }}
               />
             </DialogContent>
           </Dialog>
@@ -71,11 +72,13 @@ export default function ClientTableRow(client: Client) {
         </>
       )}
 
-      <TableCell className="font-medium flex items-center">
-        {client?.name}
+      <TableCell className="font-medium flex items-center py-1">
+        <ClientItem
+          name={client?.name}
+          additional_fields={client?.additional_fields ?? undefined}
+        />
       </TableCell>
-      <TableCell className="">{client?.contact_info}</TableCell>
-      <TableCell className="flex justify-end pr-2">
+      <TableCell className="flex justify-end pr-2 py-1 items-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

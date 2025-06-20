@@ -35,13 +35,6 @@ export class Client {
   @Column()
   name: string;
 
-  @ApiProperty({
-    type: String,
-    description: 'Contact information of the client',
-  })
-  @Column()
-  contact_info: string;
-
   @ApiProperty({ type: Date, description: 'Creation date of the client' })
   @CreateDateColumn()
   created_at: Date;
@@ -73,4 +66,12 @@ export class Client {
     onDelete: 'CASCADE',
   })
   projects: Project[];
+
+  @ApiProperty({
+    type: 'object',
+    isArray: true,
+    description: 'Дополнительные поля клиента (до 50). Каждый объект содержит type и value.'
+  })
+  @Column({ type: 'jsonb', nullable: true })
+  additional_fields?: { type: string; value: string }[];
 }

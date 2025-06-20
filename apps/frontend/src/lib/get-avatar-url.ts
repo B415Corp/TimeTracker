@@ -9,11 +9,18 @@ const variantByType = {
 const types = {
   funEmoji: "fun-emoji",
   thumbs: "thumbs",
+  shapes: "shapes",
 };
 
-export function getAvatarUrl(
+export function getUserAvatarUrl(
   seed: string,
   type: SUBSCRIPTION = SUBSCRIPTION.FREE
 ) {
   return `https://api.dicebear.com/9.x/${types.thumbs}/svg?seed=${seed}&mouth=${variantByType[type as SUBSCRIPTION].mouth}`;
+}
+
+export function getClientAvatarUrl(
+  seed: string,
+) {
+  return `https://api.dicebear.com/9.x/shapes/svg?seed=${seed}`;
 }

@@ -17,6 +17,7 @@ import ClientTableRow from "./client-table-row";
 import CreateClientForm from "./create-clients.form";
 import { useGetClientsQuery } from "@/shared/api/client.service";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Feature-компонент: список клиентов с бизнес-логикой, api, состоянием и UI
@@ -25,6 +26,7 @@ export function ClientsListFeature() {
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
   const { data: clients } = useGetClientsQuery({ page: currentPage });
+  const navigate = useNavigate();
 
   return (
     <div className="w-full h-full flex flex-col p-4">
@@ -49,17 +51,19 @@ export function ClientsListFeature() {
         <div className="flex-1 flex flex-col">
           <Table className="flex-1 w-full">
             <TableHeader>
-              <TableHead></TableHead>
               <TableRow>
-                <TableHead className="w-[30%]">Наименование</TableHead>
-                <TableHead className="w-[20%]">Контакт</TableHead>
+                <TableHead className="w-[40%]">Наименование</TableHead>
                 <TableHead className="w-[10%]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="flex-1">
               {clients?.data &&
                 clients?.data.map((el) => (
-                  <TableRow key={el.client_id}>
+                  <TableRow
+                    key={el.client_id}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/clients/${el.client_id}`)}
+                  >
                     <ClientTableRow {...el} />
                   </TableRow>
                 ))}

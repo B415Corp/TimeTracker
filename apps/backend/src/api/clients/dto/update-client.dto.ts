@@ -5,8 +5,10 @@ export class UpdateClientDto {
   readonly name: string;
 
   @ApiProperty({
-    example: 'new_example@example.com',
-    description: 'The contact information of the client',
+    example: [{ type: 'phone', value: '+1234567890' }],
+    description: 'Дополнительные опциональные поля клиента',
+    required: false,
+    isArray: true,
   })
-  readonly contact_info: string;
+  readonly additional_fields?: { type: string; value: string }[];
 }

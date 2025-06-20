@@ -5,10 +5,12 @@ export class CreateClientDto {
   readonly name: string;
 
   @ApiProperty({
-    example: 'example@example.com',
-    description: 'The contact information of the client',
+    example: [{ type: 'email', value: 'example@example.com' }],
+    description: 'Дополнительные опциональные поля клиента (до 50)',
+    required: false,
+    isArray: true,
   })
-  readonly contact_info: string;
+  readonly additional_fields?: { type: string; value: string }[];
 
   @ApiProperty({
     example: '["tag1", "tag2"]',

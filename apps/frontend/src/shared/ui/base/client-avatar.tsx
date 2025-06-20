@@ -1,6 +1,6 @@
 import { Loader } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/avatar";
-import { getUserAvatarUrl } from "@/lib/get-avatar-url";
+import { getClientAvatarUrl, getUserAvatarUrl } from "@/lib/get-avatar-url";
 import { SUBSCRIPTION } from "@/shared/enums";
 import {
   Tooltip,
@@ -12,17 +12,11 @@ import {
 type sizes = "xxs" | "xs" | "small" | "large";
 interface Props {
   name: string;
-  planId: SUBSCRIPTION;
   size?: sizes;
   metaText?: string;
 }
 
-export function UserAvatar({
-  name,
-  planId,
-  size = "small",
-  metaText = "",
-}: Props) {
+export function ClientAvatar({ name, size = "small", metaText = "" }: Props) {
   function setSize(size: sizes) {
     switch (size) {
       case "xs":
@@ -43,10 +37,8 @@ export function UserAvatar({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Avatar
-              className={`${setSize(size)} rounded-full ${planId === SUBSCRIPTION.BASIC && "ring-2 ring-emerald-600"} ${planId === SUBSCRIPTION.PREMIUM && "ring-2 ring-purple-600"}`}
-            >
-              <AvatarImage src={getUserAvatarUrl(name, planId)} alt={name} />
+            <Avatar className={`${setSize(size)} rounded-full`}>
+              <AvatarImage src={getClientAvatarUrl(name)} alt={name} />
               <AvatarFallback className="rounded-full">
                 <Loader className="animate-spin" />
               </AvatarFallback>

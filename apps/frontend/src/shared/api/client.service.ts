@@ -39,7 +39,7 @@ export const clientService = createApi({
         method: "POST",
         body: {
           name: data.name,
-          contact_info: data.contact_info,
+          additional_fields: data.additional_fields,
         },
       }),
       invalidatesTags: ["client-pagiated"],
@@ -50,7 +50,7 @@ export const clientService = createApi({
         method: "PATCH",
         body: {
           name: data.name,
-          contact_info: data.contact_info,
+          additional_fields: data.additional_fields,
         },
       }),
       invalidatesTags: ["client-pagiated"],

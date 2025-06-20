@@ -202,9 +202,6 @@ export function SearchFeature({ searchLocationList }: props) {
                             }
                           >
                             <p className="font-medium">{client.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {client.contact_info}
-                            </p>
                           </div>
                         ))}
                       </div>

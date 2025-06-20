@@ -51,12 +51,15 @@ const LatestLogTaskSchema = z.object({
 });
 
 // LatestLogSchema
-export const LatestLogSchema = z.object({
-  log_id: z.string(),
-  created_at: z.string(),
-  status: TIMELOGSTATUSSchema,
-  task: LatestLogTaskSchema,
-});
+export const LatestLogSchema = z.union([
+  z.object({
+    log_id: z.string(),
+    created_at: z.string(),
+    status: TIMELOGSTATUSSchema,
+    task: LatestLogTaskSchema,
+  }),
+  z.null(),
+]);
 
 // Типы (интерфейсы) внизу
 
