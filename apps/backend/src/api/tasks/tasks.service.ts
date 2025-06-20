@@ -447,4 +447,24 @@ export class TasksService {
 
     return { success: true };
   }
+
+  async findTasksDueToday(userId: string): Promise<Task[]> {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    return this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoin('task.taskMembers', 'tm')
+      .leftJoinAndSelect('task.currency', 'currency')
+      .where('tm.user_id = :userId', { userId })
+      .andWhere('task.end_date IS NOT NULL')
+      .andWhere('task.end_date >= :start AND task.end_date <= :end', {
+        start,
+        end,
+      })
+      .orderBy('task.end_date', 'ASC')
+      .getMany();
+  }
 }

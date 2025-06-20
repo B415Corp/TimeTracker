@@ -183,4 +183,14 @@ export class TimeLogsController {
     await this.timeLogsService.remove(log_id);
     return { success: true };
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Получить статистику по времени за период (по умолчанию 7 дней)' })
+  @ApiQuery({ name: 'range', required: false, description: 'Период в днях, например 7d' })
+  @Get('/stats')
+  async getWeeklyStats(@GetUser() user: User, @Query('range') range?: string) {
+    const days = range ? parseInt(range.replace(/[^0-9]/g, '')) : 7;
+    return this.timeLogsService.getWeeklyStats(user.user_id, days);
+  }
 }

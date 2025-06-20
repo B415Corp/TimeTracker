@@ -9,6 +9,32 @@ import {
 import { PaginatedResponse } from "../interfaces/api.interface";
 import { validateWithSchema } from "@/lib/validator";
 import { TimeLog as NewTimeLog, LatestLog as NewLatestLog } from "@/entities/timer/timer.interface";
+import { z } from "zod";
+
+/** Статистика за период (неделя по умолчанию) */
+export interface WeeklyStatsResponse {
+  projects: { project_id: string; project_name: string; total_duration: number }[];
+  top_tasks: { task_id: string; task_name: string; project_id: string; project_name: string; total_duration: number }[];
+  start: string;
+  end: string;
+}
+
+const WeeklyStatsSchema: z.ZodType<WeeklyStatsResponse> = z.object({
+  projects: z.array(z.object({
+    project_id: z.string(),
+    project_name: z.string(),
+    total_duration: z.number(),
+  })),
+  top_tasks: z.array(z.object({
+    task_id: z.string(),
+    task_name: z.string(),
+    project_id: z.string(),
+    project_name: z.string(),
+    total_duration: z.number(),
+  })),
+  start: z.string(),
+  end: z.string(),
+});
 
 export const timeLogService = createApi({
   reducerPath: "time-log-service",
@@ -165,6 +191,20 @@ export const timeLogService = createApi({
           'time-log-service-lates-task',
         ],
       }),
+    getWeeklyStats: builder.query<WeeklyStatsResponse, void>({
+      query: () => ({
+        url: 'time-logs/stats?range=7d',
+        method: 'GET',
+      }),
+      transformResponse: (response: { data: WeeklyStatsResponse }) => {
+        return validateWithSchema<WeeklyStatsResponse>(
+          WeeklyStatsSchema,
+          response.data,
+          'getWeeklyStats'
+        );
+      },
+      providesTags: ['time-log-service-list'],
+    }),
   }),
 });
 
@@ -178,4 +218,5 @@ export const {
   usePostTimeLogManualMutation,
   useUpdateTimeLogMutation,
   useDeleteTimeLogMutation,
+  useGetWeeklyStatsQuery,
 } = timeLogService;

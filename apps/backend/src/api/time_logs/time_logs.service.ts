@@ -429,4 +429,63 @@ export class TimeLogsService {
     }
     return this.timeLogRepository.save(log);
   }
+
+  // Получить статистику за период (неделя по умолчанию)
+  async getWeeklyStats(userId: string, days = 7) {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - days);
+
+    // Сумма по проектам
+    const projects = await this.timeLogRepository
+      .createQueryBuilder('time_log')
+      .leftJoin('time_log.task', 'task')
+      .leftJoin('task.project', 'project')
+      .leftJoin('project.members', 'project_members')
+      .select('project.project_id', 'project_id')
+      .addSelect('project.name', 'project_name')
+      .addSelect('SUM(time_log.duration)', 'total_duration')
+      .where('project_members.user_id = :userId', { userId })
+      .andWhere('time_log.start_time >= :startDate', { startDate })
+      .andWhere('time_log.start_time <= :endDate', { endDate })
+      .groupBy('project.project_id')
+      .addGroupBy('project.name')
+      .getRawMany();
+
+    // ТОП-3 задач
+    const tasksTop = await this.timeLogRepository
+      .createQueryBuilder('time_log')
+      .leftJoin('time_log.task', 'task')
+      .leftJoin('task.project', 'project')
+      .leftJoin('project.members', 'project_members')
+      .select('task.task_id', 'task_id')
+      .addSelect('task.name', 'task_name')
+      .addSelect('project.project_id', 'project_id')
+      .addSelect('project.name', 'project_name')
+      .addSelect('SUM(time_log.duration)', 'total_duration')
+      .where('project_members.user_id = :userId', { userId })
+      .andWhere('time_log.start_time >= :startDate', { startDate })
+      .andWhere('time_log.start_time <= :endDate', { endDate })
+      .groupBy('task.task_id')
+      .addGroupBy('task.name')
+      .addGroupBy('project.project_id')
+      .addGroupBy('project.name')
+      .orderBy('total_duration', 'DESC')
+      .limit(3)
+      .getRawMany();
+
+    // Приводим числа к Number
+    const mapDur = (arr: any[]) =>
+      arr.map((el) => ({
+        ...el,
+        total_duration: Number(el.total_duration || 0),
+      }));
+
+    return {
+      projects: mapDur(projects),
+      top_tasks: mapDur(tasksTop),
+      start: startDate,
+      end: endDate,
+    };
+  }
 }

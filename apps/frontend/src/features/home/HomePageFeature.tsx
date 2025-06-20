@@ -8,6 +8,8 @@ import { AdvantageCard } from "@/shared/ui/advantage-card";
 import { Carousel, CarouselContent, CarouselItem } from "@ui/carousel";
 import TaskCardMain from "@/features/tasks/task-cards/task-card-main.root";
 import { ClientItem } from "@/entities/client";
+import { TodayWidget } from './today-widget';
+import { WeeklyStats } from './weekly-stats';
 
 const TASK_ADVANTAGES = [
   { title: "Быстрый старт", description: "Создайте первую задачу и начните эффективно управлять своими проектами." },
@@ -80,13 +82,17 @@ export function HomePageFeature() {
       <div className="flex flex-wrap justify-between gap-2">
         <h1 className="text-2xl font-bold mb-4">Главная</h1>
       </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-4">
+        <TodayWidget />
+        <WeeklyStats />
+      </div>
       <div className="flex flex-col overflow-y-auto">
         <div className="flex flex-col gap-4 w-full pb-6 ">
           <div className="flex items-center gap-4 mb-2">
             <h2 className="text-xl">Последние задачи</h2>
             <Button>Создать</Button>
           </div>
-          <div className="w-full flex flex-wrap gap-4">
+          <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {tasksData?.tasks?.length === 0 && <AdvantageCarousel items={TASK_ADVANTAGES} />}
             {tasksData?.tasks?.map((el) => (
               <TaskCardMain.Root
@@ -110,7 +116,7 @@ export function HomePageFeature() {
             <h2 className="text-xl">Последние проекты</h2>
             <Button>Создать</Button>
           </div>
-          <div className="w-full flex flex-wrap gap-4">
+          <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {projectsData?.projects?.length === 0 && <AdvantageCarousel items={PROJECT_ADVANTAGES} />}
             {projectsData?.projects?.map((el) => (
               <Card key={el?.project_id} className="min-w-64 w-96 md:w-fit">

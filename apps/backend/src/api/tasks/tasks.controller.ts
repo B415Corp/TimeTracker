@@ -179,4 +179,12 @@ export class TasksController {
   async remove(@Param('task_id') id: string) {
     return this.tasksService.remove(id);
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Получить задачи текущего пользователя со сроком сегодня' })
+  @Get('due/today')
+  async getTasksDueToday(@GetUser() user: User) {
+    return this.tasksService.findTasksDueToday(user.user_id);
+  }
 }

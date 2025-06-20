@@ -193,6 +193,21 @@ export const taskService = createApi({
       }),
       invalidatesTags: ["task"],
     }),
+
+    getTasksDueToday: builder.query<Task[], void>({
+      query: () => ({
+        url: 'tasks/due/today',
+        method: 'GET',
+      }),
+      transformResponse: (response: { data: Task[] }) => {
+        return validateWithSchema<Task[]>(
+          z.array(TaskSchema),
+          response.data,
+          'getTasksDueToday'
+        );
+      },
+      providesTags: ['task'],
+    }),
   }),
 });
 
@@ -207,4 +222,5 @@ export const {
   useGetTaskStatusColumnQuery,
   useUpdateTaskStatusMutation,
   useUpdateTasksOrderMutation,
+  useGetTasksDueTodayQuery,
 } = taskService;
