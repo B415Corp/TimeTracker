@@ -35,7 +35,9 @@ export function FriendsListFeature() {
       <div className="flex-1 flex flex-col overflow-auto">
         <Table className="w-full min-w-[320px]">
           <TableHeader>
-            <TableHead></TableHead>
+            <TableRow>
+              <TableHead></TableHead>
+            </TableRow>
             <TableRow>
               <TableHead className="w-[40%]">Имя</TableHead>
               <TableHead className="w-[30%]">Контакт</TableHead>

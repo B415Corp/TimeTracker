@@ -100,105 +100,110 @@ export function ProjectsListFeature() {
         <div className="flex-1 flex flex-col">
           <Table className="flex-1 w-full">
             <TableHeader className="">
-              <TableHead className="flex items-center gap-2 h-16">
-                <div className="flex gap-2">
-                  {/* Select для сортировки по типу */}
-                  <Select
-                    onValueChange={(el) =>
-                      setFilter({
-                        ...filter,
-                        sortBy:
-                          el === "reset"
-                            ? undefined
-                            : (el as "name" | "created_at"),
-                      })
-                    }
-                    value={filter.sortBy}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Тип" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        value="reset"
-                        key="reset"
-                        className="bg-primary/50 border-2"
-                      >
-                        Сбросить
-                      </SelectItem>
-                      {["name", "created_at"].map((el) => (
-                        <SelectItem key={el} value={el}>
-                          {el === "name" ? "Наименование" : "Дата"}
+              <TableRow>
+                <TableHead
+                  colSpan={7}
+                  className="flex items-center gap-2 h-16"
+                >
+                  <div className="flex gap-2">
+                    {/* Select для сортировки по типу */}
+                    <Select
+                      onValueChange={(el) =>
+                        setFilter({
+                          ...filter,
+                          sortBy:
+                            el === "reset"
+                              ? undefined
+                              : (el as "name" | "created_at"),
+                        })
+                      }
+                      value={filter.sortBy}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Тип" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem
+                          value="reset"
+                          key="reset"
+                          className="bg-primary/50 border-2"
+                        >
+                          Сбросить
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        {["name", "created_at"].map((el) => (
+                          <SelectItem key={el} value={el}>
+                            {el === "name" ? "Наименование" : "Дата"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                  {/* Select для порядка сортировки */}
-                  <Select
-                    onValueChange={(el) =>
-                      setFilter({
-                        ...filter,
-                        sortOrder:
-                          el === "reset" ? undefined : (el as "ASC" | "DESC"),
-                      })
-                    }
-                    value={filter.sortOrder}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="По дате" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        value="reset"
-                        key="reset"
-                        className="bg-primary/50 border-2"
-                      >
-                        Сбросить
-                      </SelectItem>
-                      {["ASC", "DESC"].map((el) => (
-                        <SelectItem key={el} value={el}>
-                          {el === "ASC"
-                            ? "Дата по возрастанию"
-                            : "Дата по убыванию"}
+                    {/* Select для порядка сортировки */}
+                    <Select
+                      onValueChange={(el) =>
+                        setFilter({
+                          ...filter,
+                          sortOrder:
+                            el === "reset" ? undefined : (el as "ASC" | "DESC"),
+                        })
+                      }
+                      value={filter.sortOrder}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="По дате" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem
+                          value="reset"
+                          key="reset"
+                          className="bg-primary/50 border-2"
+                        >
+                          Сбросить
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        {["ASC", "DESC"].map((el) => (
+                          <SelectItem key={el} value={el}>
+                            {el === "ASC"
+                              ? "Дата по возрастанию"
+                              : "Дата по убыванию"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                  {/* Select для роли */}
-                  <Select
-                    onValueChange={(el) =>
-                      setFilter({
-                        ...filter,
-                        role: el === "reset" ? undefined : (el as PROJECT_ROLE),
-                      })
-                    }
-                    value={filter.role}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Роль" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem
-                        value="reset"
-                        key="reset"
-                        className="bg-primary/50 border-2"
-                      >
-                        Сбросить
-                      </SelectItem>
-                      {Object.entries(PROJECT_ROLE).map(([key, value]) => (
-                        <SelectItem key={key} value={value}>
-                          {value === PROJECT_ROLE.OWNER && "Владелец"}
-                          {value === PROJECT_ROLE.EXECUTOR && "Исполнитель"}
-                          {value === PROJECT_ROLE.GUEST && "Гость"}
-                          {value === PROJECT_ROLE.MANAGER && "Менеджер"}
+                    {/* Select для роли */}
+                    <Select
+                      onValueChange={(el) =>
+                        setFilter({
+                          ...filter,
+                          role: el === "reset" ? undefined : (el as PROJECT_ROLE),
+                        })
+                      }
+                      value={filter.role}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Роль" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem
+                          value="reset"
+                          key="reset"
+                          className="bg-primary/50 border-2"
+                        >
+                          Сбросить
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </TableHead>
+                        {Object.entries(PROJECT_ROLE).map(([key, value]) => (
+                          <SelectItem key={key} value={value}>
+                            {value === PROJECT_ROLE.OWNER && "Владелец"}
+                            {value === PROJECT_ROLE.EXECUTOR && "Исполнитель"}
+                            {value === PROJECT_ROLE.GUEST && "Гость"}
+                            {value === PROJECT_ROLE.MANAGER && "Менеджер"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TableHead>
+              </TableRow>
 
               <TableRow>
                 <TableHead className="w-1/6">Наименование</TableHead>

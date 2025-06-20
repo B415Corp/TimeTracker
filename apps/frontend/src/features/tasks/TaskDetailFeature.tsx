@@ -75,7 +75,6 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
             onClose={() => setEditDialogIsOpen(false)}
             defaults={{
               name: task.name,
-              description: task.description,
               is_paid: task.is_paid,
               payment_type: task.payment_type,
               rate: String(task.rate),
