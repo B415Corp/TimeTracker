@@ -7,12 +7,14 @@ export const NotesSchema = z.object({
   text_content: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
+  task_id: z.string().optional(),
 });
 
 // CreateNotesDTOSchema
 export const CreateNotesDTOSchema = z.object({
   name: z.string(),
   text_content: z.string(),
+  task_id: z.string().optional(),
 });
 
 export type Notes = z.infer<typeof NotesSchema>;

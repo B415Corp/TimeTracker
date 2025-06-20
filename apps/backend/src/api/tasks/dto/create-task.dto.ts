@@ -48,4 +48,7 @@ export class CreateTaskDto {
 
   @ApiProperty({ type: String, format: 'date-time', required: false, description: 'Крайний срок выполнения задачи (ISO)' })
   end_date?: string;
+
+  @ApiProperty({ description: 'Содержимое заметки к задаче (JSON tiptap)', required: false })
+  note_content?: string;
 }

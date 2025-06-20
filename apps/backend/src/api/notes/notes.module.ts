@@ -3,12 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notes } from '../../entities/notes.entity.js';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
+import { TaskNotesController } from './task-notes.controller';
 
 
 @Module({
   imports: [TypeOrmModule.forFeature([Notes])],
   providers: [NotesService],
   exports: [NotesService],
-  controllers: [NotesController],
+  controllers: [NotesController, TaskNotesController],
 })
 export class NotesModule {}

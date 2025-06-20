@@ -16,6 +16,17 @@ export class NotesService {
     return this.notesRepository.save(newNote);
   }
 
+  /**
+   * Создать заметку, привязанную к задаче
+   * @param note данные заметки
+   * @param user_id идентификатор пользователя
+   * @param task_id идентификатор задачи
+   */
+  async createForTask(note: CreateNotesDto, user_id: string, task_id: string): Promise<Notes> {
+    const newNote = this.notesRepository.create({ ...note, user_id, task_id });
+    return this.notesRepository.save(newNote);
+  }
+
   async findAll(user_id: string, paginationQuery: PaginationQueryDto) {
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -58,5 +69,40 @@ export class NotesService {
 
   async remove(id: string): Promise<void> {
     await this.notesRepository.delete(id);
+  }
+
+  async findAllByTask(user_id: string, task_id: string, paginationQuery: PaginationQueryDto) {
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.notesRepository.findAndCount({
+      where: { user_id, task_id },
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+      select: {
+        notes_id: true,
+        name: true,
+        text_content: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
+
+    return [data, total];
+  }
+
+  async findOneByTask(notes_id: string, user_id: string, task_id: string): Promise<Notes> {
+    return this.notesRepository.findOne({
+      where: { notes_id, user_id, task_id },
+      order: { created_at: 'DESC' },
+      select: {
+        notes_id: true,
+        name: true,
+        text_content: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
   }
 }

@@ -19,6 +19,7 @@ import { LogsTable } from "../time-logs/logs-table";
 import TimeLogsTimer from "../time-logs/time-logs-timer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@ui/tabs";
 import { formatMilliseconds } from "@/lib/format-seconds";
+import TaskNoteSection from "@/features/notes/task-notes-section";
 
 /**
  * Feature-компонент: детальная страница задачи с бизнес-логикой и работой с API
@@ -181,7 +182,7 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
                 <TabsTrigger value="time">Время</TabsTrigger>
               </TabsList>
               <TabsContent value="notes" className="p-4">
-                <p className="text-muted-foreground">Раздел в разработке</p>
+                <TaskNoteSection taskId={taskId} />
               </TabsContent>
               <TabsContent value="time" className="flex flex-col gap-4 overflow-auto p-4">
                 <p className="text-sm">Общее время: {formatMilliseconds(totalDurationMs).hours}:{formatMilliseconds(totalDurationMs).minutes}:{formatMilliseconds(totalDurationMs).seconds}</p>

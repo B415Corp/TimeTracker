@@ -9,6 +9,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { User } from './user.entity';
+import { Task } from './task.entity';
 
 @Entity()
 export class Notes {
@@ -55,4 +56,13 @@ export class Notes {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ApiProperty({ type: String, description: 'Task ID associated with the note', required: false })
+  @Column({ nullable: true })
+  task_id?: string;
+
+  @ApiProperty({ type: () => Task, description: 'Task associated with the note', required: false })
+  @ManyToOne(() => Task, (task) => task.notes, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'task_id' })
+  task?: Task;
 }

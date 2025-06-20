@@ -12,7 +12,7 @@ import { validatePaginatedResponse, validateWithSchema } from "@/lib/validator";
 export const notesService = createApi({
   reducerPath: "notes-service",
   baseQuery: baseQueryWithErrorHandling,
-  tagTypes: ["notes-pagiated", "notes-id"],
+  tagTypes: ["notes-pagiated", "notes-id", "task-notes-pagiated", "task-notes-id"],
   endpoints: (builder) => ({
     getNotes: builder.query<PaginatedResponse<Notes>, { page: number }>({
       query: ({ page }) => ({
@@ -61,6 +61,49 @@ export const notesService = createApi({
       }),
       invalidatesTags: ["notes-pagiated"],
     }),
+    getTaskNotes: builder.query<PaginatedResponse<Notes>, { task_id: string; page: number }>({
+      query: ({ task_id, page }) => ({
+        url: `tasks/${task_id}/notes?page=${page || 1}`,
+        method: "GET",
+      }),
+      transformResponse: (response: PaginatedResponse<Notes>) => {
+        return validatePaginatedResponse(NotesSchema, response, "getTaskNotes");
+      },
+      providesTags: ["task-notes-pagiated"],
+    }),
+    getTaskNoteById: builder.query<Notes, { task_id: string; note_id: string }>({
+      query: ({ task_id, note_id }) => ({
+        url: `tasks/${task_id}/notes/${note_id}`,
+        method: "GET",
+      }),
+      providesTags: ["task-notes-id"],
+      transformResponse: (response: { data: Notes }) => {
+        return validateWithSchema<Notes>(NotesSchema, response.data, "getTaskNoteById");
+      },
+    }),
+    createTaskNote: builder.mutation<Notes, { task_id: string } & CreateNotesDTO>({
+      query: ({ task_id, ...data }) => ({
+        url: `tasks/${task_id}/notes`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["task-notes-pagiated"],
+    }),
+    editTaskNote: builder.mutation<Notes, { task_id: string; note_id: string } & EditNotesDTO>({
+      query: ({ task_id, note_id, ...data }) => ({
+        url: `tasks/${task_id}/notes/${note_id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["task-notes-pagiated", "task-notes-id"],
+    }),
+    deleteTaskNote: builder.mutation<Notes, { task_id: string; note_id: string }>({
+      query: ({ task_id, note_id }) => ({
+        url: `tasks/${task_id}/notes/${note_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["task-notes-pagiated"],
+    }),
   }),
 });
 
@@ -70,4 +113,9 @@ export const {
   useEditNotesMutation,
   useCreateNotesMutation,
   useDeleteNotesMutation,
+  useGetTaskNotesQuery,
+  useGetTaskNoteByIdQuery,
+  useEditTaskNoteMutation,
+  useCreateTaskNoteMutation,
+  useDeleteTaskNoteMutation,
 } = notesService;

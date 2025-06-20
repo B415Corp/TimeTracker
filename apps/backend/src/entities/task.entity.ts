@@ -19,6 +19,8 @@ import { TimeLog } from './time-logs.entity';
 import { Currency } from './currency.entity';
 import { TaskMember } from './task-shared.entity';
 import { TaskStatus } from './task-status.entity';
+import { Notes } from './notes.entity';
+import { TaskNote } from './task-note.entity';
 
 @Entity()
 export class Task {
@@ -133,4 +135,10 @@ export class Task {
   @ApiProperty({ type: Date, description: 'Крайний срок выполнения задачи', required: false, nullable: true })
   @Column({ type: 'timestamp', nullable: true })
   end_date?: Date;
+
+  @OneToMany(() => Notes, (note) => note.task, { cascade: true, onDelete: 'CASCADE' })
+  notes: Notes[];
+
+  @OneToOne(() => TaskNote, (note) => note.task, { cascade: true, eager: true })
+  note: TaskNote;
 }

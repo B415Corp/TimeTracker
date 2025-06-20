@@ -25,6 +25,7 @@ import { FriendshipModule } from './api/friendship/friendship.module';
 import { NotificationModule } from './api/notification/notification.module';
 import { TaskStatusModule } from './api/task-status/task-status.module';
 import { TaskStatusColumnModule } from './api/task-status-column/task-status-column.module';
+import { TaskNoteModule } from './api/task-note/task-note.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -87,6 +88,7 @@ import { AppService } from './app.service';
     NotificationModule,
     TaskStatusModule,
     TaskStatusColumnModule,
+    TaskNoteModule,
   ],
   providers: [AuthService, JwtStrategy, AppService],
   exports: [AuthService],

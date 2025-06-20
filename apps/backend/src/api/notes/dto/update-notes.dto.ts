@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsUUID } from "class-validator";
 
 export class UpdateNotesDto {
   @ApiProperty({ example: 'New note', description: 'The name of the note' })
@@ -10,4 +10,9 @@ export class UpdateNotesDto {
   @ApiProperty({ description: 'Text-content of note' })
   @IsString()
   text_content: string;
+
+  @ApiProperty({ example: 'Task UUID', description: 'Идентификатор задачи, к которой относится заметка', required: false })
+  @IsOptional()
+  @IsUUID()
+  task_id?: string;
 }

@@ -16,6 +16,7 @@ import { TaskStatusService } from '../task-status/task-status.service';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
 import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { UpdateTaskOrderDTO } from './dto/update-task-order.dto';
+import { TaskNote } from '../../entities/task-note.entity';
 
 @Injectable()
 export class TasksService {
@@ -80,9 +81,10 @@ export class TasksService {
       }
     }
 
-    // Создаем задачу
+    const { note_content, ...taskDtoWithoutNote } = dto as any;
+
     const task = this.taskRepository.create({
-      ...dto,
+      ...taskDtoWithoutNote,
       project_id,
       user_id,
       currency_id: currencyExist.currency_id,
@@ -126,6 +128,14 @@ export class TasksService {
         task_status_column_id: taskStatusColumtItem[0].id,
       });
       savedTask.taskStatus = taskStatus;
+    }
+
+    // Создаём заметку если передан note_content
+    if (note_content) {
+      await this.taskRepository.manager.getRepository(TaskNote).save({
+        task_id: savedTask.task_id,
+        content: note_content,
+      });
     }
 
     // Возвращаем задачу

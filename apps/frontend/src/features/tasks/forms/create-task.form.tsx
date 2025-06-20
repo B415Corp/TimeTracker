@@ -16,6 +16,7 @@ import { useCreateTaskMutation } from "@/shared/api/task.service";
 import { Textarea } from "@ui/textarea";
 import { DateRangePicker } from "@ui/date-range-picker";
 import React from "react";
+import { TiptapEditor } from "@/entities/tiptap/TiptapEditor";
 
 // Схема валидации формы
 const createTaskSchema = z.object({
@@ -31,6 +32,7 @@ const createTaskSchema = z.object({
       to: z.date().optional(),
     })
     .optional(),
+  note_content: z.string().optional(),
 });
 
 type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
@@ -54,10 +56,10 @@ function CreateTaskForm({
       project_id: projectId,
       description: "",
       is_paid: false,
-
       order: 0,
       tag_ids: [],
       dateRange: undefined,
+      note_content: "<p></p>",
     },
   });
 
@@ -69,6 +71,7 @@ function CreateTaskForm({
         ...values,
         start_date: values.dateRange?.from?.toISOString(),
         end_date: values.dateRange?.to?.toISOString(),
+        note_content: values.note_content,
       };
       delete payload.dateRange;
       await createTask(payload).unwrap();
@@ -128,6 +131,23 @@ function CreateTaskForm({
                     setDateRange(range);
                     field.onChange(range);
                   }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="note_content"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Заметка</FormLabel>
+              <FormControl>
+                <TiptapEditor
+                  initialContent={field.value || ""}
+                  onChange={(content) => field.onChange(content)}
                 />
               </FormControl>
               <FormMessage />
