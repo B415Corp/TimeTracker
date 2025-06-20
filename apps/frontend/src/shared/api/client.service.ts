@@ -42,7 +42,7 @@ export const clientService = createApi({
           additional_fields: data.additional_fields,
         },
       }),
-      invalidatesTags: ["client-pagiated"],
+      invalidatesTags: ["client-pagiated", "client-id"],
     }),
     editClients: builder.mutation<Client, EditClientDTO>({
       query: (data) => ({
@@ -53,14 +53,14 @@ export const clientService = createApi({
           additional_fields: data.additional_fields,
         },
       }),
-      invalidatesTags: ["client-pagiated"],
+      invalidatesTags: ["client-pagiated", "client-id"],
     }),
     deletelients: builder.mutation<Client, { id: string }>({
       query: ({ id }) => ({
         url: `clients/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["client-pagiated"],
+      invalidatesTags: ["client-pagiated", "client-id"],
     }),
   }),
 });
