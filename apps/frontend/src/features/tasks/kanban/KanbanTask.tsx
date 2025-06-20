@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import TaskSharedUsers from "../shared-users/task-shared-users";
 import { useRef } from "react";
 import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
-import { differenceInCalendarDays } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 
 export default function KanbanTask({
   task,
@@ -158,21 +158,26 @@ export default function KanbanTask({
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <CalendarDays className="w-4 h-4" />
-                {task.end_date && (
+                {task.start_date && (
+                  <span className="mr-1 opacity-80">
+                    {format(new Date(task.start_date), "dd.MM")}
+                  </span>
+                )}
+                <span className="mx-0.5">—</span>
+                {task.end_date ? (
                   <span
                     className={
                       differenceInCalendarDays(new Date(task.end_date), new Date()) < 0
-                        ? 'text-red-500'
+                        ? "text-red-500"
                         : differenceInCalendarDays(new Date(task.end_date), new Date()) <= 3
-                        ? 'text-yellow-600'
-                        : ''
+                        ? "text-yellow-600"
+                        : ""
                     }
                   >
-                    {new Date(task.end_date).toLocaleDateString()}
+                    {format(new Date(task.end_date), "dd.MM")}
                   </span>
-                )}
-                {!task.end_date && (
-                  <span>{new Date(task.created_at).toLocaleDateString()}</span>
+                ) : (
+                  <span>{format(new Date(task.created_at), "dd.MM")}</span>
                 )}
               </div>
             </CardDescription>
