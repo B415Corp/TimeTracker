@@ -2,29 +2,30 @@ import { ApiProperty } from '@nestjs/swagger';
 import { popularCurrencies } from 'src/common/constants';
 
 export class UpdateTaskDto {
-  @ApiProperty()
-  name: string;
+  @ApiProperty({ required: false })
+  name?: string;
 
-  @ApiProperty()
-  description: string;
+  @ApiProperty({ required: false })
+  description?: string;
 
-  @ApiProperty()
-  is_paid: boolean;
+  @ApiProperty({ required: false })
+  is_paid?: boolean;
 
   @ApiProperty({
     enum: ['fixed', 'hourly'],
     example: 'hourly',
-  })дуф
-  payment_type: 'fixed' | 'hourly';
+    required: false,
+  })
+  payment_type?: 'fixed' | 'hourly';
 
-  @ApiProperty()
-  rate: number;
+  @ApiProperty({ required: false })
+  rate?: number;
 
-  @ApiProperty()
-  order: number;
+  @ApiProperty({ required: false })
+  order?: number;
 
-  @ApiProperty({ example: popularCurrencies[0].code })
-  currency_id: string;
+  @ApiProperty({ example: popularCurrencies[0].code, required: false })
+  currency_id?: string;
 
   @ApiProperty({
     description: 'ID статуса задачи (TaskStatus)',
@@ -32,4 +33,10 @@ export class UpdateTaskDto {
     required: false,
   })
   task_status_id?: string;
+
+  @ApiProperty({ type: String, format: 'date-time', required: false, description: 'Дата начала выполнения задачи (ISO)' })
+  start_date?: string;
+
+  @ApiProperty({ type: String, format: 'date-time', required: false, description: 'Крайний срок выполнения задачи (ISO)' })
+  end_date?: string;
 }

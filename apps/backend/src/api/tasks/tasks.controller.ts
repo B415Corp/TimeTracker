@@ -161,9 +161,10 @@ export class TasksController {
   @Patch(':task_id')
   async update(
     @Param('task_id') id: string,
-    @Body() updateTaskDto: UpdateTaskDto
+    @Body() updateTaskDto: UpdateTaskDto,
+    @GetUser() user: User
   ) {
-    return this.tasksService.update(id, updateTaskDto);
+    return this.tasksService.update(id, updateTaskDto, user.user_id);
   }
 
   @ApiBearerAuth()

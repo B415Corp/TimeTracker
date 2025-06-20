@@ -231,11 +231,11 @@ export class TasksService {
     return [filteredTasks, total];
   }
 
-  async update(id: string, dto: UpdateTaskDto): Promise<Task> {
-    const currencyExist = await this.currencyRepository.findOneBy({
-      code: dto.currency_id,
-    });
-    if (!currencyExist) {
+  async update(id: string, dto: UpdateTaskDto, userId: string): Promise<Task> {
+    const currencyExist = dto.currency_id
+      ? await this.currencyRepository.findOneBy({ code: dto.currency_id })
+      : null;
+    if (dto.currency_id && !currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
 
@@ -260,8 +260,7 @@ export class TasksService {
       if (
         !taskStatus.taskStatusColumn ||
         !taskStatus.taskStatusColumn.project ||
-        taskStatus.taskStatusColumn.project.project_id !==
-          existingTask.project_id
+        taskStatus.taskStatusColumn.project.project_id !== existingTask.project_id
       ) {
         throw new NotFoundException(
           'Task status does not belong to this project'
@@ -269,27 +268,39 @@ export class TasksService {
       }
     }
 
-    const task = await this.taskRepository.preload({
-      task_id: id,
-      ...dto,
-      currency_id: currencyExist.currency_id,
+    // Получаем существующую задачу вместе с проектом
+    const existingTask = await this.taskRepository.findOne({
+      where: { task_id: id },
     });
-    if (!task) {
+    if (!existingTask) {
       throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(id));
     }
 
-    const project = await this.projectRepository.findOneBy({
-      project_id: task.project_id,
-    });
+    // Проверяем роль пользователя в проекте, если идёт изменение дат
+    if (dto.start_date || dto.end_date) {
+      const member = await this.projectRepository.manager
+        .getRepository(Project)
+        .createQueryBuilder('project')
+        .leftJoinAndSelect('project.members', 'members')
+        .where('project.project_id = :projectId', {
+          projectId: existingTask.project_id,
+        })
+        .andWhere('members.user_id = :userId', { userId })
+        .getOne();
 
-    if (!project) {
-      throw new NotFoundException(
-        ErrorMessages.PROJECT_NOT_FOUND(task.project_id)
-      );
+      const role = member?.members?.find((m) => m.user_id === userId)?.role;
+      if (role !== PROJECT_ROLE.OWNER && role !== PROJECT_ROLE.MANAGER) {
+        throw new NotFoundException(ErrorMessages.ACCESS_FORBIDDEN('OWNER | MANAGER'));
+      }
     }
 
-    if (project.user_owner_id !== task.user_id) {
-      throw new NotFoundException(ErrorMessages.UNAUTHORIZED);
+    const task = await this.taskRepository.preload({
+      task_id: id,
+      ...dto,
+      currency_id: currencyExist ? currencyExist.currency_id : existingTask.currency_id,
+    });
+    if (!task) {
+      throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(id));
     }
 
     return this.taskRepository.save(task);

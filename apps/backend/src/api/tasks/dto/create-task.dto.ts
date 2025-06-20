@@ -42,4 +42,10 @@ export class CreateTaskDto {
     required: true,
   })
   task_status_id: string;
+
+  @ApiProperty({ type: String, format: 'date-time', required: false, description: 'Дата начала выполнения задачи (ISO)' })
+  start_date?: string;
+
+  @ApiProperty({ type: String, format: 'date-time', required: false, description: 'Крайний срок выполнения задачи (ISO)' })
+  end_date?: string;
 }

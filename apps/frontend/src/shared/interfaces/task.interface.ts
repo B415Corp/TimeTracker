@@ -66,6 +66,8 @@ export const TaskSchema = z.object({
   project: TaskProjectSchema,
   taskStatus: TaskStatusNestedSchema,
   taskMembers: z.array(TaskMemberSchema),
+  start_date: z.string().nullish(),
+  end_date: z.string().nullish(),
 });
 
 // AssignUserDtoSchema
@@ -82,6 +84,8 @@ export const CreateTaskDtoSchema = z.object({
   is_paid: z.boolean(),
   order: z.number(),
   tag_ids: z.array(z.string()),
+  start_date: z.string().nullish(),
+  end_date: z.string().nullish(),
 });
 
 // UpdateTaskDtoSchema
@@ -94,6 +98,8 @@ export const UpdateTaskDtoSchema = z.object({
   rate: z.string().optional(),
   created_at: z.string().optional(),
   currency_id: z.string().optional(),
+  start_date: z.string().nullish(),
+  end_date: z.string().nullish(),
 });
 
 // UpdateTaskStatusDtoSchema

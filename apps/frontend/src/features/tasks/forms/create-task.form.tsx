@@ -14,6 +14,8 @@ import { Button } from "@ui/button";
 import { DialogFooter } from "@ui/dialog";
 import { useCreateTaskMutation } from "@/shared/api/task.service";
 import { Textarea } from "@ui/textarea";
+import { DateRangePicker } from "@ui/date-range-picker";
+import React from "react";
 
 // Схема валидации формы
 const createTaskSchema = z.object({
@@ -23,6 +25,12 @@ const createTaskSchema = z.object({
   is_paid: z.boolean().default(false),
   order: z.number().int().min(0, "Порядок должен быть неотрицательным"),
   tag_ids: z.array(z.string()).default([]),
+  dateRange: z
+    .object({
+      from: z.date().optional(),
+      to: z.date().optional(),
+    })
+    .optional(),
 });
 
 type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
@@ -49,12 +57,21 @@ function CreateTaskForm({
 
       order: 0,
       tag_ids: [],
+      dateRange: undefined,
     },
   });
 
+  const [dateRange, setDateRange] = React.useState<{ from?: Date; to?: Date }>();
+
   async function onSubmit(values: CreateTaskFormValues) {
     try {
-      await createTask(values).unwrap();
+      const payload: any = {
+        ...values,
+        start_date: values.dateRange?.from?.toISOString(),
+        end_date: values.dateRange?.to?.toISOString(),
+      };
+      delete payload.dateRange;
+      await createTask(payload).unwrap();
       form.reset();
       onSuccess();
       onClose();
@@ -91,6 +108,26 @@ function CreateTaskForm({
                   className="max-h-32"
                   placeholder="Детальное описание задачи..."
                   {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dateRange"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Сроки выполнения</FormLabel>
+              <FormControl>
+                <DateRangePicker
+                  date={dateRange}
+                  onChange={(range) => {
+                    setDateRange(range);
+                    field.onChange(range);
+                  }}
                 />
               </FormControl>
               <FormMessage />

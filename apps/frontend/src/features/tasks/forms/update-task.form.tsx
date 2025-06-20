@@ -25,6 +25,8 @@ import {
 } from "@ui/select";
 import { PAYMENT, UpdateTaskDto } from "@/shared/interfaces/task.interface";
 import { Currency } from "@/shared/interfaces/currency.interface";
+import { DateRangePicker } from "@ui/date-range-picker";
+import React from "react";
 
 // Схема валидации формы
 const updateTaskSchema = z.object({
@@ -37,6 +39,12 @@ const updateTaskSchema = z.object({
     return typeof val === "number" ? val.toString() : val;
   }),
   currency_id: z.string().min(1, "Валюта обязательна"),
+  dateRange: z
+    .object({
+      from: z.date().optional(),
+      to: z.date().optional(),
+    })
+    .optional(),
 });
 
 type UpdateTaskFormValues = z.infer<typeof updateTaskSchema>;
@@ -69,8 +77,23 @@ function UpdateTaskForm({
       payment_type: defaults.payment_type || PAYMENT.FIXED,
       rate: defaults.rate ? String(defaults.rate) : "0",
       currency_id: currency.code || "",
+      dateRange: defaults.start_date
+        ? {
+            from: new Date(defaults.start_date as unknown as string),
+            to: defaults.end_date ? new Date(defaults.end_date as unknown as string) : undefined,
+          }
+        : undefined,
     },
   });
+
+  const [dateRange, setDateRange] = React.useState<{ from?: Date; to?: Date }>(
+    defaults.start_date
+      ? {
+          from: new Date(defaults.start_date as unknown as string),
+          to: defaults.end_date ? new Date(defaults.end_date as unknown as string) : undefined,
+        }
+      : {}
+  );
 
   async function onSubmit(values: UpdateTaskFormValues) {
     try {
@@ -79,6 +102,8 @@ function UpdateTaskForm({
         updateData: {
           ...values,
           rate: values.rate.toString(), // Явное преобразование в строку
+          start_date: values.dateRange?.from?.toISOString(),
+          end_date: values.dateRange?.to?.toISOString(),
         },
         projectId: '',
       }).unwrap();
@@ -213,6 +238,26 @@ function UpdateTaskForm({
                   ))}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dateRange"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Сроки выполнения</FormLabel>
+              <FormControl>
+                <DateRangePicker
+                  date={dateRange}
+                  onChange={(range) => {
+                    setDateRange(range);
+                    field.onChange(range);
+                  }}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

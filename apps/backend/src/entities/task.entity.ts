@@ -125,4 +125,12 @@ export class Task {
   })
   @JoinColumn({ name: 'task_status_id' })
   taskStatus: TaskStatus;
+
+  @ApiProperty({ type: Date, description: 'Дата начала выполнения задачи', required: false, nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
+  start_date?: Date;
+
+  @ApiProperty({ type: Date, description: 'Крайний срок выполнения задачи', required: false, nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
+  end_date?: Date;
 }
