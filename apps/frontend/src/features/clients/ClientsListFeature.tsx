@@ -6,13 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@ui/table";
 import ClientTableRow from "./client-table-row";
 import CreateClientForm from "./create-clients.form";
 import { useGetClientsQuery } from "@/shared/api/client.service";
@@ -52,11 +46,10 @@ export function ClientsListFeature() {
           <Table className="flex-1 w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[40%]">Наименование</TableHead>
-                <TableHead className="w-[10%]"></TableHead>
+                <TableHead className="w-full">Наименование</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="flex-1">
+            <TableBody className="">
               {clients?.data &&
                 clients?.data.map((el) => (
                   <TableRow
@@ -78,7 +71,9 @@ export function ClientsListFeature() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage <= 1}
                 >
                   Назад
@@ -102,4 +97,4 @@ export function ClientsListFeature() {
       </div>
     </div>
   );
-} 
+}

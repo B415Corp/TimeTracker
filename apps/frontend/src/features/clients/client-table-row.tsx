@@ -72,44 +72,11 @@ export default function ClientTableRow(client: Client) {
         </>
       )}
 
-      <TableCell className="font-medium flex items-center py-1">
+      <TableCell className="font-medium flex items-center gap-2 py-2 w-full">
         <ClientItem
           name={client?.name}
           additional_fields={client?.additional_fields ?? undefined}
         />
-      </TableCell>
-      <TableCell className="flex justify-end pr-2 py-1 items-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="flex size-8 text-muted-foreground data-[state=open]:bg-muted ml-auto"
-              size="icon"
-            >
-              <MoreVerticalIcon />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem
-              onClick={() => {
-                setEditDialogIsOpen(true);
-              }}
-            >
-              <PencilIcon className="mr-2 size-4" />
-              <span>Редактировать</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => setClientToDelete(client.client_id || "")}
-            >
-              <TrashIcon className="mr-2 size-4" />
-              <span>Удалить</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </TableCell>
     </>
   );
