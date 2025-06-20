@@ -91,13 +91,18 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.PORT || 3000;
-  const host = process.env.HOST || '0.0.0.0';
+  // Добавление маршрута health с префиксом и версией, чтобы не получать 404 на /api/v1/health
+  app.use('/api/v1/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
 
   // Добавление маршрута для возврата JSON схемы
   app.use('/docs-json', (req, res) => {
     res.json(document);
   });
+
+  const port = process.env.PORT || 3000;
+  const host = process.env.HOST || '0.0.0.0';
 
   await app.listen(port, host);
 

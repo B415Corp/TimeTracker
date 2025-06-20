@@ -95,7 +95,7 @@ export default function SidebarFeature() {
                         <SidebarMenuButton>
                           <Link
                             to={`/${ROUTES.PROJECTS}/${_el.project_id}`}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 w-full"
                           >
                             <FolderCode className="h-4 w-4" />
                             {_el.name}
@@ -117,7 +117,7 @@ export default function SidebarFeature() {
                     <SidebarMenuSubItem>
                       <SidebarMenuButton>
                         <Link
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 w-full"
                           to={`/${ROUTES.CONTACTS}/${CONTACTS_VIEW.CLIENTS}`}
                         >
                           <List className="h-4 w-4" />
@@ -130,7 +130,7 @@ export default function SidebarFeature() {
                         <SidebarMenuButton>
                           <Link
                             to={`/${ROUTES.USER}/${friend?.friend?.user_id}`}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 w-full"
                           >
                             <UserAvatar
                               name={friend?.friend?.name || ""}

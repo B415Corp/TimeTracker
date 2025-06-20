@@ -30,6 +30,18 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
     );
   }
   if (result.error) {
+    // Redirect to offline page on 404 or network errors
+    if (
+      result.error.status === 404 ||
+      result.error.status === "FETCH_ERROR"
+    ) {
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes(ROUTES.OFFLINE)) {
+        window.location.href = `/${ROUTES.OFFLINE}`;
+        // Optionally store return path in sessionStorage
+        sessionStorage.setItem("returnTo", currentPath);
+      }
+    }
     if (result.error.status === 401) {
       window.location.href = ROUTES.AUTH + "/" + ROUTES.LOGIN;
     }

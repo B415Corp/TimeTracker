@@ -13,6 +13,7 @@ export enum ROUTES {
   NOTIFICATIONS = "notifications",
   PLANS = "plans",
   NO_ACCESS = "no-access",
+  OFFLINE = "offline",
 }
 
 export enum TASKS_VIEW {

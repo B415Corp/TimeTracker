@@ -17,6 +17,7 @@ import { timeTickerMiddleware } from "@/features/time/model/time.middleware";
 import { projectsSharedService } from "@/shared/api/projects-shared.service";
 import notificationSlice from "@/features/notification/notification.slice";
 import timeSlice from "@/features/time/model/time.slice";
+import { healthService } from "@/shared/api/health.service";
 
 export const store = configureStore({
   reducer: {
@@ -37,6 +38,7 @@ export const store = configureStore({
     [friendshipService.reducerPath]: friendshipService.reducer,
     [notificationsService.reducerPath]: notificationsService.reducer,
     [projectsSharedService.reducerPath]: projectsSharedService.reducer,
+    [healthService.reducerPath]: healthService.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -55,6 +57,7 @@ export const store = configureStore({
       friendshipService.middleware,
       notificationsService.middleware,
       projectsSharedService.middleware,
+      healthService.middleware,
       timeTickerMiddleware
     ),
 });

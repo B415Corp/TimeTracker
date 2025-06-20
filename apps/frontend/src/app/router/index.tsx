@@ -21,6 +21,8 @@ import ContactsPage from "@/pages/contacts/contacts.page";
 import ClientsPage from "@/pages/contacts/clients.page";
 import FriendsPage from "@/pages/contacts/friends.page";
 import ClientDetailPage from "@/pages/clients/client-detail.page";
+import OfflinePage from "@/pages/offline.page";
+import ServerConnectionGuard from "@/widgets/ServerConnectionGuard";
 
 const router = createBrowserRouter(
   [
@@ -59,9 +61,11 @@ const router = createBrowserRouter(
     {
       path: ROUTES.HOME,
       element: (
-        <MainLayout>
-          <Outlet />
-        </MainLayout>
+        <ServerConnectionGuard>
+          <MainLayout>
+            <Outlet />
+          </MainLayout>
+        </ServerConnectionGuard>
       ),
       children: [
         {
@@ -177,6 +181,10 @@ const router = createBrowserRouter(
               <ClientDetailPage />
             </PrivateRoute>
           ),
+        },
+        {
+          path: "/" + ROUTES.OFFLINE,
+          element: <OfflinePage />,
         },
       ],
     },
