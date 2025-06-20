@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Task } from './task.entity';
+import { TaskNoteFile } from './task-note-file.entity';
 
 @Entity()
 export class TaskNote {
@@ -27,4 +28,7 @@ export class TaskNote {
   @OneToOne(() => Task, (task) => task.note, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'task_id' })
   task: Task;
+
+  @OneToMany(() => TaskNoteFile, (file) => file.note, { cascade: true })
+  files: TaskNoteFile[];
 } 

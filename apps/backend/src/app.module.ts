@@ -28,6 +28,8 @@ import { TaskStatusColumnModule } from './api/task-status-column/task-status-col
 import { TaskNoteModule } from './api/task-note/task-note.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -89,6 +91,7 @@ import { AppService } from './app.service';
     TaskStatusModule,
     TaskStatusColumnModule,
     TaskNoteModule,
+    ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'uploads'), serveRoot: '/uploads' }),
   ],
   providers: [AuthService, JwtStrategy, AppService],
   exports: [AuthService],
