@@ -13,7 +13,7 @@ export default function TaskNoteSection({ taskId }: { taskId: string }) {
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [saveNote] = useUpsertTaskNoteMutation();
   const lastSavedRef = useRef<string>(note?.content || "");
-  const debounceTimer = useRef<NodeJS.Timeout>(null);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Инициализируем контент только при первой загрузке
   useEffect(() => {

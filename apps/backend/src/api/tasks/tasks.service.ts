@@ -156,7 +156,6 @@ export class TasksService {
       select: {
         task_id: true,
         name: true,
-        description: true,
         is_paid: true,
         payment_type: true,
         order: true,
@@ -389,7 +388,6 @@ export class TasksService {
       select: {
         task_id: true,
         name: true,
-        description: true,
         is_paid: true,
         order: true,
         payment_type: true,
