@@ -161,6 +161,8 @@ export class TasksService {
         order: true,
         rate: true,
         created_at: true,
+        start_date: true,
+        end_date: true,
         project_id: true,
         currency: {
           currency_id: true,
@@ -394,6 +396,8 @@ export class TasksService {
         payment_type: true,
         rate: true,
         created_at: true,
+        start_date: true,
+        end_date: true,
         currency: {
           currency_id: true,
           code: true,

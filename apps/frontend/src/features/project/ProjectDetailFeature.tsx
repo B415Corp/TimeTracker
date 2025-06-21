@@ -228,7 +228,7 @@ function CreateTaskBtn() {
         <DialogHeader>
           <DialogTitle>Создать новую задачу</DialogTitle>
         </DialogHeader>
-        <CreateTaskForm onSuccess={() => setDialogIsOpen(null)} onClose={() => setDialogIsOpen(null)} projectId={project_id || ""} />
+        <CreateTaskForm onSuccess={(_task) => setDialogIsOpen(null)} onClose={() => setDialogIsOpen(null)} projectId={project_id || ""} />
       </DialogContent>
     </Dialog>
   );

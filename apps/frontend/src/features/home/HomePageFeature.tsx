@@ -10,6 +10,23 @@ import TaskCardMain from "@/features/tasks/task-cards/task-card-main.root";
 import { ClientItem } from "@/entities/client";
 import { TodayWidget } from './today-widget';
 import { WeeklyStats } from './weekly-stats';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ui/select";
+import { useGetProjectsMeQuery } from "@/shared/api/projects.service";
+import CreateTaskForm from "@/features/tasks/forms/create-task.form";
+import { Task } from "@/shared/interfaces/task.interface";
 
 const TASK_ADVANTAGES = [
   { title: "Быстрый старт", description: "Создайте первую задачу и начните эффективно управлять своими проектами." },
@@ -77,20 +94,85 @@ export function HomePageFeature() {
   const navigate = useNavigate();
   const { data: projectsData } = useSearcV2Query({ searchLocation: "projects" });
   const { data: tasksData } = useSearcV2Query({ searchLocation: "tasks" });
+
+  // Состояние для модального окна создания задачи
+  const [dialogOpen, setDialogOpen] = useState(false);
+  // Выбранный проект
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Получаем список проектов пользователя
+  const { data: myProjectsResponse } = useGetProjectsMeQuery({ page: 1, limit: 100 });
+  const myProjects = myProjectsResponse?.data || [];
+
+  /**
+   * Закрыть диалог и сбросить выбранный проект
+   */
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSelectedProjectId("");
+  };
+
+  /**
+   * После успешного создания задачи переходим на страницу задачи
+   */
+  const handleTaskCreated = (task: Task) => {
+    if (!task?.task_id) {
+      console.error("task_id is missing in created task", task);
+      return;
+    }
+    handleDialogClose();
+    navigate(`/${ROUTES.TASKS}/${task.task_id}`);
+  };
+
   return (
     <div className="w-full h-full flex flex-col p-4">
       <div className="flex flex-wrap justify-between gap-2">
         <h1 className="text-2xl font-bold mb-4">Главная</h1>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-4">
-        <TodayWidget />
-        <WeeklyStats />
+        {/* <TodayWidget /> */}
+        {/* <WeeklyStats /> */}
       </div>
       <div className="flex flex-col overflow-y-auto">
         <div className="flex flex-col gap-4 w-full pb-6 ">
           <div className="flex items-center gap-4 mb-2">
             <h2 className="text-xl">Последние задачи</h2>
-            <Button>Создать</Button>
+            <Dialog open={dialogOpen} onOpenChange={(open) => setDialogOpen(open)}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setDialogOpen(true)}>Создать</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Создать новую задачу</DialogTitle>
+                </DialogHeader>
+                {/* Выбор проекта */}
+                <div className="space-y-4">
+                  <div>
+                    <Select value={selectedProjectId} onValueChange={(val) => setSelectedProjectId(val)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Выберите проект" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {myProjects?.map((project: any) => (
+                          <SelectItem key={project.project_id} value={project.project_id}>
+                            {project.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Форма создания задачи отображается только после выбора проекта */}
+                  {selectedProjectId && (
+                    <CreateTaskForm
+                      key={selectedProjectId}
+                      projectId={selectedProjectId}
+                      onSuccess={handleTaskCreated}
+                      onClose={handleDialogClose}
+                    />
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {tasksData?.tasks?.length === 0 && <AdvantageCarousel items={TASK_ADVANTAGES} />}
@@ -114,7 +196,7 @@ export function HomePageFeature() {
         <div className="flex flex-col gap-4 w-full pb-6">
           <div className="flex items-center gap-4 mb-2">
             <h2 className="text-xl">Последние проекты</h2>
-            <Button>Создать</Button>
+            <Button onClick={() => navigate(`/${ROUTES.PROJECTS}`)}>Создать</Button>
           </div>
           <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {projectsData?.projects?.length === 0 && <AdvantageCarousel items={PROJECT_ADVANTAGES} />}

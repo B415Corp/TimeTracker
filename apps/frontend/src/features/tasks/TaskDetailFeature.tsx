@@ -61,6 +61,7 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
     0;
 
   if (!task) return null;
+  console.log("task", task);
 
   return (
     <>
@@ -190,6 +191,19 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
                       taskId={taskId}
                       projectMembers={projectUsers || []}
                     />
+                    {(task.start_date || task.end_date) && (
+                      <>
+                        <Separator orientation="vertical" className="border-1 " />
+                        <div className="flex items-center gap-2">
+                          <CalendarDays className="w-4 h-4" />
+                          <p>
+                            {task.start_date ? formatDate(task.start_date) : "—"}
+                            {" "}-{" "}
+                            {task.end_date ? formatDate(task.end_date) : "—"}
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

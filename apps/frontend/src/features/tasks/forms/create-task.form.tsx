@@ -16,6 +16,7 @@ import { useCreateTaskMutation } from "@/shared/api/task.service";
 import { DateRangePicker } from "@ui/date-range-picker";
 import React from "react";
 import { TiptapEditor } from "@/entities/tiptap/TiptapEditor";
+import { Task } from "@/shared/interfaces/task.interface";
 
 // Схема валидации формы
 const createTaskSchema = z.object({
@@ -37,8 +38,14 @@ const createTaskSchema = z.object({
 type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
 
 interface CreateTaskFormProps {
-  onSuccess: () => void;
+  /**
+   * Колбэк вызывается после успешного создания задачи и
+   * передаёт в родительский компонент созданную задачу.
+   */
+  onSuccess: (task: Task) => void;
+  /** Закрыть диалог без создания задачи */
   onClose: () => void;
+  /** Идентификатор проекта, к которому будет привязана задача */
   projectId: string;
 }
 
@@ -72,9 +79,15 @@ function CreateTaskForm({
         note_content: values.note_content,
       };
       delete payload.dateRange;
-      await createTask(payload).unwrap();
+      const created = (await createTask(payload).unwrap()) as any;
+      // Некоторые эндпоинты возвращают задачу в поле data
+      const taskWithId: Task = created?.task_id ? created : created?.data;
       form.reset();
-      onSuccess();
+      if (taskWithId) {
+        onSuccess(taskWithId);
+      } else {
+        console.error("Созданная задача не содержит task_id", created);
+      }
       onClose();
     } catch (error) {
       console.error("Ошибка при создании задачи:", error);

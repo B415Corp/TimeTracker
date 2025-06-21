@@ -14,7 +14,6 @@ import { Button } from "@ui/button";
 import { DialogFooter } from "@ui/dialog";
 import { useUpdateTaskMutation } from "@/shared/api/task.service";
 import { RadioGroup, RadioGroupItem } from "@ui/radio-group";
-import { Textarea } from "@ui/textarea";
 import { useGetCurrenciesQuery } from "@/shared/api/currency.service";
 import {
   Select,
@@ -31,7 +30,6 @@ import React from "react";
 // Схема валидации формы
 const updateTaskSchema = z.object({
   name: z.string().min(1, "Название задачи обязательно"),
-  description: z.string().min(1, "Описание обязательно"),
   is_paid: z.boolean().default(false),
   payment_type: z.nativeEnum(PAYMENT),
   rate: z.union([z.number().min(0), z.string()]).transform((val) => {
@@ -72,7 +70,6 @@ function UpdateTaskForm({
     resolver: zodResolver(updateTaskSchema),
     defaultValues: {
       name: defaults.name || "",
-      description: defaults.description || "",
       is_paid: defaults.is_paid || false,
       payment_type: defaults.payment_type || PAYMENT.FIXED,
       rate: defaults.rate ? String(defaults.rate) : "0",
@@ -126,24 +123,6 @@ function UpdateTaskForm({
               <FormLabel>Название задачи</FormLabel>
               <FormControl>
                 <Input placeholder="Разработка функционала" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Описание</FormLabel>
-              <FormControl>
-                <Textarea
-                  className="max-h-32"
-                  placeholder="Детальное описание задачи..."
-                  {...field}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>
