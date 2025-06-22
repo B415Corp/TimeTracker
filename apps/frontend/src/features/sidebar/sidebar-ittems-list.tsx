@@ -20,7 +20,7 @@ export default function SidebarIetmsList({ projects }: Props) {
             isActive={location.pathname.includes(`/${el.project_id}`)}
           >
             <Link
-              to={`/${ROUTES.PROJECTS}/${TASKS_VIEW.TABLE}/${el.project_id}`}
+              to={`/${ROUTES.PROJECTS}/${el.project_id}`}
             >
               <ChartNoAxesGantt className="h-4 w-4" />
               <span>{el?.name}</span>

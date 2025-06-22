@@ -103,7 +103,7 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
             <Button
               variant="destructive"
               onClick={async () => {
-                navigate(`/${ROUTES.PROJECTS}/${TASKS_VIEW.TABLE}`);
+                navigate(`/${ROUTES.PROJECTS}/${task.project_id}`);
                 await deleteTask(taskId);
                 setTaskToDelete(null);
               }}

@@ -58,7 +58,7 @@ export function TaskFloatBarFeature() {
             <Button
               onClick={() =>
                 navigate(
-                  `/${ROUTES.PROJECTS}/${TASKS_VIEW.TABLE}/${latestTaskLog?.task?.project?.project_id}`
+                  `/${ROUTES.PROJECTS}/${latestTaskLog?.task?.project?.project_id}`
                 )
               }
             >

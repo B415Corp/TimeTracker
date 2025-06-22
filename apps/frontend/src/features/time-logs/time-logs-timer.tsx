@@ -246,9 +246,7 @@ function TimerFeature() {
       dispatch(
         startTimer({
           task_id,
-          startTime: context?.latestLog.start_time
-            ? new Date(context?.latestLog.start_time).getTime()
-            : Date.now(),
+          startTime: Date.now(),
           accumulated: Number(context?.latestLog.common_duration),
         })
       );
