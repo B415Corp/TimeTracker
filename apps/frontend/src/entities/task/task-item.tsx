@@ -50,9 +50,7 @@ export default function TaskItem({
       dispatch(
         startTimer({
           task_id,
-          startTime: latestLog.start_time
-            ? new Date(latestLog.start_time).getTime()
-            : Date.now(),
+          startTime: Date.now(),
           accumulated: Number(latestLog.common_duration),
         })
       );
