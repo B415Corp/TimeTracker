@@ -11,12 +11,12 @@ import {
 import { useGetProjectSharedByIdQuery } from "@/shared/api/projects-shared.service";
 import { Task } from "@/shared/interfaces/task.interface";
 import { motion } from "framer-motion";
-import { CalendarDays, PanelTop, Text } from "lucide-react";
+import { CalendarDays, PanelTop } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TaskSharedUsers from "../shared-users/task-shared-users";
 import { useRef } from "react";
 import TimeLogsTimer from "@/features/time-logs/time-logs-timer";
-import { differenceInCalendarDays, format } from "date-fns";
+import { TaskDueDate } from "@/entities/task";
 
 export default function KanbanTask({
   task,
@@ -158,27 +158,11 @@ export default function KanbanTask({
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <CalendarDays className="w-4 h-4" />
-                {task.start_date && (
-                  <span className="mr-1 opacity-80">
-                    {format(new Date(task.start_date), "dd.MM")}
-                  </span>
-                )}
-                <span className="mx-0.5">—</span>
-                {task.end_date ? (
-                  <span
-                    className={
-                      differenceInCalendarDays(new Date(task.end_date), new Date()) < 0
-                        ? "text-red-500"
-                        : differenceInCalendarDays(new Date(task.end_date), new Date()) <= 3
-                        ? "text-yellow-600"
-                        : ""
-                    }
-                  >
-                    {format(new Date(task.end_date), "dd.MM")}
-                  </span>
-                ) : (
-                  <span>{format(new Date(task.created_at), "dd.MM")}</span>
-                )}
+                <TaskDueDate
+                  startDate={task.start_date}
+                  endDate={task.end_date}
+                  fallbackDate={task.created_at}
+                />
               </div>
             </CardDescription>
             <CardFooter className="px-0">

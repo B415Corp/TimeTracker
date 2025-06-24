@@ -33,6 +33,7 @@ import TimeLogsTimer from "../time-logs/time-logs-timer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@ui/tabs";
 import { formatMilliseconds } from "@/lib/format-seconds";
 import TaskNoteSection from "@/features/notes/task-notes-section";
+import { TaskDueDate } from "@/entities/task";
 
 /**
  * Feature-компонент: детальная страница задачи с бизнес-логикой и работой с API
@@ -196,11 +197,11 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
                         <Separator orientation="vertical" className="border-1 " />
                         <div className="flex items-center gap-2">
                           <CalendarDays className="w-4 h-4" />
-                          <p>
-                            {task.start_date ? formatDate(task.start_date) : "—"}
-                            {" "}-{" "}
-                            {task.end_date ? formatDate(task.end_date) : "—"}
-                          </p>
+                          <TaskDueDate
+                            startDate={task.start_date}
+                            endDate={task.end_date}
+                            fallbackDate={task.created_at}
+                          />
                         </div>
                       </>
                     )}
