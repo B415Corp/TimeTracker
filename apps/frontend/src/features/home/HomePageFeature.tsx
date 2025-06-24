@@ -2,14 +2,13 @@ import { ROUTES } from "@/app/router/routes.enum";
 import { Button } from "@ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/card";
 import { useSearcV2Query } from "@/shared/api/search.service";
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdvantageCard } from "@/shared/ui/advantage-card";
 import { Carousel, CarouselContent, CarouselItem } from "@ui/carousel";
 import TaskCardMain from "@/features/tasks/task-cards/task-card-main.root";
 import { ClientItem } from "@/entities/client";
-import { TodayWidget } from './today-widget';
-import { WeeklyStats } from './weekly-stats';
+
 import {
   Dialog,
   DialogContent,
@@ -29,21 +28,65 @@ import CreateTaskForm from "@/features/tasks/forms/create-task.form";
 import { Task } from "@/shared/interfaces/task.interface";
 
 const TASK_ADVANTAGES = [
-  { title: "Быстрый старт", description: "Создайте первую задачу и начните эффективно управлять своими проектами." },
-  { title: "Удобная организация", description: "Группируйте задачи, отслеживайте прогресс и повышайте продуктивность." },
-  { title: "Контроль сроков", description: "Следите за дедлайнами и не пропускайте важные этапы." },
-  { title: "Приоритеты", description: "Устанавливайте приоритеты для эффективного распределения ресурсов." },
-  { title: "Коллаборация", description: "Назначайте задачи участникам команды и работайте вместе." },
-  { title: "История изменений", description: "Отслеживайте все изменения и комментарии по задачам." },
+  {
+    title: "Быстрый старт",
+    description:
+      "Создайте первую задачу и начните эффективно управлять своими проектами.",
+  },
+  {
+    title: "Удобная организация",
+    description:
+      "Группируйте задачи, отслеживайте прогресс и повышайте продуктивность.",
+  },
+  {
+    title: "Контроль сроков",
+    description: "Следите за дедлайнами и не пропускайте важные этапы.",
+  },
+  {
+    title: "Приоритеты",
+    description:
+      "Устанавливайте приоритеты для эффективного распределения ресурсов.",
+  },
+  {
+    title: "Коллаборация",
+    description: "Назначайте задачи участникам команды и работайте вместе.",
+  },
+  {
+    title: "История изменений",
+    description: "Отслеживайте все изменения и комментарии по задачам.",
+  },
 ];
 
 const PROJECT_ADVANTAGES = [
-  { title: "Стартуйте новый проект", description: "Создайте проект для централизованного управления задачами и командой." },
-  { title: "Аналитика и контроль", description: "Получайте статистику по проектам и принимайте решения на основе данных." },
-  { title: "Гибкое управление", description: "Настраивайте этапы, статусы и роли под ваши бизнес-процессы." },
-  { title: "Совместная работа", description: "Приглашайте коллег, распределяйте задачи и достигайте целей вместе." },
-  { title: "История изменений", description: "Вся история изменений и активности по проекту всегда под рукой." },
-  { title: "Безопасность данных", description: "Ваши проекты и информация защищены и доступны только вашей команде." },
+  {
+    title: "Стартуйте новый проект",
+    description:
+      "Создайте проект для централизованного управления задачами и командой.",
+  },
+  {
+    title: "Аналитика и контроль",
+    description:
+      "Получайте статистику по проектам и принимайте решения на основе данных.",
+  },
+  {
+    title: "Гибкое управление",
+    description: "Настраивайте этапы, статусы и роли под ваши бизнес-процессы.",
+  },
+  {
+    title: "Совместная работа",
+    description:
+      "Приглашайте коллег, распределяйте задачи и достигайте целей вместе.",
+  },
+  {
+    title: "История изменений",
+    description:
+      "Вся история изменений и активности по проекту всегда под рукой.",
+  },
+  {
+    title: "Безопасность данных",
+    description:
+      "Ваши проекты и информация защищены и доступны только вашей команде.",
+  },
 ];
 
 type Advantage = { title: string; description: string };
@@ -70,7 +113,10 @@ function AdvantageCarousel({ items }: { items: Advantage[] }) {
   };
   const slides = items.length < 4 ? [...items, ...items] : items;
   return (
-    <Carousel className="w-full max-w-full" opts={{ align: "start", loop: true }}>
+    <Carousel
+      className="w-full max-w-full"
+      opts={{ align: "start", loop: true }}
+    >
       <CarouselContent className="gap-x-4">
         {slides.map((item, idx) => (
           <CarouselItem
@@ -92,7 +138,9 @@ function AdvantageCarousel({ items }: { items: Advantage[] }) {
  */
 export function HomePageFeature() {
   const navigate = useNavigate();
-  const { data: projectsData } = useSearcV2Query({ searchLocation: "projects" });
+  const { data: projectsData } = useSearcV2Query({
+    searchLocation: "projects",
+  });
   const { data: tasksData } = useSearcV2Query({ searchLocation: "tasks" });
 
   // Состояние для модального окна создания задачи
@@ -101,7 +149,10 @@ export function HomePageFeature() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
 
   // Получаем список проектов пользователя
-  const { data: myProjectsResponse } = useGetProjectsMeQuery({ page: 1, limit: 100 });
+  const { data: myProjectsResponse } = useGetProjectsMeQuery({
+    page: 1,
+    limit: 100,
+  });
   const myProjects = myProjectsResponse?.data || [];
 
   /**
@@ -137,7 +188,10 @@ export function HomePageFeature() {
         <div className="flex flex-col gap-4 w-full pb-6 ">
           <div className="flex items-center gap-4 mb-2">
             <h2 className="text-xl">Последние задачи</h2>
-            <Dialog open={dialogOpen} onOpenChange={(open) => setDialogOpen(open)}>
+            <Dialog
+              open={dialogOpen}
+              onOpenChange={(open) => setDialogOpen(open)}
+            >
               <DialogTrigger asChild>
                 <Button onClick={() => setDialogOpen(true)}>Создать</Button>
               </DialogTrigger>
@@ -148,13 +202,19 @@ export function HomePageFeature() {
                 {/* Выбор проекта */}
                 <div className="space-y-4">
                   <div>
-                    <Select value={selectedProjectId} onValueChange={(val) => setSelectedProjectId(val)}>
+                    <Select
+                      value={selectedProjectId}
+                      onValueChange={(val) => setSelectedProjectId(val)}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Выберите проект" />
                       </SelectTrigger>
                       <SelectContent>
                         {myProjects?.map((project: any) => (
-                          <SelectItem key={project.project_id} value={project.project_id}>
+                          <SelectItem
+                            key={project.project_id}
+                            value={project.project_id}
+                          >
                             {project.name}
                           </SelectItem>
                         ))}
@@ -175,7 +235,9 @@ export function HomePageFeature() {
             </Dialog>
           </div>
           <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {tasksData?.tasks?.length === 0 && <AdvantageCarousel items={TASK_ADVANTAGES} />}
+            {tasksData?.tasks?.length === 0 && (
+              <AdvantageCarousel items={TASK_ADVANTAGES} />
+            )}
             {tasksData?.tasks?.map((el) => (
               <TaskCardMain.Root
                 key={el.task_id || el.name}
@@ -196,22 +258,28 @@ export function HomePageFeature() {
         <div className="flex flex-col gap-4 w-full pb-6">
           <div className="flex items-center gap-4 mb-2">
             <h2 className="text-xl">Последние проекты</h2>
-            <Button onClick={() => navigate(`/${ROUTES.PROJECTS}`)}>Создать</Button>
+            <Button onClick={() => navigate(`/${ROUTES.PROJECTS}`)}>
+              Создать
+            </Button>
           </div>
           <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {projectsData?.projects?.length === 0 && <AdvantageCarousel items={PROJECT_ADVANTAGES} />}
+            {projectsData?.projects?.length === 0 && (
+              <AdvantageCarousel items={PROJECT_ADVANTAGES} />
+            )}
             {projectsData?.projects?.map((el) => (
               <Card key={el?.project_id} className="min-w-64 w-96 md:w-fit">
                 <CardHeader>
                   <CardTitle>{el?.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ClientItem
-                    name={el?.client?.name || ""}
-                  />
+                  <ClientItem name={el?.client?.name || ""} />
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={() => navigate(`/${ROUTES.PROJECTS}/${el?.project_id}`)}>
+                  <Button
+                    onClick={() =>
+                      navigate(`/${ROUTES.PROJECTS}/${el?.project_id}`)
+                    }
+                  >
                     Перейти
                   </Button>
                 </CardFooter>
@@ -222,4 +290,4 @@ export function HomePageFeature() {
       </div>
     </div>
   );
-} 
+}
