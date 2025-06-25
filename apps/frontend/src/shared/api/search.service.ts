@@ -20,11 +20,10 @@ export const searchService = createApi({
         if (searchLocation) params.append("searchLocation", searchLocation);
         if (searchTerm) params.append("searchTerm", searchTerm);
 
-        // Получаем базовый URL и заменяем /v1/ на /v2/
-        const baseUrl = import.meta.env.VITE_API_URL.replace("/v1", "/v2");
+        // путь для версии v2; baseUrl автоматически подставится из fetchBaseQuery (/api/v1), поэтому используем относительный переход на уровень выше
 
         return {
-          url: `${baseUrl}/search?${params.toString()}`,
+          url: `../v2/search?${params.toString()}`,
           method: "GET",
         };
       },
