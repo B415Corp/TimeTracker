@@ -2,10 +2,9 @@ import { ROUTES } from "@/app/router/routes.enum";
 import { Button } from "@ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@ui/card";
 import { useSearcV2Query } from "@/shared/api/search.service";
-import { useRef, useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdvantageCard } from "@/shared/ui/advantage-card";
-import { Carousel, CarouselContent, CarouselItem } from "@ui/carousel";
 import TaskCardMain from "@/features/tasks/task-cards/task-card-main.root";
 import { ClientItem } from "@/entities/client";
 
@@ -91,45 +90,19 @@ const PROJECT_ADVANTAGES = [
 
 type Advantage = { title: string; description: string };
 
-function AdvantageCarousel({ items }: { items: Advantage[] }) {
-  const [, setActive] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setActive((prev) => (prev + 1) % items.length);
-    }, 10000);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [items.length]);
-  const handleManual = (idx: number) => {
-    setActive(idx);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = setInterval(() => {
-        setActive((prev) => (prev + 1) % items.length);
-      }, 10000);
-    }
-  };
-  const slides = items.length < 4 ? [...items, ...items] : items;
+function AdvantageGrid({ items }: { items: Advantage[] }) {
   return (
-    <Carousel
-      className="w-full max-w-full"
-      opts={{ align: "start", loop: true }}
-    >
-      <CarouselContent className="gap-x-4">
-        {slides.map((item, idx) => (
-          <CarouselItem
-            key={item.title + idx}
-            className="basis-72 md:basis-64 flex-shrink-0"
-            style={{ minHeight: 220, height: "100%" }}
-            onClick={() => handleManual(idx % items.length)}
-          >
-            <AdvantageCard title={item.title} description={item.description} />
-          </CarouselItem>
+    <div className="col-span-full w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {items.map((item, idx) => (
+          <AdvantageCard 
+            key={item.title + idx} 
+            title={item.title} 
+            description={item.description} 
+          />
         ))}
-      </CarouselContent>
-    </Carousel>
+      </div>
+    </div>
   );
 }
 
@@ -236,7 +209,7 @@ export function HomePageFeature() {
           </div>
           <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {tasksData?.tasks?.length === 0 && (
-              <AdvantageCarousel items={TASK_ADVANTAGES} />
+              <AdvantageGrid items={TASK_ADVANTAGES} />
             )}
             {tasksData?.tasks?.map((el) => (
               <TaskCardMain.Root
@@ -264,7 +237,7 @@ export function HomePageFeature() {
           </div>
           <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {projectsData?.projects?.length === 0 && (
-              <AdvantageCarousel items={PROJECT_ADVANTAGES} />
+              <AdvantageGrid items={PROJECT_ADVANTAGES} />
             )}
             {projectsData?.projects?.map((el) => (
               <Card key={el?.project_id} className="min-w-64 w-96 md:w-fit">
