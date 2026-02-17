@@ -6,4 +6,6 @@ export { default as ProjectsPage } from "./project/projects.page";
 export { default as ProjectDetailPage } from "./project/project-detail.page";
 export { default as SettingsPage } from "./settings/settings.page";
 export { default as TaskDetailPage } from "./tasks/task-detail.page";
-export { default as UserPage } from "./user/user.page"; 
+export { default as UserPage } from "./user/user.page";
+export { DocumentPage } from "./document-page/DocumentPage";
+export { DocumentsListPage } from "./documents-list-page/DocumentsListPage"; 

@@ -1,0 +1,15 @@
+export enum FieldType {
+  TEXT = 'text',
+  LONG_TEXT = 'long_text',
+  NUMBER = 'number',
+  SELECT = 'select',
+  MULTI_SELECT = 'multi_select',
+  DATE = 'date',
+  CHECKBOX = 'checkbox',
+  URL = 'url',
+  EMAIL = 'email',
+  PHONE = 'phone',
+  USER = 'user',
+  RELATION = 'relation',
+  TAGS = 'tags',
+}

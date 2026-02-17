@@ -26,6 +26,13 @@ import { NotificationModule } from './api/notification/notification.module';
 import { TaskStatusModule } from './api/task-status/task-status.module';
 import { TaskStatusColumnModule } from './api/task-status-column/task-status-column.module';
 import { TaskNoteModule } from './api/task-note/task-note.module';
+import { DocumentsModule } from './api/documents/documents.module';
+import { DocumentBlocksModule } from './api/document-blocks/document-blocks.module';
+import { CustomFieldsModule } from './api/custom-fields/custom-fields.module';
+import { DocumentMembersModule } from './api/document-members/document-members.module';
+import { DocumentCommentsModule } from './api/document-comments/document-comments.module';
+import { DocumentFilesModule } from './api/document-files/document-files.module';
+import { DocumentVersionsModule } from './api/document-versions/document-versions.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -91,6 +98,13 @@ import { join } from 'path';
     TaskStatusModule,
     TaskStatusColumnModule,
     TaskNoteModule,
+    DocumentsModule,
+    DocumentBlocksModule,
+    CustomFieldsModule,
+    DocumentMembersModule,
+    DocumentCommentsModule,
+    DocumentFilesModule,
+    DocumentVersionsModule,
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'uploads'), serveRoot: '/uploads' }),
   ],
   providers: [AuthService, JwtStrategy, AppService],

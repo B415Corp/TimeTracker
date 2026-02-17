@@ -34,6 +34,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@ui/tabs";
 import { formatMilliseconds } from "@/lib/format-seconds";
 import TaskNoteSection from "@/features/notes/task-notes-section";
 import { TaskDueDate } from "@/entities/task";
+import { TaskDocumentSection } from "./TaskDocumentSection";
 
 /**
  * Feature-компонент: детальная страница задачи с бизнес-логикой и работой с API
@@ -216,10 +217,19 @@ export function TaskDetailFeature({ taskId }: { taskId: string }) {
             <Tabs defaultValue="time" className="h-full flex flex-col">
               <TabsList>
                 <TabsTrigger value="notes">Заметки</TabsTrigger>
+                <TabsTrigger value="document">Документ</TabsTrigger>
                 <TabsTrigger value="time">Время</TabsTrigger>
               </TabsList>
               <TabsContent value="notes">
                 <TaskNoteSection taskId={taskId} />
+              </TabsContent>
+              <TabsContent value="document" className="p-4">
+                <TaskDocumentSection
+                  taskId={taskId}
+                  projectId={task.project_id}
+                  documentId={task.document_id}
+                  taskName={task.name}
+                />
               </TabsContent>
               <TabsContent
                 value="time"

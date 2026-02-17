@@ -14,6 +14,7 @@ export enum ROUTES {
   PLANS = "plans",
   NO_ACCESS = "no-access",
   OFFLINE = "offline",
+  DOCUMENTS = "documents",
 }
 
 export enum TASKS_VIEW {

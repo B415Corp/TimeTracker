@@ -30,6 +30,7 @@ import {
   Timer,
   TrashIcon,
   User2Icon,
+  FileText,
 } from "lucide-react";
 import {
   useDeleteProjectMutation,
@@ -295,6 +296,9 @@ function HeaderBottom() {
 }
 
 function ViewSection() {
+  const context = useContext(ProjectDetailContext);
+  const project_id = context?.id;
+  const navigate = useNavigate();
   const [view, setView] = useState<TASKS_VIEW>(TASKS_VIEW.BOARD);
   return (
     <>
@@ -306,6 +310,14 @@ function ViewSection() {
         <Button onClick={() => setView(TASKS_VIEW.TABLE)} size={"sm"} variant={view === TASKS_VIEW.TABLE ? "outline" : "ghost"}>
           <Table />
           <span>Таблица</span>
+        </Button>
+        <Button 
+          onClick={() => navigate(`/${ROUTES.PROJECTS}/${project_id}/${ROUTES.DOCUMENTS}`)} 
+          size={"sm"} 
+          variant="ghost"
+        >
+          <FileText />
+          <span>Документы</span>
         </Button>
       </div>
       <div className="flex-1 overflow-hidden">

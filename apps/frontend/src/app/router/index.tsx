@@ -16,6 +16,8 @@ import {
   SettingsPage,
   TaskDetailPage,
   UserPage,
+  DocumentPage,
+  DocumentsListPage,
 } from "@/pages";
 import ContactsPage from "@/pages/contacts/contacts.page";
 import ClientsPage from "@/pages/contacts/clients.page";
@@ -103,6 +105,22 @@ const router = createBrowserRouter(
           element: (
             <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
               <ProjectDetailPage />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: ROUTES.PROJECTS + "/:projectId/" + ROUTES.DOCUMENTS,
+          element: (
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
+              <DocumentsListPage />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: ROUTES.PROJECTS + "/:projectId/" + ROUTES.DOCUMENTS + "/:documentId",
+          element: (
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
+              <DocumentPage />
             </PrivateRoute>
           ),
         },

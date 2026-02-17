@@ -137,4 +137,8 @@ export class Task {
 
   @OneToOne(() => TaskNote, (note) => note.task, { cascade: true, eager: true })
   note: TaskNote;
+
+  @ApiProperty({ type: String, description: 'Document ID associated with the task', required: false, nullable: true })
+  @Column({ nullable: true })
+  document_id?: string;
 }

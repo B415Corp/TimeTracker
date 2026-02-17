@@ -21,10 +21,20 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
   let result;
   if (typeof args === "string") {
-    result = await customFetchBaseQuery(args, api, extraOptions);
+    result = await customFetchBaseQuery(
+      { url: args, headers: authHeader },
+      api,
+      extraOptions
+    );
   } else {
     result = await customFetchBaseQuery(
-      { ...args, headers: { ...args.headers, ...authHeader } },
+      { 
+        ...args, 
+        headers: { 
+          ...(args.headers || {}), 
+          ...authHeader 
+        } 
+      },
       api,
       extraOptions
     );

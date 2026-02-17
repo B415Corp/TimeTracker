@@ -1,6 +1,16 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { baseQueryWithErrorHandling } from './baseQueryWithErrorHandling';
 
 export const baseApi = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL }),
+  baseQuery: baseQueryWithErrorHandling,
+  tagTypes: [
+    'Documents',
+    'DocumentBlocks',
+    'CustomFields',
+    'DocumentMembers',
+    'DocumentComments',
+    'DocumentFiles',
+    'DocumentVersions',
+  ],
   endpoints: () => ({}),
 });
