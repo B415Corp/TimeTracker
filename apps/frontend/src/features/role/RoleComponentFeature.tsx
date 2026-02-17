@@ -6,8 +6,9 @@ import {
   DialogTitle,
 } from "@ui/dialog";
 import { PROJECT_ROLE } from "@/shared/enums";
+import { useRole } from "@/hooks/use-role";
 import { ShieldX } from "lucide-react";
-import { HTMLAttributes, useEffect, useState, useCallback } from "react";
+import { HTMLAttributes, useState, useCallback, memo } from "react";
 import RoleBadge from "@/entities/role/role-badge";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -20,31 +21,31 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 /**
  * Feature-компонент: ограничение доступа по роли, с диалогом и блокировкой
  */
-export function RoleComponentFeature({
+export const RoleComponentFeature = memo(function RoleComponentFeature({
   roles,
   userRole,
   showChildren = true,
   children,
   ...props
 }: Props) {
-  const [access, setAccess] = useState<boolean>(false);
+  const { hasAccess } = useRole(roles, userRole);
   const [dialog, setDialog] = useState<boolean>(false);
-
-  // Проверяем доступ и обновляем состояние
-  useEffect(() => {
-    const hasAccess = roles.includes(userRole);
-    setAccess(hasAccess);
-  }, [roles, userRole]);
+  const isDevMode = import.meta.env.MODE === "dev";
 
   // Обработчик клика - открываем диалог только если доступа нет
   const accessHandler = useCallback(() => {
-    if (!access) {
+    if (!hasAccess && !isDevMode) {
       setDialog(true);
     }
-  }, [access]);
+  }, [hasAccess, isDevMode]);
+
+  // В dev режиме всегда показываем контент
+  if (isDevMode) {
+    return <>{children}</>;
+  }
 
   // Если доступа нет и showChildren === false - ничего не рендерим
-  if (!access && !showChildren) {
+  if (!hasAccess && !showChildren) {
     return null;
   }
 
@@ -53,14 +54,14 @@ export function RoleComponentFeature({
       <div
         onClick={accessHandler}
         {...props}
-        style={{ cursor: access ? "unset" : "default" }}
+        style={{ cursor: hasAccess ? "unset" : "default" }}
       >
         <div
           className={`relative ${
-            !access ? "pointer-events-none grayscale-[100%] opacity-90" : ""
+            !hasAccess ? "pointer-events-none grayscale-[100%] opacity-90" : ""
           }`}
         >
-          {!access && (
+          {!hasAccess && (
             <div className="absolute p-1 duration-75 bg-black/70 w-full h-full text-rose-400 z-10 bottom-1/2 left-1/2 -translate-x-1/2 translate-y-1/2 flex items-center justify-center">
               <Badge variant={"secondary"}>
                 <ShieldX />
@@ -87,4 +88,4 @@ export function RoleComponentFeature({
       </Dialog>
     </>
   );
-} 
+}); 

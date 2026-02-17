@@ -18,13 +18,13 @@ import {
   useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
 } from "@/shared/api/task.service";
-import { SUBSCRIPTION } from "@/shared/enums";
 import {
   PAYMENT,
   Task,
   TaskStatusColumn,
 } from "@/shared/interfaces/task.interface";
-import PrivateComponent from "@/widgets/private-component";
+import { ALL_SUBSCRIPTIONS } from "@/shared/constants";
+import { PrivateComponentFeature } from "@/features/auth/PrivateComponentFeature";
 import {
   ChartBar,
   MoreVerticalIcon,
@@ -304,20 +304,14 @@ function Dropdown() {
               <span>Редактировать</span>
             </DropdownMenuItem>
 
-            <PrivateComponent
-              subscriptions={[
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateComponentFeature subscriptions={ALL_SUBSCRIPTIONS}>
               <DropdownMenuItem
                 onClick={() => navigate(`/tasks/${context.task_id}`)}
               >
                 <ChartBar className="mr-2 size-4" />
                 <span>Статистика</span>
               </DropdownMenuItem>
-            </PrivateComponent>
+            </PrivateComponentFeature>
 
             <DropdownMenuSeparator />
             <DropdownMenuItem

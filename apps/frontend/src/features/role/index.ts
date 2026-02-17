@@ -1,0 +1,1 @@
+export { RoleComponentFeature } from "./RoleComponentFeature";

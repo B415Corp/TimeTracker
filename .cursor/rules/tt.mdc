@@ -1,7 +1,7 @@
 ---
-description: 
+description: TimeTracker project architecture, tech stack, deployment setup, and naming conventions. Provides context about monorepo structure, frontend/backend configuration, database setup, and development guidelines.
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 Монорепозиторий frontend и backend.
 - Проект развернут на домашнем сервере к которму пожно подключиться по ssh deploy@192.168.0.102

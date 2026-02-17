@@ -5,7 +5,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import MainLayout from "@/layouts/MainLayout";
 import NoAccessPage from "@/pages/no-access.page";
 import { CONTACTS_VIEW, ROUTES } from "./routes.enum";
-import { SUBSCRIPTION } from "@/shared/enums/sunscriptions.enum";
+import { ALL_SUBSCRIPTIONS, PAID_SUBSCRIPTIONS } from "@/shared/constants";
 import {
   HomePage,
   LoginPage,
@@ -51,9 +51,7 @@ const router = createBrowserRouter(
     {
       path: ROUTES.PLANS,
       element: (
-        <PrivateRoute
-          roles={[SUBSCRIPTION.BASIC, SUBSCRIPTION.FREE, SUBSCRIPTION.PREMIUM]}
-        >
+        <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
           <PlansPage />
         </PrivateRoute>
       ),
@@ -71,13 +69,7 @@ const router = createBrowserRouter(
         {
           path: "",
           element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
               <HomePage />
             </PrivateRoute>
           ),
@@ -85,13 +77,7 @@ const router = createBrowserRouter(
         {
           path: ROUTES.PROJECTS,
           element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
               <ProjectsPage />
             </PrivateRoute>
           ),
@@ -115,13 +101,7 @@ const router = createBrowserRouter(
         {
           path: ROUTES.PROJECTS + "/:id",
           element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
               <ProjectDetailPage />
             </PrivateRoute>
           ),
@@ -129,13 +109,7 @@ const router = createBrowserRouter(
         {
           path: ROUTES.TASKS + "/:id",
           element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                // SUNSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateRoute roles={PAID_SUBSCRIPTIONS}>
               <TaskDetailPage />
             </PrivateRoute>
           ),
@@ -143,13 +117,7 @@ const router = createBrowserRouter(
         {
           path: ROUTES.USER + "/:id",
           element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
               <UserPage />
             </PrivateRoute>
           ),
@@ -157,13 +125,7 @@ const router = createBrowserRouter(
         {
           path: ROUTES.SETTINGS,
           element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
               <SettingsPage />
             </PrivateRoute>
           ),
@@ -171,13 +133,7 @@ const router = createBrowserRouter(
         {
           path: ROUTES.CLIENTS + "/:id",
           element: (
-            <PrivateRoute
-              roles={[
-                SUBSCRIPTION.BASIC,
-                SUBSCRIPTION.FREE,
-                SUBSCRIPTION.PREMIUM,
-              ]}
-            >
+            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
               <ClientDetailPage />
             </PrivateRoute>
           ),

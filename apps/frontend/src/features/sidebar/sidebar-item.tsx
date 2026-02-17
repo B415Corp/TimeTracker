@@ -1,6 +1,7 @@
 import { SidebarMenuItem, SidebarMenuButton } from "@ui/sidebar";
 import { SUBSCRIPTION } from "@/shared/enums";
-import PrivateComponent from "@/widgets/private-component";
+import { ALL_SUBSCRIPTIONS } from "@/shared/constants";
+import { PrivateComponentFeature } from "@/features/auth/PrivateComponentFeature";
 import { HTMLAttributes } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -16,13 +17,13 @@ export default function SidebarItemFeature({
   children,
   pathname,
   tooltip,
-  subscription = [SUBSCRIPTION.FREE, SUBSCRIPTION.BASIC, SUBSCRIPTION.PREMIUM],
+  subscription = ALL_SUBSCRIPTIONS,
   isIncludePath = true,
   component = null,
 }: Props) {
   const location = useLocation();
   return (
-    <PrivateComponent lockPosition="left" subscriptions={subscription}>
+    <PrivateComponentFeature lockPosition="left" subscriptions={subscription}>
       <SidebarMenuItem>
         <SidebarMenuButton
           asChild
@@ -37,6 +38,6 @@ export default function SidebarItemFeature({
         </SidebarMenuButton>
         {component}
       </SidebarMenuItem>
-    </PrivateComponent>
+    </PrivateComponentFeature>
   );
 }

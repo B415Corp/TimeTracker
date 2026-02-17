@@ -7,10 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@ui/dialog";
-import { useGetSubscriptionsQuery } from "@/shared/api/subscriptions.service";
 import { SUBSCRIPTION } from "@/shared/enums";
+import { useSubscription } from "@/hooks/use-subscription";
 import { LockKeyhole } from "lucide-react";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -22,39 +22,37 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 /**
  * Feature-компонент: ограничение доступа по подписке, с диалогом и блокировкой
  */
-export function PrivateComponentFeature({
+export const PrivateComponentFeature = memo(function PrivateComponentFeature({
   lockPosition = "left",
   subscriptions,
   children,
   ...props
 }: Props) {
-  const { data: subscData } = useGetSubscriptionsQuery();
-  const [access, setAccess] = useState<boolean | null>(null);
+  const { access } = useSubscription(subscriptions);
   const [dialog, setDialog] = useState<boolean>(false);
+  const isDevMode = import.meta.env.MODE === "dev";
 
-  function accessHandler() {
-    if (!access) {
-      setDialog((prev) => !prev);
+  const accessHandler = useCallback(() => {
+    if (!access && !isDevMode) {
+      setDialog(true);
     }
-  }
+  }, [access, isDevMode]);
 
-  useEffect(() => {
-    const hasAccess = subscriptions.includes(
-      (subscData?.planId as SUBSCRIPTION) || ""
-    );
-    setAccess(hasAccess);
-  }, [subscData?.planId, subscriptions]);
+  // В dev режиме всегда показываем контент без ограничений
+  if (isDevMode) {
+    return <>{children}</>;
+  }
 
   return (
     <>
       <div onClick={accessHandler} {...props}>
         <div
-          className={`${!access && "pointer-events-none"} relative grayscale-[100%]`}
+          className={`${!access && "pointer-events-none grayscale-[100%]"} relative`}
         >
           {!access && (
             <Badge
               variant={"secondary"}
-              className={`$${lockPosition === "left" ? "left-1 -translate-x-1/2" : "right-1 translate-x-1/2"} absolute p-1 bg-black/50 text-rose-400 z-10 bottom-1   translate-y-2 uppercase`}
+              className={`${lockPosition === "left" ? "left-1 -translate-x-1/2" : "right-1 translate-x-1/2"} absolute p-1 bg-black/50 text-rose-400 z-10 bottom-1 translate-y-2 uppercase`}
             >
               <LockKeyhole />
             </Badge>
@@ -67,9 +65,9 @@ export function PrivateComponentFeature({
           <DialogHeader>
             <DialogTitle>Подписка</DialogTitle>
             <div className="flex flex-col gap-2">
-              <p>{`Эта функция доступна тольк опльзователям с подсписками: `}</p>
+              <p>Эта функция доступна только пользователям с подписками:</p>
               <div className="pt-3 uppercase">
-                {Object.values(subscriptions).map((el) => (
+                {subscriptions.map((el) => (
                   <Badge key={el} className="mx-1">
                     {el}
                   </Badge>
@@ -84,4 +82,4 @@ export function PrivateComponentFeature({
       </Dialog>
     </>
   );
-} 
+}); 

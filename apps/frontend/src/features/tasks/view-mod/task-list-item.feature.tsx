@@ -23,9 +23,9 @@ import {
   useDeleteTaskMutation,
   useUpdateTaskMutation,
 } from "@/shared/api/task.service";
-import { SUBSCRIPTION } from "@/shared/enums";
 import { Task } from "@/shared/interfaces/task.interface";
-import PrivateComponent from "@/widgets/private-component";
+import { PAID_SUBSCRIPTIONS } from "@/shared/constants";
+import { PrivateComponentFeature } from "@/features/auth/PrivateComponentFeature";
 import {
   Check,
   Loader,
@@ -171,9 +171,7 @@ export default function TaskListItemFeature(task: Task) {
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          <PrivateComponent
-            subscriptions={[SUBSCRIPTION.BASIC, SUBSCRIPTION.PREMIUM]}
-          >
+          <PrivateComponentFeature subscriptions={PAID_SUBSCRIPTIONS}>
             <Button
               variant="outline"
               onClick={() => navigate(`/tasks/${task.task_id}`)}
@@ -181,7 +179,7 @@ export default function TaskListItemFeature(task: Task) {
               <PanelTopOpen className="mr-2 h-4 w-4" />
               Подробнее
             </Button>
-          </PrivateComponent>
+          </PrivateComponentFeature>
         </CardFooter>
       </Card>
     </>

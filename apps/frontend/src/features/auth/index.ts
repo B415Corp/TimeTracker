@@ -1,0 +1,1 @@
+export { PrivateComponentFeature } from "./PrivateComponentFeature";

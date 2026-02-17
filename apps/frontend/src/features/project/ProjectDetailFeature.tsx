@@ -39,8 +39,9 @@ import { useGetUserQuery } from "@/shared/api/user.service";
 import InvitedUsers from "@/features/project/invited-users/invited-users";
 import LeaveProjectDialog from "@/features/project/leave-project.dialog";
 import EditProjectForm from "@/features/project/forms/edit-project.form";
-import RoleComponent from "@/widgets/role-component";
+import { RoleComponentFeature } from "@/features/role/RoleComponentFeature";
 import { PROJECT_ROLE, SUBSCRIPTION } from "@/shared/enums";
+import { OWNER_ONLY, PROJECT_MANAGERS, PROJECT_MEMBERS } from "@/shared/constants";
 import CreateTaskForm from "@/features/tasks/forms/create-task.form";
 import { ROUTES, TASKS_VIEW } from "@/app/router/routes.enum";
 import { useNavigate } from "react-router-dom";
@@ -177,27 +178,27 @@ function ProjectTitle() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <RoleComponent
-                  roles={[PROJECT_ROLE.OWNER]}
+                <RoleComponentFeature
+                  roles={OWNER_ONLY}
                   userRole={project?.members.find((m) => m.user?.user_id === context?.userMe?.user_id)?.role as PROJECT_ROLE}
                   showChildren={false}
                 >
                   <DropdownMenuItem onClick={() => setDialogIsOpen("edit")}> <PencilIcon className="mr-2 size-4" /> <span>Редактировать</span> </DropdownMenuItem>
-                </RoleComponent>
-                <RoleComponent
-                  roles={[PROJECT_ROLE.OWNER]}
+                </RoleComponentFeature>
+                <RoleComponentFeature
+                  roles={OWNER_ONLY}
                   userRole={project?.members.find((m) => m.user?.user_id === context?.userMe?.user_id)?.role as PROJECT_ROLE}
                   showChildren={false}
                 >
                   <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setDialogIsOpen("delete")}> <TrashIcon className="mr-2 size-4" /> <span>Удалить</span> </DropdownMenuItem>
-                </RoleComponent>
-                <RoleComponent
-                  roles={[PROJECT_ROLE.GUEST, PROJECT_ROLE.EXECUTOR, PROJECT_ROLE.MANAGER]}
+                </RoleComponentFeature>
+                <RoleComponentFeature
+                  roles={PROJECT_MEMBERS}
                   userRole={project?.members.find((m) => m.user?.user_id === context?.userMe?.user_id)?.role as PROJECT_ROLE}
                   showChildren={false}
                 >
                   <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setDialogIsOpen("leave")}> <LogOut className="mr-2 size-4" /> <span>Покинуть проект</span> </DropdownMenuItem>
-                </RoleComponent>
+                </RoleComponentFeature>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -215,15 +216,15 @@ function CreateTaskBtn() {
   const project = projectData?.project || null;
   return (
     <Dialog open={dialogIsOpen === "create"} onOpenChange={(data) => setDialogIsOpen(data ? "create" : null)}>
-      <RoleComponent
-        roles={[PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER]}
+      <RoleComponentFeature
+        roles={PROJECT_MANAGERS}
         userRole={project?.members.find((m) => m.user?.user_id === context?.userMe?.user_id)?.role as PROJECT_ROLE}
         showChildren={false}
       >
         <DialogTrigger asChild>
           <Button size={"sm"} className="w-fit">Добавить задачу</Button>
         </DialogTrigger>
-      </RoleComponent>
+      </RoleComponentFeature>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Создать новую задачу</DialogTitle>
@@ -240,15 +241,15 @@ function UsersOnProject() {
   const { data: projectData } = useGetProjectByIdQuery({ id: project_id || "" });
   const project = projectData?.project || null;
   return (
-    <RoleComponent
-      roles={[PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER]}
+    <RoleComponentFeature
+      roles={PROJECT_MANAGERS}
       userRole={project?.members.find((m) => m.user?.user_id === context?.userMe?.user_id)?.role as PROJECT_ROLE}
       showChildren={false}
     >
       <div className="flex flex-row gap-1">
         <InvitedUsers members={project?.members || []} project_id={project?.project_id || ""} />
       </div>
-    </RoleComponent>
+    </RoleComponentFeature>
   );
 }
 
