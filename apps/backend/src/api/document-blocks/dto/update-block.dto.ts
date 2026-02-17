@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsEnum } from 'class-validator';
+import { IsOptional, IsEnum, IsNumber, IsString } from 'class-validator';
 import { BlockType } from '../../../common/enums/block-type.enum';
 
 export class UpdateBlockDto {
@@ -15,4 +15,14 @@ export class UpdateBlockDto {
   @ApiProperty({ description: 'Block properties/metadata (JSON)', required: false })
   @IsOptional()
   properties?: any;
+
+  @ApiProperty({ description: 'Parent block ID for nesting', required: false })
+  @IsOptional()
+  @IsString()
+  parent_block_id?: string | null;
+
+  @ApiProperty({ description: 'Order/position of the block', required: false })
+  @IsOptional()
+  @IsNumber()
+  order?: number;
 }

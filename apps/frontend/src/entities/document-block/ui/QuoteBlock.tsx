@@ -6,10 +6,12 @@ interface QuoteBlockProps {
   onUpdate: (blockId: string, content: any) => void;
   onDelete: (blockId: string) => void;
   onCreate: (blockId: string) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
   onFocus?: () => void;
 }
 
-export const QuoteBlock = ({ block, onUpdate, onDelete, onCreate, onFocus }: QuoteBlockProps) => {
+export const QuoteBlock = ({ block, onUpdate, onDelete, onCreate, onIndent, onOutdent, onFocus }: QuoteBlockProps) => {
   return (
     <div className="relative group border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-2 my-1">
       <EditableBlock
@@ -19,6 +21,8 @@ export const QuoteBlock = ({ block, onUpdate, onDelete, onCreate, onFocus }: Quo
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCreate={onCreate}
+        onIndent={onIndent}
+        onOutdent={onOutdent}
       />
     </div>
   );

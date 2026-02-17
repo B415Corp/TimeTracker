@@ -6,13 +6,27 @@ import { BlockRenderer } from './BlockRenderer';
 
 interface SortableBlockProps {
   block: DocumentBlock;
+  level?: number;
+  isDropInside?: boolean;
   onUpdate: (blockId: string, content: any) => void;
   onDelete: (blockId: string) => void;
   onCreate: (blockId: string) => void;
   onConvert?: (blockId: string, type: BlockType) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
 }
 
-export const SortableBlock = ({ block, onUpdate, onDelete, onCreate, onConvert }: SortableBlockProps) => {
+export const SortableBlock = ({ 
+  block, 
+  level = 0, 
+  isDropInside = false,
+  onUpdate, 
+  onDelete, 
+  onCreate, 
+  onConvert,
+  onIndent,
+  onOutdent,
+}: SortableBlockProps) => {
   const {
     attributes,
     listeners,
@@ -20,7 +34,10 @@ export const SortableBlock = ({ block, onUpdate, onDelete, onCreate, onConvert }
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: block.block_id });
+  } = useSortable({ 
+    id: block.block_id,
+    data: { level, block } // Pass data for DnD logic
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -33,7 +50,7 @@ export const SortableBlock = ({ block, onUpdate, onDelete, onCreate, onConvert }
       ref={setNodeRef}
       style={style}
       data-block-id={block.block_id}
-      className="relative group"
+      className={`relative group rounded-md ${isDropInside ? 'ring-2 ring-blue-400/70 bg-blue-50/40 dark:bg-blue-900/20' : ''}`}
     >
       {/* Drag Handle */}
       <button
@@ -51,6 +68,8 @@ export const SortableBlock = ({ block, onUpdate, onDelete, onCreate, onConvert }
         onDelete={onDelete}
         onCreate={onCreate}
         onConvert={onConvert}
+        onIndent={onIndent}
+        onOutdent={onOutdent}
       />
     </div>
   );

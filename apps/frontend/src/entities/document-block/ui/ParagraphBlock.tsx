@@ -9,10 +9,12 @@ interface ParagraphBlockProps {
   onDelete: (blockId: string) => void;
   onCreate: (blockId: string) => void;
   onConvert?: (blockId: string, type: BlockType) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
   onFocus?: () => void;
 }
 
-export const ParagraphBlock = ({ block, onUpdate, onDelete, onCreate, onConvert, onFocus }: ParagraphBlockProps) => {
+export const ParagraphBlock = ({ block, onUpdate, onDelete, onCreate, onConvert, onIndent, onOutdent, onFocus }: ParagraphBlockProps) => {
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [slashQuery, setSlashQuery] = useState('');
   const [menuPosition, setMenuPosition] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
@@ -92,6 +94,8 @@ export const ParagraphBlock = ({ block, onUpdate, onDelete, onCreate, onConvert,
         onDelete={onDelete}
         onCreate={onCreate}
         onConvert={onConvert}
+        onIndent={onIndent}
+        onOutdent={onOutdent}
         onShowSlashMenu={handleShowSlashMenu}
       />
       

@@ -1,5 +1,5 @@
 import React from "react";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import AuthLayout from "@/layouts/AuthLayout";
 import MainLayout from "@/layouts/MainLayout";
@@ -7,7 +7,6 @@ import NoAccessPage from "@/pages/no-access.page";
 import { CONTACTS_VIEW, ROUTES } from "./routes.enum";
 import { ALL_SUBSCRIPTIONS, PAID_SUBSCRIPTIONS } from "@/shared/constants";
 import {
-  HomePage,
   LoginPage,
   PlansPage,
   ProjectDetailPage,
@@ -70,11 +69,7 @@ const router = createBrowserRouter(
       children: [
         {
           path: "",
-          element: (
-            <PrivateRoute roles={ALL_SUBSCRIPTIONS}>
-              <HomePage />
-            </PrivateRoute>
-          ),
+          element: <Navigate to={ROUTES.PROJECTS} replace />,
         },
         {
           path: ROUTES.PROJECTS,

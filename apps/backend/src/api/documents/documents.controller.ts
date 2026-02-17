@@ -51,6 +51,16 @@ export class DocumentsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Version('1')
+  @ApiOkResponse({ type: [Document] })
+  @ApiOperation({ summary: 'Get document hierarchy for a project' })
+  @Get('projects/:projectId/documents/hierarchy')
+  getHierarchy(@Param('projectId') projectId: string) {
+    return this.documentsService.getHierarchy(projectId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Version('1')
   @ApiOkResponse({ type: Document })
   @ApiOperation({ summary: 'Get a document by ID' })
   @Get('documents/:documentId')
@@ -103,5 +113,32 @@ export class DocumentsController {
   @Get('documents/:documentId/tree')
   getTree(@Param('documentId') documentId: string) {
     return this.documentsService.getTree(documentId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Version('1')
+  @ApiOperation({ summary: 'Get document field values' })
+  @Get('documents/:documentId/field-values')
+  async getFieldValues(@Param('documentId') documentId: string) {
+    const values = await this.documentsService.getFieldValues(documentId);
+    return { success: true, data: values };
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Version('1')
+  @ApiOperation({ summary: 'Set document field value' })
+  @Post('documents/:documentId/field-values')
+  async setFieldValue(
+    @Param('documentId') documentId: string,
+    @Body() body: { field_id: string; value: any },
+  ) {
+    const value = await this.documentsService.setFieldValue(
+      documentId,
+      body.field_id,
+      body.value,
+    );
+    return { success: true, data: value };
   }
 }

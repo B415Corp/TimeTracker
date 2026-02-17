@@ -1,4 +1,3 @@
-export { default as HomePage } from "./home/home.page";
 export { default as LoginPage } from "./auth/login.page";
 export { default as RegisterPage } from "./auth/register.page";
 export { default as PlansPage } from "./plans/plans.page";

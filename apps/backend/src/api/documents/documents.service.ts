@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Document } from '../../entities/document.entity';
+import { DocumentFieldValue } from '../../entities/document-field-value.entity';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { MoveDocumentDto } from './dto/move-document.dto';
@@ -11,6 +12,8 @@ export class DocumentsService {
   constructor(
     @InjectRepository(Document)
     private documentsRepository: Repository<Document>,
+    @InjectRepository(DocumentFieldValue)
+    private fieldValuesRepository: Repository<DocumentFieldValue>,
   ) {}
 
   async create(
@@ -102,6 +105,52 @@ export class DocumentsService {
     }
 
     return document;
+  }
+
+  async getHierarchy(projectId: string): Promise<Document[]> {
+    // Get all root documents (no parent)
+    const roots = await this.documentsRepository.find({
+      where: { 
+        project_id: projectId,
+        parent_document_id: IsNull(),
+      },
+      relations: ['children', 'children.children'],
+      order: { created_at: 'ASC' },
+    });
+
+    return roots;
+  }
+
+  async getFieldValues(documentId: string): Promise<DocumentFieldValue[]> {
+    return this.fieldValuesRepository.find({
+      where: { document_id: documentId },
+      relations: ['field'],
+    });
+  }
+
+  async setFieldValue(
+    documentId: string,
+    fieldId: string,
+    value: any,
+  ): Promise<DocumentFieldValue> {
+    // Check if value exists
+    let fieldValue = await this.fieldValuesRepository.findOne({
+      where: { document_id: documentId, field_id: fieldId },
+    });
+
+    if (fieldValue) {
+      // Update existing
+      fieldValue.value = value;
+    } else {
+      // Create new
+      fieldValue = this.fieldValuesRepository.create({
+        document_id: documentId,
+        field_id: fieldId,
+        value,
+      });
+    }
+
+    return this.fieldValuesRepository.save(fieldValue);
   }
 
   private async checkCircularReference(

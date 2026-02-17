@@ -1,4 +1,5 @@
 export { BlockRenderer } from './BlockRenderer';
+export { BlockTree } from './BlockTree';
 export { SortableBlock } from './SortableBlock';
 export { EditableBlock } from './EditableBlock';
 export { ParagraphBlock } from './ParagraphBlock';

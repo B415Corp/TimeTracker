@@ -24,7 +24,14 @@ export const documentBlocksApi = baseApi.injectEndpoints({
 
     updateBlock: builder.mutation<
       DocumentBlock,
-      { blockId: string; type?: BlockType; content?: any; properties?: any }
+      {
+        blockId: string;
+        type?: BlockType;
+        content?: any;
+        properties?: any;
+        parent_block_id?: string | null;
+        order?: number;
+      }
     >({
       query: ({ blockId, ...body }) => ({
         url: `blocks/${blockId}`,

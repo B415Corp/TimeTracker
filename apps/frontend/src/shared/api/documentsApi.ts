@@ -62,10 +62,29 @@ export const documentsApi = baseApi.injectEndpoints({
       invalidatesTags: ['Documents'],
     }),
 
-    getDocumentTree: builder.query<Document, string>({
-      query: (documentId) => `documents/${documentId}/tree`,
-      transformResponse: (response: { data: Document }) => response.data,
-      providesTags: (_result, _error, documentId) => [{ type: 'Documents', id: `${documentId}-tree` }],
+    getDocumentHierarchy: builder.query<Document[], string>({
+      query: (projectId) => `projects/${projectId}/documents/hierarchy`,
+      transformResponse: (response: { data: Document[] }) => response.data || [],
+      providesTags: ['Documents'],
+    }),
+
+    getDocumentFieldValues: builder.query<any[], string>({
+      query: (documentId) => `documents/${documentId}/field-values`,
+      transformResponse: (response: { data: any[] }) => response.data || [],
+      providesTags: (_result, _error, documentId) => [{ type: 'Documents', id: `${documentId}-fields` }],
+    }),
+
+    updateDocumentFieldValue: builder.mutation<
+      any,
+      { documentId: string; fieldId: string; value: any }
+    >({
+      query: ({ documentId, fieldId, value }) => ({
+        url: `documents/${documentId}/field-values`,
+        method: 'POST',
+        body: { field_id: fieldId, value },
+      }),
+      transformResponse: (response: { data: any }) => response.data,
+      invalidatesTags: (_result, _error, { documentId }) => [{ type: 'Documents', id: `${documentId}-fields` }],
     }),
   }),
 });
@@ -77,5 +96,7 @@ export const {
   useUpdateDocumentMutation,
   useDeleteDocumentMutation,
   useMoveDocumentMutation,
-  useGetDocumentTreeQuery,
+  useGetDocumentHierarchyQuery,
+  useGetDocumentFieldValuesQuery,
+  useUpdateDocumentFieldValueMutation,
 } = documentsApi;

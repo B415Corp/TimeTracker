@@ -7,10 +7,12 @@ interface HeadingBlockProps {
   onUpdate: (blockId: string, content: any) => void;
   onDelete: (blockId: string) => void;
   onCreate: (blockId: string) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
   onFocus?: () => void;
 }
 
-export const HeadingBlock = ({ block, level, onUpdate, onDelete, onCreate, onFocus }: HeadingBlockProps) => {
+export const HeadingBlock = ({ block, level, onUpdate, onDelete, onCreate, onIndent, onOutdent, onFocus }: HeadingBlockProps) => {
   const headingClasses = {
     1: 'text-3xl font-bold mt-4 mb-2',
     2: 'text-2xl font-bold mt-3 mb-1.5',
@@ -29,6 +31,8 @@ export const HeadingBlock = ({ block, level, onUpdate, onDelete, onCreate, onFoc
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCreate={onCreate}
+        onIndent={onIndent}
+        onOutdent={onOutdent}
       />
     </div>
   );

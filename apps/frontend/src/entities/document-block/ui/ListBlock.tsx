@@ -7,6 +7,8 @@ interface ListBlockProps {
   onUpdate: (blockId: string, content: any) => void;
   onDelete: (blockId: string) => void;
   onCreate: (blockId: string) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
   onFocus?: () => void;
 }
 
@@ -17,7 +19,7 @@ interface ListItem {
   indent?: number;
 }
 
-export const ListBlock = ({ block, onUpdate, onDelete, onCreate, onFocus }: ListBlockProps) => {
+export const ListBlock = ({ block, onUpdate, onDelete, onCreate, onIndent, onOutdent, onFocus }: ListBlockProps) => {
   const [items, setItems] = useState<ListItem[]>(
     block.content?.items || [{ id: crypto.randomUUID(), text: '' }]
   );
@@ -122,27 +124,13 @@ export const ListBlock = ({ block, onUpdate, onDelete, onCreate, onFocus }: List
 
     if (e.key === 'Tab') {
       e.preventDefault();
-      const currentIndent = items[index].indent || 0;
-      const maxIndent = 3;
+      e.stopPropagation();
       
-      if (e.shiftKey) {
-        // Shift+Tab - decrease indent
-        if (currentIndent > 0) {
-          const newItems = items.map((item) =>
-            item.id === itemId ? { ...item, indent: currentIndent - 1 } : item
-          );
-          setItems(newItems);
-          onUpdate(block.block_id, { items: newItems });
-        }
-      } else {
-        // Tab - increase indent
-        if (currentIndent < maxIndent) {
-          const newItems = items.map((item) =>
-            item.id === itemId ? { ...item, indent: (currentIndent || 0) + 1 } : item
-          );
-          setItems(newItems);
-          onUpdate(block.block_id, { items: newItems });
-        }
+      // Use block-level indent/outdent for consistent behavior
+      if (e.shiftKey && onOutdent) {
+        onOutdent(block.block_id);
+      } else if (!e.shiftKey && onIndent) {
+        onIndent(block.block_id);
       }
     }
   };
@@ -167,52 +155,47 @@ export const ListBlock = ({ block, onUpdate, onDelete, onCreate, onFocus }: List
   return (
     <div className="relative group">
       <div className="space-y-1">
-        {items.map((item, index) => {
-          const indent = item.indent || 0;
-          const marginLeft = indent * 24; // 24px per level
-          
-          return (
-            <div key={item.id} className="flex items-start gap-2" style={{ marginLeft: `${marginLeft}px` }}>
-              {isChecklist ? (
-                <button
-                  type="button"
-                  onClick={() => handleToggleCheck(item.id)}
-                  className="mt-1 flex-shrink-0"
-                  onFocus={handleFocus}
-                >
-                  <div
-                    className={`w-4 h-4 border-2 rounded ${
-                      item.checked
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'border-gray-300 dark:border-gray-600'
-                    } flex items-center justify-center`}
-                  >
-                    {item.checked && <Check className="w-3 h-3 text-white" />}
-                  </div>
-                </button>
-              ) : (
-                <span className="text-gray-400 dark:text-gray-600 mt-1 flex-shrink-0">
-                  {isNumbered ? `${index + 1}.` : '•'}
-                </span>
-              )}
-              <div
-                ref={(el) => (itemRefs.current[item.id] = el)}
-                contentEditable
-                onInput={(e) => handleItemInput(item.id, e.currentTarget.textContent || '')}
-                onKeyDown={(e) => handleItemKeyDown(e, item.id, index)}
+        {items.map((item, index) => (
+          <div key={item.id} className="flex items-start gap-2">
+            {isChecklist ? (
+              <button
+                type="button"
+                onClick={() => handleToggleCheck(item.id)}
+                className="mt-1 flex-shrink-0"
                 onFocus={handleFocus}
-                onBlur={handleBlur}
-                className={`flex-1 min-h-[1.5rem] outline-none text-[15px] px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100 ${
-                  item.checked ? 'line-through text-gray-500' : ''
-                } empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400`}
-                suppressContentEditableWarning
-                data-placeholder="List item..."
               >
-                {item.text}
-              </div>
+                <div
+                  className={`w-4 h-4 border-2 rounded ${
+                    item.checked
+                      ? 'bg-blue-600 border-blue-600'
+                      : 'border-gray-300 dark:border-gray-600'
+                  } flex items-center justify-center`}
+                >
+                  {item.checked && <Check className="w-3 h-3 text-white" />}
+                </div>
+              </button>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-600 mt-1 flex-shrink-0">
+                {isNumbered ? `${index + 1}.` : '•'}
+              </span>
+            )}
+            <div
+              ref={(el) => (itemRefs.current[item.id] = el)}
+              contentEditable
+              onInput={(e) => handleItemInput(item.id, e.currentTarget.textContent || '')}
+              onKeyDown={(e) => handleItemKeyDown(e, item.id, index)}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              className={`flex-1 min-h-[1.5rem] outline-none text-[15px] px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100 ${
+                item.checked ? 'line-through text-gray-500' : ''
+              } empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400`}
+              suppressContentEditableWarning
+              data-placeholder="List item..."
+            >
+              {item.text}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );

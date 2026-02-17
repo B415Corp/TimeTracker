@@ -7,16 +7,17 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useGetBlocksByDocumentQuery, useCreateBlockMutation, useUpdateBlockMutation, useDeleteBlockMutation, useConvertBlockMutation, useReorderBlocksMutation } from '@shared/api/documentBlocksApi';
-import { SortableBlock } from '@entities/document-block/ui/SortableBlock';
-import { BlockType, DocumentBlock } from '@shared/types/document.types';
+import { useGetBlocksByDocumentQuery, useCreateBlockMutation, useUpdateBlockMutation, useDeleteBlockMutation, useConvertBlockMutation } from '../../shared/api/documentBlocksApi';
+import { BlockTree } from '../../entities/document-block/ui/BlockTree';
+import { BlockType, DocumentBlock } from '../../shared/types/document.types';
 import { Button } from '@ui/button';
 import { Plus } from 'lucide-react';
 import { FloatingToolbar } from './FloatingToolbar';
@@ -31,16 +32,19 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
   const [updateBlock] = useUpdateBlockMutation();
   const [deleteBlock] = useDeleteBlockMutation();
   const [convertBlock] = useConvertBlockMutation();
-  const [reorderBlocks] = useReorderBlocksMutation();
   const [lastCreatedBlockId, setLastCreatedBlockId] = useState<string | null>(null);
   const [localBlocks, setLocalBlocks] = useState<DocumentBlock[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<'before' | 'inside' | null>(null);
 
   // Sync blocks from server
   useEffect(() => {
-    if (blocks.length > 0) {
+    // Do not overwrite local optimistic DnD state during active drag
+    if (!activeId) {
       setLocalBlocks([...blocks]);
     }
-  }, [blocks]);
+  }, [blocks, activeId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -80,7 +84,8 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
       if (!currentBlock) return;
 
       const currentBlockId = currentBlock.getAttribute('data-block-id');
-      const currentIndex = blocks.findIndex((b) => b.block_id === currentBlockId);
+      const flatBlocks = flattenBlocks(localBlocks.length > 0 ? localBlocks : blocks);
+      const currentIndex = flatBlocks.findIndex((b) => b.block_id === currentBlockId);
       if (currentIndex === -1) return;
 
       // Get cursor position
@@ -95,7 +100,7 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
         // Only navigate if cursor is at the start
         if (cursorOffset === 0 && currentIndex > 0) {
           e.preventDefault();
-          const prevBlock = document.querySelector(`[data-block-id="${blocks[currentIndex - 1].block_id}"]`);
+          const prevBlock = document.querySelector(`[data-block-id="${flatBlocks[currentIndex - 1].block_id}"]`);
           const prevEditable = prevBlock?.querySelector('[contenteditable="true"]') as HTMLElement;
           if (prevEditable) {
             prevEditable.focus();
@@ -113,9 +118,9 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
         }
       } else if (e.key === 'ArrowDown') {
         // Only navigate if cursor is at the end
-        if (cursorOffset === textContent.length && currentIndex < blocks.length - 1) {
+        if (cursorOffset === textContent.length && currentIndex < flatBlocks.length - 1) {
           e.preventDefault();
-          const nextBlock = document.querySelector(`[data-block-id="${blocks[currentIndex + 1].block_id}"]`);
+          const nextBlock = document.querySelector(`[data-block-id="${flatBlocks[currentIndex + 1].block_id}"]`);
           const nextEditable = nextBlock?.querySelector('[contenteditable="true"]') as HTMLElement;
           if (nextEditable) {
             nextEditable.focus();
@@ -135,7 +140,20 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [blocks]);
+  }, [blocks, localBlocks]);
+
+  // Flatten blocks for navigation
+  const flattenBlocks = (blocks: DocumentBlock[], parentId: string | null = null): DocumentBlock[] => {
+    const result: DocumentBlock[] = [];
+    const children = blocks.filter((b: DocumentBlock) => b.parent_block_id === parentId).sort((a: DocumentBlock, b: DocumentBlock) => a.order - b.order);
+    
+    for (const block of children) {
+      result.push(block);
+      result.push(...flattenBlocks(blocks, block.block_id));
+    }
+    
+    return result;
+  };
 
   const handleUpdateBlock = async (blockId: string, content: any) => {
     try {
@@ -147,22 +165,44 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
 
   const handleDeleteBlock = async (blockId: string) => {
     try {
-      await deleteBlock(blockId).unwrap();
+      // Find prev sibling to focus
+      const currentBlock = blocks.find((b: DocumentBlock) => b.block_id === blockId);
+      if (currentBlock) {
+        const siblings = blocks.filter((b: DocumentBlock) => b.parent_block_id === currentBlock.parent_block_id);
+        const currentIndex = siblings.findIndex((b: DocumentBlock) => b.block_id === blockId);
+        const prevSibling = currentIndex > 0 ? siblings[currentIndex - 1] : null;
+        
+        await deleteBlock(blockId).unwrap();
+        
+        // Focus prev sibling or create new if last
+        if (prevSibling) {
+          setTimeout(() => {
+            const prevElement = document.querySelector(`[data-block-id="${prevSibling.block_id}"]`);
+            const editable = prevElement?.querySelector('[contenteditable="true"]') as HTMLElement;
+            editable?.focus();
+          }, 100);
+        } else if (siblings.length === 1) {
+          // Was last block, create new paragraph
+          handleCreateBlock(currentBlock.parent_block_id);
+        }
+      }
     } catch (error) {
       console.error('Failed to delete block:', error);
     }
   };
 
-  const handleCreateBlock = async (afterBlockId?: string) => {
+  const handleCreateBlock = async (afterBlockId?: string | null, parentBlockId?: string | null) => {
     try {
-      const afterBlock = blocks.find((b) => b.block_id === afterBlockId);
-      const newOrder = afterBlock ? afterBlock.order + 1 : blocks.length;
+      const afterBlock = afterBlockId ? blocks.find((b: DocumentBlock) => b.block_id === afterBlockId) : null;
+      const newOrder = afterBlock ? afterBlock.order + 1 : 
+                      (blocks.filter((b: DocumentBlock) => b.parent_block_id === (parentBlockId || null)).length);
 
       const result = await createBlock({
         documentId,
         type: BlockType.PARAGRAPH,
         content: { text: '' },
         order: newOrder,
+        parent_block_id: parentBlockId || afterBlock?.parent_block_id || null,
       }).unwrap();
       
       setLastCreatedBlockId(result.block_id);
@@ -179,8 +219,215 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
     }
   };
 
+  const handleIndent = (blockId: string) => {
+    const sourceBlocks = localBlocks.length > 0 ? localBlocks : blocks;
+    const currentBlock = sourceBlocks.find((b: DocumentBlock) => b.block_id === blockId);
+    if (!currentBlock) return;
+
+    // Find previous sibling at same level
+    const siblings = sourceBlocks.filter(
+      (b: DocumentBlock) => b.parent_block_id === currentBlock.parent_block_id
+    );
+    const currentIndex = siblings.findIndex((b: DocumentBlock) => b.block_id === blockId);
+    
+    if (currentIndex > 0) {
+      const prevSibling = siblings[currentIndex - 1];
+      
+      // Optimistically update local state: make current block a child of previous sibling
+      const childCount = sourceBlocks.filter(
+        (b: DocumentBlock) => b.parent_block_id === prevSibling.block_id
+      ).length;
+
+      const updatedBlocks = sourceBlocks.map((b: DocumentBlock) =>
+        b.block_id === blockId
+          ? {
+              ...b,
+              parent_block_id: prevSibling.block_id,
+              order: childCount,
+            }
+          : b
+      );
+
+      setLocalBlocks(updatedBlocks);
+
+      // Fire backend update without blocking UI
+      updateBlock({
+        blockId,
+        content: currentBlock.content,
+        parent_block_id: prevSibling.block_id,
+        order: childCount,
+      })
+        .unwrap()
+        .catch((error) => {
+          console.error('Failed to indent block:', error);
+        });
+    }
+  };
+
+  const handleOutdent = (blockId: string) => {
+    const sourceBlocks = localBlocks.length > 0 ? localBlocks : blocks;
+    const currentBlock = sourceBlocks.find((b: DocumentBlock) => b.block_id === blockId);
+    if (!currentBlock || !currentBlock.parent_block_id) return;
+
+    const parentBlock = sourceBlocks.find(
+      (b: DocumentBlock) => b.block_id === currentBlock.parent_block_id
+    );
+    if (!parentBlock) return;
+
+    // Move block to parent's level, after parent
+    const newParentId = parentBlock.parent_block_id || null;
+    const newOrder = parentBlock.order + 1;
+
+    const updatedBlocks = sourceBlocks.map((b: DocumentBlock) =>
+      b.block_id === blockId
+        ? {
+            ...b,
+            parent_block_id: newParentId,
+            order: newOrder,
+          }
+        : b
+    );
+
+    setLocalBlocks(updatedBlocks);
+
+    updateBlock({
+      blockId,
+      content: currentBlock.content,
+      parent_block_id: newParentId,
+      order: newOrder,
+    })
+      .unwrap()
+      .catch((error) => {
+        console.error('Failed to outdent block:', error);
+      });
+  };
+
   const handleAddBlock = () => {
-    handleCreateBlock();
+    handleCreateBlock(null, null);
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const nextOverId = event.over?.id as string | null;
+    setOverId(nextOverId);
+
+    if (!event.over) {
+      setDropPosition(null);
+      return;
+    }
+
+    const translatedTop = event.active.rect.current.translated?.top;
+    const overTop = event.over.rect.top;
+    const overHeight = event.over.rect.height;
+
+    if (translatedTop === undefined) {
+      setDropPosition('before');
+      return;
+    }
+
+    const middle = overTop + overHeight / 2;
+    setDropPosition(translatedTop < middle ? 'before' : 'inside');
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+    setOverId(null);
+    const projectedDropPosition = dropPosition;
+    setDropPosition(null);
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const sourceBlocks = localBlocks.length > 0 ? localBlocks : blocks;
+    const draggedBlock = sourceBlocks.find((b: DocumentBlock) => b.block_id === active.id);
+    const targetBlock = sourceBlocks.find((b: DocumentBlock) => b.block_id === over.id);
+
+    if (!draggedBlock || !targetBlock) {
+      return;
+    }
+
+    // Prevent dragging block into its own children (circular reference)
+    const isDescendant = (parentId: string, childId: string): boolean => {
+      const child = sourceBlocks.find((b: DocumentBlock) => b.block_id === childId);
+      if (!child || !child.parent_block_id) return false;
+      if (child.parent_block_id === parentId) return true;
+      return isDescendant(parentId, child.parent_block_id);
+    };
+
+    if (isDescendant(draggedBlock.block_id, targetBlock.block_id)) {
+      return; // Prevent circular reference
+    }
+
+    let newParentId: string | null = null;
+    let newOrder = 0;
+
+    // Use projected drop position from dragOver
+    if (projectedDropPosition === 'before') {
+      newParentId = targetBlock.parent_block_id || null;
+      newOrder = targetBlock.order;
+    } else {
+      newParentId = targetBlock.block_id;
+      const existingChildren = sourceBlocks.filter(
+        (b: DocumentBlock) => b.parent_block_id === newParentId && b.block_id !== draggedBlock.block_id
+      );
+      newOrder = existingChildren.length;
+    }
+
+    // Update all blocks with new structure
+    let updatedBlocks = sourceBlocks.map((b: DocumentBlock) => {
+      if (b.block_id === draggedBlock.block_id) {
+        return { ...b, parent_block_id: newParentId, order: newOrder };
+      }
+      
+      // If inserting before target, shift orders of siblings
+      if (
+        projectedDropPosition === 'before' &&
+        b.parent_block_id === newParentId &&
+        b.order >= newOrder &&
+        b.block_id !== draggedBlock.block_id
+      ) {
+        return { ...b, order: b.order + 1 };
+      }
+      
+      return b;
+    });
+
+    // Recalculate orders for all siblings at the new level to ensure sequential ordering
+    const siblings = updatedBlocks
+      .filter((b: DocumentBlock) => b.parent_block_id === newParentId)
+      .sort((a: DocumentBlock, b: DocumentBlock) => a.order - b.order);
+
+    // Reassign sequential orders
+    const finalBlocks = updatedBlocks.map((b: DocumentBlock) => {
+      const siblingIndex = siblings.findIndex((s: DocumentBlock) => s.block_id === b.block_id);
+      if (siblingIndex !== -1 && b.parent_block_id === newParentId) {
+        return { ...b, order: siblingIndex };
+      }
+      return b;
+    });
+
+    setLocalBlocks(finalBlocks);
+
+    // Update backend
+    const finalBlock = finalBlocks.find((b: DocumentBlock) => b.block_id === draggedBlock.block_id);
+    if (finalBlock) {
+      updateBlock({
+        blockId: draggedBlock.block_id,
+        content: draggedBlock.content,
+        parent_block_id: finalBlock.parent_block_id,
+        order: finalBlock.order,
+      })
+        .unwrap()
+        .catch((error) => {
+          console.error('Failed to move block:', error);
+          setLocalBlocks([...blocks]);
+        });
+    }
   };
 
   const handleFormat = (format: 'bold' | 'italic' | 'underline' | 'link', value?: string) => {
@@ -234,44 +481,13 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
     }
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    const oldIndex = localBlocks.findIndex((b) => b.block_id === active.id);
-    const newIndex = localBlocks.findIndex((b) => b.block_id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) {
-      return;
-    }
-
-    // Optimistically update local state
-    const reorderedBlocks = arrayMove(localBlocks, oldIndex, newIndex);
-    setLocalBlocks(reorderedBlocks);
-
-    // Update order numbers and send to backend
-    const blockUpdates = reorderedBlocks.map((block, index) => ({
-      block_id: block.block_id,
-      order: index,
-    }));
-
-    try {
-      await reorderBlocks({ documentId, blocks: blockUpdates }).unwrap();
-    } catch (error) {
-      console.error('Failed to reorder blocks:', error);
-      // Revert on error
-      setLocalBlocks([...blocks]);
-    }
-  };
-
   if (isLoading) {
     return <div className="py-8 text-center text-gray-500">Loading...</div>;
   }
 
   const blocksToRender = localBlocks.length > 0 ? localBlocks : blocks;
+  // All block IDs for SortableContext (hierarchical DnD)
+  const allBlockIds = blocksToRender.map((b: DocumentBlock) => b.block_id);
 
   return (
     <>
@@ -280,46 +496,53 @@ export const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragCancel={() => {
+          setActiveId(null);
+          setOverId(null);
+          setDropPosition(null);
+        }}
         onDragEnd={handleDragEnd}
       >
-        <div className="pl-6">
-        <SortableContext
-          items={blocksToRender.map((b) => b.block_id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="space-y-0.5">
-            {blocksToRender.map((block) => (
-              <SortableBlock
-                key={block.block_id}
-                block={block}
-                onUpdate={handleUpdateBlock}
-                onDelete={handleDeleteBlock}
-                onCreate={handleCreateBlock}
-                onConvert={handleConvertBlock}
-              />
-            ))}
-          </div>
-        </SortableContext>
-
-        {blocksToRender.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 mb-4">Start writing or type '/' for commands</p>
-            <Button onClick={handleAddBlock} variant="outline" size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Add first block
-            </Button>
-          </div>
-        )}
-
-        {blocksToRender.length > 0 && (
-          <button
-            onClick={handleAddBlock}
-            className="w-full py-3 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-2 px-2 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded transition-colors"
+        <div className="pl-2">
+          <SortableContext
+            items={allBlockIds}
+            strategy={verticalListSortingStrategy}
           >
-            <Plus className="w-4 h-4" />
-            Click to add block, or type '/' for commands
-          </button>
-        )}
+            <BlockTree
+              blocks={blocksToRender}
+              parentId={null}
+              dropOverId={overId}
+              dropPosition={dropPosition}
+              onUpdate={handleUpdateBlock}
+              onDelete={handleDeleteBlock}
+              onCreate={handleCreateBlock}
+              onConvert={handleConvertBlock}
+              onIndent={handleIndent}
+              onOutdent={handleOutdent}
+            />
+          </SortableContext>
+
+          {blocksToRender.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 mb-4">Start writing or type '/' for commands</p>
+              <Button onClick={handleAddBlock} variant="outline" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add first block
+              </Button>
+            </div>
+          )}
+
+          {blocksToRender.length > 0 && (
+            <button
+              onClick={handleAddBlock}
+              className="w-full py-3 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-2 px-2 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Click to add block, or type '/' for commands
+            </button>
+          )}
         </div>
       </DndContext>
     </>

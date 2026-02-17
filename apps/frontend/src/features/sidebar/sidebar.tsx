@@ -16,27 +16,26 @@ import {
 import { useGetUserQuery } from "@/shared/api/user.service";
 import SearchWidget from "@/widgets/search.widget";
 import {
-  Home,
   Clock,
-  FolderGit2,
   ContactRound,
   List,
   ReceiptText,
-  NotebookPen,
-  FolderCode,
 } from "lucide-react";
 import { Link } from "react-router";
 import SidebarItemFeature from "./sidebar-item";
 import { useGetFriendshipMeQuery } from "@/shared/api/friendship.service";
 import { UserAvatar } from "@/shared/ui/base/user-avatar";
 import { SUBSCRIPTION } from "@/shared/enums";
-import { useSearcV2Query } from "@/shared/api/search.service";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import ProjectSelect from "./project-select";
+import DocumentsList from "./documents-list";
+import SidebarSeparator from "./sidebar-separator";
+import RecentItemsList from "./recent-items-list";
 
 export default function SidebarFeature() {
   const { data: user } = useGetUserQuery();
   const { data: friends } = useGetFriendshipMeQuery();
-  const { data: searchData } = useSearcV2Query({ searchLocation: "projects" });
-  const projects = searchData?.projects;
+  const [selectedProjectId, setSelectedProjectId] = useLocalStorage<string>('lastSelectedProjectId', '');
 
   return (
     <Sidebar className="h-full">
@@ -61,51 +60,24 @@ export default function SidebarFeature() {
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroup>
             <SidebarMenu>
-              <SidebarItemFeature
-                tooltip={"Главная"}
-                pathname={"/"}
-                isIncludePath={false}
-              >
-                <Link to="/">
-                  <Home className="h-4 w-4" />
-                  <span>Главная</span>
-                </Link>
-              </SidebarItemFeature>
-
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <FolderGit2 className="h-4 w-4" />
-                  <span>Проекты</span>
-                </SidebarMenuButton>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuButton>
-                        <Link
-                          className="flex items-center gap-2 w-full"
-                          to={`/${ROUTES.PROJECTS}`}
-                        >
-                          <List className="h-4 w-4" />
-                          <span>Все проекты</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuSubItem>
-                    {projects?.slice(0, 5)?.map((_el) => (
-                      <SidebarMenuItem key={_el.project_id}>
-                        <SidebarMenuButton>
-                          <Link
-                            to={`/${ROUTES.PROJECTS}/${_el.project_id}`}
-                            className="flex items-center gap-2 w-full"
-                          >
-                            <FolderCode className="h-4 w-4" />
-                            {_el.name}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
+                <ProjectSelect 
+                  value={selectedProjectId} 
+                  onChange={setSelectedProjectId} 
+                />
               </SidebarMenuItem>
+
+              {selectedProjectId && (
+                <RecentItemsList projectId={selectedProjectId} />
+              )}
+
+              <SidebarSeparator />
+
+              {selectedProjectId && (
+                <DocumentsList projectId={selectedProjectId} />
+              )}
+
+              <SidebarSeparator />
 
               <SidebarMenuItem>
                 <SidebarMenuButton>

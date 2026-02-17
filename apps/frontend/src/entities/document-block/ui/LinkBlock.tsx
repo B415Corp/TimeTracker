@@ -7,6 +7,8 @@ interface LinkBlockProps {
   onUpdate: (blockId: string, content: any) => void;
   onDelete: (blockId: string) => void;
   onCreate: (blockId: string) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
   onFocus?: () => void;
 }
 

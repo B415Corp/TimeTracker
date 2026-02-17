@@ -1,4 +1,4 @@
-import { useRef, KeyboardEvent, useEffect } from 'react';
+import { useRef, KeyboardEvent, useLayoutEffect, useMemo } from 'react';
 import { DocumentBlock, BlockType } from '@shared/types/document.types';
 
 interface EditableBlockProps {
@@ -11,6 +11,8 @@ interface EditableBlockProps {
   onCreate: (blockId: string) => void;
   onConvert?: (blockId: string, type: BlockType) => void;
   onShowSlashMenu?: (show: boolean, query: string) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
   allowFormatting?: boolean;
 }
 
@@ -24,53 +26,72 @@ export const EditableBlock = ({
   onCreate,
   onConvert,
   onShowSlashMenu,
+  onIndent,
+  onOutdent,
   allowFormatting = true,
 }: EditableBlockProps) => {
   const ref = useRef<HTMLElement>(null);
   const updateTimeoutRef = useRef<NodeJS.Timeout>();
-  const isInitializedRef = useRef(false);
 
-  // Initialize content once
-  useEffect(() => {
-    if (!isInitializedRef.current && ref.current) {
-      const content = block.content?.text || '';
+  // Initialize content ONCE on mount or block change
+  useLayoutEffect(() => {
+    if (ref.current) {
+      const currentContent = ref.current.innerHTML;
+      const newContent = block.content?.html || block.content?.text || '';
       
-      if (block.content?.html && allowFormatting) {
-        ref.current.innerHTML = block.content.html;
-      } else {
-        ref.current.textContent = content;
+      // Only update if content actually changed (avoid cursor jump)
+      if (currentContent !== newContent) {
+        if (allowFormatting && block.content?.html) {
+          ref.current.innerHTML = block.content.html;
+        } else {
+          ref.current.textContent = block.content?.text || '';
+        }
       }
-      
-      isInitializedRef.current = true;
     }
-  }, []);
+  }, [block.block_id]); // Only on block ID change
 
   const getText = () => ref.current?.textContent || '';
+  const getHTML = () => ref.current?.innerHTML || '';
+
+  // Debounced update function
+  const debouncedUpdate = useMemo(
+    () => {
+      let timeout: NodeJS.Timeout;
+      return () => {
+        if (updateTimeoutRef.current) {
+          clearTimeout(updateTimeoutRef.current);
+        }
+        
+        updateTimeoutRef.current = setTimeout(() => {
+          const text = getText();
+          const html = allowFormatting ? getHTML() : undefined;
+          onUpdate(block.block_id, { text, html });
+        }, 300);
+      };
+    },
+    [block.block_id, onUpdate, allowFormatting]
+  );
 
   const handleInput = () => {
     const text = getText();
-    const html = allowFormatting && ref.current ? ref.current.innerHTML : undefined;
-
-    // Clear previous timeout
-    if (updateTimeoutRef.current) {
-      clearTimeout(updateTimeoutRef.current);
-    }
 
     // Check for slash command
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0 && onShowSlashMenu) {
-      const offset = selection.getRangeAt(0).startOffset;
-      const textBeforeCursor = text.substring(0, offset);
+      const range = selection.getRangeAt(0);
+      const textBeforeCursor = text.substring(0, range.startOffset);
       const lastSlashIndex = textBeforeCursor.lastIndexOf('/');
 
-      if (lastSlashIndex !== -1 && lastSlashIndex === offset - 1) {
+      if (lastSlashIndex !== -1 && lastSlashIndex === textBeforeCursor.length - 1) {
         // Just typed "/"
         onShowSlashMenu(true, '');
+        return; // Don't save yet
       } else if (lastSlashIndex !== -1) {
         // Typing after "/"
         const query = textBeforeCursor.substring(lastSlashIndex + 1);
         if (!query.includes(' ')) {
           onShowSlashMenu(true, query);
+          return; // Don't save yet
         } else {
           onShowSlashMenu(false, '');
         }
@@ -78,27 +99,37 @@ export const EditableBlock = ({
     }
 
     // Debounced save to backend
-    updateTimeoutRef.current = setTimeout(() => {
-      onUpdate(block.block_id, { text, html });
-    }, 500);
+    debouncedUpdate();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     const text = getText();
 
-    // Enter - create new block immediately
+    // Tab - indent/outdent
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      e.stopPropagation(); // Prevent default browser behavior
+      
+      if (e.shiftKey && onOutdent) {
+        onOutdent(block.block_id);
+      } else if (!e.shiftKey && onIndent) {
+        onIndent(block.block_id);
+      }
+      return;
+    }
+
+    // Enter - create new block
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      e.stopPropagation();
       
-      // Cancel pending update
+      // Save current block immediately
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-
-      // Save current block immediately
-      onUpdate(block.block_id, { text });
+      onUpdate(block.block_id, { text, html: allowFormatting ? getHTML() : undefined });
       
-      // Create new block (this will trigger re-fetch and new block will be focused)
+      // Create new block
       onCreate(block.block_id);
       return;
     }
@@ -106,6 +137,7 @@ export const EditableBlock = ({
     // Backspace on empty block - delete it
     if (e.key === 'Backspace' && text === '') {
       e.preventDefault();
+      e.stopPropagation();
       onDelete(block.block_id);
       return;
     }
@@ -114,8 +146,8 @@ export const EditableBlock = ({
     if (e.key === ' ' && onConvert) {
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
-        const offset = selection.getRangeAt(0).startOffset;
-        const textBeforeCursor = text.substring(0, offset);
+        const range = selection.getRangeAt(0);
+        const textBeforeCursor = text.substring(0, range.startOffset);
         
         // Heading shortcuts: # ## ###
         if (textBeforeCursor === '#' || textBeforeCursor === '##' || textBeforeCursor === '###') {

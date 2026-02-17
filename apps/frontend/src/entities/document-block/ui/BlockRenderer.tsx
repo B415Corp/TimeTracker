@@ -17,10 +17,12 @@ interface BlockRendererProps {
   onDelete: (blockId: string) => void;
   onCreate: (blockId: string) => void;
   onConvert?: (blockId: string, type: BlockType) => void;
+  onIndent?: (blockId: string) => void;
+  onOutdent?: (blockId: string) => void;
   onFocus?: () => void;
 }
 
-export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, onFocus }: BlockRendererProps) => {
+export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, onIndent, onOutdent, onFocus }: BlockRendererProps) => {
   switch (block.type) {
     case BlockType.PARAGRAPH:
       return (
@@ -30,6 +32,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onDelete={onDelete}
           onCreate={onCreate}
           onConvert={onConvert}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -42,6 +46,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -54,6 +60,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -66,6 +74,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -80,6 +90,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -91,6 +103,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -102,6 +116,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -115,6 +131,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -126,6 +144,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -137,6 +157,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -148,6 +170,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
@@ -160,6 +184,8 @@ export const BlockRenderer = ({ block, onUpdate, onDelete, onCreate, onConvert, 
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreate={onCreate}
+          onIndent={onIndent}
+          onOutdent={onOutdent}
           onFocus={onFocus}
         />
       );
