@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { CommentButton } from './CommentButton';
-import { fn } from '@storybook/test';
 
 const meta = {
   title: 'Features/DocumentComments/CommentButton',
@@ -9,9 +8,6 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  args: {
-    onClick: fn(),
-  },
 } satisfies Meta<typeof CommentButton>;
 
 export default meta;
