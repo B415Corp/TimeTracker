@@ -55,7 +55,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <SidebarProvider className="w-screen h-screen flex">
         {!currenciesLoading && !subscriptionLoading && <SidebarFeature />}
         <div className="w-screen h-screen flex flex-col overflow-hidden">
-          <header className="flex items-center gap-2 p-2 w-full bg-sidebar">
+          <header className="flex items-center gap-2 p-2 w-full bg-sidebar flex-shrink-0">
             <div className="flex items-center gap-2 px-3 w-full">
               <SidebarTrigger />
               <div className="flex justify-end items-end w-full gap-4">
@@ -63,7 +63,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </div>
             </div>
           </header>
-          <main className="flex-1 overflow-hidden">{children}</main>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden">{children}</main>
         </div>
       </SidebarProvider>
     </>

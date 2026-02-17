@@ -21,6 +21,7 @@ export enum TASKS_VIEW {
   TABLE = "t",
   LIST = "l",
   BOARD = "b",
+  DOCUMENTS = "d",
 }
 
 export enum CONTACTS_VIEW {

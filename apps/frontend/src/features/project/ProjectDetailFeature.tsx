@@ -32,6 +32,7 @@ import {
   User2Icon,
   FileText,
 } from "lucide-react";
+import { useGetDocumentsByProjectQuery, useCreateDocumentMutation, useDeleteDocumentMutation } from '@shared/api/documentsApi';
 import {
   useDeleteProjectMutation,
   useGetProjectByIdQuery,
@@ -298,7 +299,6 @@ function HeaderBottom() {
 function ViewSection() {
   const context = useContext(ProjectDetailContext);
   const project_id = context?.id;
-  const navigate = useNavigate();
   const [view, setView] = useState<TASKS_VIEW>(TASKS_VIEW.BOARD);
   return (
     <>
@@ -312,9 +312,9 @@ function ViewSection() {
           <span>Таблица</span>
         </Button>
         <Button 
-          onClick={() => navigate(`/${ROUTES.PROJECTS}/${project_id}/${ROUTES.DOCUMENTS}`)} 
+          onClick={() => setView(TASKS_VIEW.DOCUMENTS)} 
           size={"sm"} 
-          variant="ghost"
+          variant={view === TASKS_VIEW.DOCUMENTS ? "outline" : "ghost"}
         >
           <FileText />
           <span>Документы</span>
@@ -324,8 +324,97 @@ function ViewSection() {
         <Suspense fallback={<div>Загрузка...</div>}>
           {view === TASKS_VIEW.BOARD && <TasksListBoardPage />}
           {view === TASKS_VIEW.TABLE && <TasksListTablePage />}
+          {view === TASKS_VIEW.DOCUMENTS && <DocumentsView projectId={project_id || ""} />}
         </Suspense>
       </div>
     </>
+  );
+}
+
+function DocumentsView({ projectId }: { projectId: string }) {
+  const navigate = useNavigate();
+  const { data: documents = [], isLoading } = useGetDocumentsByProjectQuery(projectId);
+  const [createDocument] = useCreateDocumentMutation();
+  const [deleteDocument] = useDeleteDocumentMutation();
+
+  const handleCreateDocument = async () => {
+    try {
+      const newDoc = await createDocument({
+        projectId,
+        title: 'Untitled',
+      }).unwrap();
+      navigate(`/projects/${projectId}/documents/${newDoc.document_id}`);
+    } catch (error) {
+      console.error('Failed to create document:', error);
+    }
+  };
+
+  const handleDeleteDocument = async (documentId: string) => {
+    if (window.confirm('Are you sure you want to delete this document?')) {
+      try {
+        await deleteDocument(documentId).unwrap();
+      } catch (error) {
+        console.error('Failed to delete document:', error);
+      }
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-8">Loading documents...</div>;
+  }
+
+  return (
+    <div className="p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold">Documents</h2>
+          <Button onClick={handleCreateDocument}>
+            <FileText className="w-4 h-4 mr-2" />
+            New Document
+          </Button>
+        </div>
+
+        {documents.length === 0 ? (
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No documents yet</h3>
+            <p className="text-gray-500 mb-4">Get started by creating your first document</p>
+            <Button onClick={handleCreateDocument}>
+              <FileText className="w-4 h-4 mr-2" />
+              Create Document
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {documents.map((doc) => (
+              <div
+                key={doc.document_id}
+                onClick={() => navigate(`/projects/${projectId}/documents/${doc.document_id}`)}
+                className="block p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow cursor-pointer group"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    {doc.icon && <span className="text-2xl">{doc.icon}</span>}
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{doc.title}</h3>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDocument(doc.document_id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                  >
+                    <TrashIcon className="w-4 h-4 text-gray-400" />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Updated {new Date(doc.updated_at).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 } 
